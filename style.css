@@ -1,0 +1,237 @@
+
+:root{
+  --bg:#f5f3ef;
+  --text:#2A211A;
+  --text-dim:#5B4E43;
+  --text-faint:#6B5D50;
+  --primary:#5B4638;
+  --primary-soft:rgba(91,70,56,.10);
+  --primary-soft-2:rgba(91,70,56,.17);
+  --shadow-d:#dad5cb;
+  --shadow-l:#ffffff;
+  --line:rgba(42,33,26,.09);
+  --warn:#9c4a35;
+  --warn-soft:rgba(156,74,53,.11);
+  --good:#4d6a41;
+  --good-soft:rgba(77,106,65,.12);
+  --chart-2:#a3897a;
+  --chart-3:#c9c1b6;
+  --on-primary:#fdfcfa;
+  --knob-shadow:rgba(42,33,26,.28);
+  /* Shared neumorphic "raised" shadow at each depth used across the app, so a tuning pass
+     only has to change the value once instead of finding every class that hard-coded it. */
+  --shadow-raised-xxs:3px 3px 7px var(--shadow-d),-3px -3px 7px var(--shadow-l);
+  --shadow-raised-xs:4px 4px 9px var(--shadow-d),-4px -4px 9px var(--shadow-l);
+  --shadow-raised-sm:5px 5px 11px var(--shadow-d),-5px -5px 11px var(--shadow-l);
+  --shadow-raised-md:7px 7px 15px var(--shadow-d),-7px -7px 15px var(--shadow-l);
+  --shadow-pressed-xs:inset 3px 3px 7px var(--shadow-d),inset -3px -3px 7px var(--shadow-l);
+  --shadow-pressed-sm:inset 4px 4px 9px var(--shadow-d),inset -4px -4px 9px var(--shadow-l);
+}
+/* Modo escuro — mesmo par de sombras "raised/pressed" reaproveitado; só a paleta muda.
+   O atributo é setado o mais cedo possível (script inline no <head>, antes deste CSS
+   carregar) para não piscar claro antes de aplicar a preferência salva; app.js mantém
+   isto sincronizado depois de carregado. */
+html[data-theme="dark"]{
+  --bg:#211d1a;
+  --text:#F1EAE1;
+  --text-dim:#C7BBAC;
+  --text-faint:#9A8D7D;
+  --primary:#D9B98F;
+  --primary-soft:rgba(217,185,143,.14);
+  --primary-soft-2:rgba(217,185,143,.24);
+  --shadow-d:#17140f;
+  --shadow-l:#2c2620;
+  --line:rgba(255,255,255,.08);
+  --warn:#e2917a;
+  --warn-soft:rgba(226,145,122,.16);
+  --good:#93c17f;
+  --good-soft:rgba(147,193,127,.14);
+  --chart-2:#b29a86;
+  --chart-3:#4c463d;
+  --on-primary:#261d12;
+  --knob-shadow:rgba(0,0,0,.5);
+}
+html[data-theme="dark"] body{background:#141210;}
+html[data-theme="dark"] .app-frame{box-shadow:0 0 1px rgba(0,0,0,.4);}
+@media (min-width:431px){
+  html[data-theme="dark"] .app-frame{box-shadow:0 30px 70px rgba(0,0,0,.55);}
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;height:100%;}
+body{background:#e7e3db;display:flex;align-items:flex-start;justify-content:center;padding:26px 0;font-family:'DM Sans',system-ui,sans-serif;transition:background-color .2s ease;}
+.serif{font-family:'Instrument Serif',Georgia,serif;}
+
+/* App shell: .screen fills .app-frame (defined further down) and scrolls internally —
+   width/height are intentionally 100% here, not a fixed mockup-preview size, so the shell
+   shrinks on viewports narrower than a phone instead of overflowing horizontally. */
+.app-frame{
+  width:100%;max-width:430px;margin:0 auto;height:100vh;background:var(--bg);
+  position:relative;overflow:hidden;
+  box-shadow:0 0 1px rgba(42,33,26,.15);
+}
+@media (min-width:431px){
+  .app-frame{box-shadow:0 30px 70px rgba(42,33,26,.22);}
+}
+.screen{
+  width:100%;height:100%;background:var(--bg);color:var(--text);
+  position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  opacity:1;transform:none;
+  transition:opacity .18s ease,transform .18s ease,background-color .2s ease,color .2s ease;
+}
+.screen[hidden]{display:none;}
+/* Crossfade classes toggled by showScreen() in app.js: the incoming screen starts
+   here and animates to the resting state above; the outgoing screen animates from
+   resting to here before being hidden. Kept as a simple fade + slight vertical drift
+   rather than a directional slide, since back/forward isn't tracked. */
+.screen.screen-enter{opacity:0;transform:translateY(10px);}
+.screen.screen-exit{opacity:0;transform:translateY(-10px);pointer-events:none;}
+
+.content{padding:26px 20px 118px;}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:26px 20px 4px;}
+.brandrow{display:flex;align-items:center;gap:9px;}
+.brandmark{width:26px;height:26px;border-radius:8px;background:var(--primary);display:flex;align-items:center;justify-content:center;color:var(--bg);font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-size:15px;flex:none;}
+.brandname{font-size:12.5px;font-weight:600;letter-spacing:.03em;color:var(--text-dim);text-transform:lowercase;}
+.avatar{width:44px;height:44px;border-radius:15px;background:var(--bg);box-shadow:var(--shadow-raised-xs);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--primary);cursor:pointer;transition:box-shadow .15s ease,transform .1s ease;}
+.avatar:active{box-shadow:var(--shadow-pressed-sm);transform:scale(.94);}
+.backrow{display:flex;align-items:center;gap:12px;padding:26px 20px 2px;}
+.iconbtn{width:44px;height:44px;border-radius:15px;background:var(--bg);box-shadow:var(--shadow-raised-xs);display:flex;align-items:center;justify-content:center;color:var(--text);flex:none;transition:box-shadow .15s ease,transform .1s ease;}
+.iconbtn svg{width:19px;height:19px;}
+.iconbtn:active{box-shadow:var(--shadow-pressed-sm);transform:scale(.94);}
+/* 40px min. side — was 32px, under the ~44px comfortable touch-target guideline; every call
+   site was already overriding it back up to 40px individually, so the default belongs here. */
+.tapicon{width:40px;height:40px;border-radius:14px;display:flex;align-items:center;justify-content:center;color:var(--text-faint);flex:none;transition:opacity .15s ease,transform .1s ease;}
+.tapicon svg{width:17px;height:17px;}
+.tapicon:active{opacity:.6;transform:scale(.92);}
+.crumb{font-size:12px;color:var(--text-faint);font-weight:500;}
+.pagetitle{font-size:23px;font-weight:700;letter-spacing:-.01em;margin:2px 0 0;}
+.raised{background:var(--bg);border-radius:20px;box-shadow:var(--shadow-raised-md);transition:box-shadow .15s ease,transform .1s ease;}
+.raised-sm{background:var(--bg);border-radius:15px;box-shadow:var(--shadow-raised-sm);transition:box-shadow .15s ease,transform .1s ease;}
+.pressed{background:var(--bg);border-radius:16px;box-shadow:var(--shadow-pressed-sm);transition:box-shadow .15s ease;}
+.pressed-pill{background:var(--bg);border-radius:999px;box-shadow:var(--shadow-pressed-xs);transition:box-shadow .15s ease;}
+.card{padding:20px;margin-bottom:16px;}
+.label{display:block;font-size:10.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);margin:0 0 10px;}
+.row{display:flex;align-items:center;gap:12px;}
+.between{display:flex;align-items:center;justify-content:space-between;}
+/* Tappable list rows and cards (e.g. dashboard summary rows, the urgent-notice banner)
+   use role="button" on a plain .row/.raised div rather than a dedicated component class,
+   so they get their touch feedback from these generic attribute-selector rules instead. */
+.row[role="button"],
+.raised[role="button"]{transition:opacity .15s ease,box-shadow .15s ease,transform .1s ease;}
+.row[role="button"]:active{opacity:.6;}
+.raised[role="button"]:active{transform:scale(.99);}
+.btn{border:none;font-family:'DM Sans',sans-serif;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:box-shadow .15s ease,transform .1s ease,opacity .15s ease;}
+.btn-primary{background:var(--primary);color:var(--on-primary);border-radius:16px;padding:16px;font-size:15px;box-shadow:7px 7px 15px rgba(91,70,56,.32),-3px -3px 9px rgba(255,255,255,.55);}
+.btn-primary:active{box-shadow:3px 3px 8px rgba(91,70,56,.32),-1px -1px 5px rgba(255,255,255,.55);transform:scale(.98) translateY(1px);}
+.btn-ghost{background:var(--bg);color:var(--text);border-radius:16px;padding:14px;font-size:13.5px;box-shadow:var(--shadow-raised-sm);}
+.btn-ghost:active{box-shadow:var(--shadow-pressed-sm);transform:scale(.98);}
+.btn-text{background:none;color:var(--warn);font-size:13.5px;font-weight:600;padding:6px 0;}
+.btn-text:active{opacity:.6;}
+.btn[disabled]{opacity:.45;pointer-events:none;}
+.field{padding:14px 16px;margin-bottom:14px;}
+.field .label{margin-bottom:6px;}
+.field input, .field .val{border:none;background:none;outline:none;font-family:'DM Sans',sans-serif;font-size:14.5px;color:var(--text);width:100%;padding:0;}
+.field:focus-within{box-shadow:var(--shadow-pressed-sm),0 0 0 2px var(--primary);}
+.field input::placeholder{color:var(--text-faint);}
+.pill{padding:11px 16px;border-radius:999px;font-size:12.5px;font-weight:600;color:var(--text-dim);white-space:nowrap;cursor:pointer;transition:box-shadow .15s ease,color .15s ease,transform .1s ease;}
+.pill.active{color:var(--primary);background:var(--bg);box-shadow:var(--shadow-raised-xxs);}
+.pill:active{transform:scale(.96);}
+.badge{font-size:10px;font-weight:700;padding:3px 8px;border-radius:999px;}
+.badge.warn{background:var(--warn-soft);color:var(--warn);}
+.badge.good{background:var(--good-soft);color:var(--good);}
+.badge.primary{background:var(--primary-soft-2);color:var(--primary);}
+.navbar{position:sticky;bottom:0;height:96px;padding:12px 12px 30px;background:var(--bg);box-shadow:0 -10px 22px var(--shadow-d),0 -1px 0 var(--shadow-l);display:flex;justify-content:space-between;align-items:center;}
+.navitem{display:flex;flex-direction:column;align-items:center;gap:5px;width:58px;color:var(--text-faint);font-size:10px;font-weight:500;cursor:pointer;transition:color .15s ease;}
+.navitem.active{color:var(--primary);font-weight:700;}
+.navitem .icwrap{width:42px;height:42px;border-radius:14px;display:flex;align-items:center;justify-content:center;transition:box-shadow .15s ease,transform .1s ease;}
+.navitem.active .icwrap{box-shadow:var(--shadow-pressed-xs);}
+.navitem:active .icwrap{transform:scale(.9);}
+.navitem svg{width:20px;height:20px;}
+.stepper{display:flex;align-items:center;gap:8px;padding:0 20px 18px;}
+.step-dot{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex:none;}
+.step-dot.done{background:var(--primary);color:var(--on-primary);}
+.step-dot.active{background:var(--bg);color:var(--primary);box-shadow:inset 3px 3px 6px var(--shadow-d),inset -3px -3px 6px var(--shadow-l);border:1.5px solid var(--primary);}
+.step-dot.pending{background:var(--bg);color:var(--text-faint);box-shadow:var(--shadow-raised-xxs);}
+.step-line{flex:1;height:2px;background:var(--line);}
+.step-line.done{background:var(--primary);opacity:.4;}
+/* Shared "you haven't created anything here yet" state — see emptyStateHTML() in app.js.
+   Reserved for true first-run zero-states; a zero-result search/filter uses a plain one-line
+   message instead so it doesn't get inflated into a fake dead end. */
+.emptystate{text-align:center;padding:34px 16px 18px;}
+.emptystate-icon{width:52px;height:52px;border-radius:18px;background:var(--bg);box-shadow:var(--shadow-raised-sm);display:flex;align-items:center;justify-content:center;color:var(--text-faint);margin:0 auto 16px;}
+.emptystate-icon svg{width:22px;height:22px;}
+.emptystate-title{font-size:13.5px;font-weight:700;color:var(--text-dim);margin-bottom:6px;}
+.emptystate-sub{font-size:12px;color:var(--text-faint);line-height:1.5;max-width:260px;margin:0 auto;}
+.quote{font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-size:16px;line-height:1.4;color:var(--text-dim);}
+.divider{height:1px;background:var(--line);margin:14px 0;}
+a{color:var(--primary);}
+a:hover{color:#42332a;}
+
+[role="button"]{cursor:pointer;}
+[role="switch"]{cursor:pointer;}
+
+@media (prefers-reduced-motion: reduce){
+  .raised,.raised-sm,.pressed,.pressed-pill,.btn,.pill,.iconbtn,.tapicon,
+  .navitem,.navitem .icwrap,.row[role="button"],.raised[role="button"]{
+    transition-duration:.001ms !important;
+  }
+  /* Screen crossfade is skipped entirely in app.js when this preference is set
+     (it swaps .hidden instantly instead), so no override is needed here. */
+}
+
+/* ---------- Layout de computador (>=900px) ----------
+   Abaixo disto o app continua sendo o cartão de celular centralizado (com a barra de
+   abas grudada embaixo). A partir daqui, sem duplicar telas nem mudar a lógica de
+   navegação em app.js, a mesma barra de abas vira uma coluna lateral fixa e cada tela
+   passa a usar CSS Grid pra posicionar cabeçalho (.topbar/.backrow) e conteúdo (.content)
+   à direita dela — os elementos continuam os mesmos, só a área de cada um muda. */
+@media (min-width:900px){
+  body{padding:40px 24px;align-items:center;}
+  .app-frame{
+    max-width:1280px;height:min(880px,calc(100vh - 80px));border-radius:28px;
+    box-shadow:0 40px 90px rgba(42,33,26,.24);
+  }
+  html[data-theme="dark"] .app-frame{box-shadow:0 40px 90px rgba(0,0,0,.6);}
+
+  .screen{display:grid;grid-template-columns:104px minmax(0,1fr);grid-template-rows:auto 1fr;overflow:hidden;}
+
+  .topbar,.backrow{grid-column:2;grid-row:1;max-width:760px;width:100%;margin:0 auto;box-sizing:border-box;}
+  .content{
+    grid-column:2;grid-row:2;max-width:760px;width:100%;margin:0 auto;box-sizing:border-box;
+    overflow-y:auto;height:100%;padding-bottom:48px;
+  }
+
+  /* Mesma barra de navegação do celular, só reorientada: de faixa horizontal grudada
+     embaixo pra coluna vertical grudada à esquerda, ocupando a altura toda da tela. */
+  .navbar{
+    grid-column:1;grid-row:1 / -1;position:static;height:100%;
+    flex-direction:column;justify-content:flex-start;gap:30px;
+    padding:36px 8px 24px;box-shadow:8px 0 20px var(--shadow-d),-2px 0 10px var(--shadow-l);
+  }
+
+  /* Login e criação de conta não têm barra lateral — o conteúdo ocupa a tela toda e
+     fica centralizado, como uma página de entrada, em vez de colado à esquerda. */
+  .screen[data-screen="login"] .content{
+    grid-column:1 / -1;grid-row:1 / -1;max-width:420px;align-self:center;
+  }
+}
+
+@media print{
+  body{background:#fff;padding:0;}
+  .app-frame{box-shadow:none;max-width:100%;height:auto;}
+  .navbar,.topbar,.backrow{display:none !important;}
+  .screen{height:auto;overflow:visible;box-shadow:none;border-radius:0;}
+  .screen[hidden]{display:none;}
+}
+
+/* Visible keyboard focus — inputs suppress the native outline above (it clashes with the
+   pressed/raised neumorphic shells), so .field:focus-within supplies the ring for text fields
+   and this rule covers every other focusable control (custom role="button"/"switch" elements,
+   real buttons, links) that doesn't already get one from the browser default. */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+[role="button"]:focus-visible,
+[role="switch"]:focus-visible{
+  outline:2px solid var(--primary);
+  outline-offset:2px;
+}
