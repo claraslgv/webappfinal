@@ -4,123 +4,198 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ateliê parágrafo</title>
+  <title>.parágrafo</title>
   <script>
-    // Aplica o tema salvo antes do CSS pintar a tela, pra não piscar claro e trocar pra
-    // escuro logo em seguida. app.js mantém isto sincronizado no resto da sessão.
+    // Aplica o tema salvo antes do CSS pintar a tela, pra não piscar um tema e trocar pro
+    // outro logo em seguida. Sem preferência salva, cai no escuro — é o tema-padrão da marca
+    // (a própria .parágrafo vive num Cowhide Cocoa escuro). app.js mantém isto sincronizado
+    // no resto da sessão (ver setTema() e o switch em "mais").
     (function () {
       try {
         var tema = localStorage.getItem("pp_tema_v1");
-        document.documentElement.setAttribute("data-theme", tema === "escuro" ? "dark" : "light");
-      } catch (e) { }
+        document.documentElement.setAttribute("data-theme", tema === "claro" ? "light" : "dark");
+      } catch (e) {
+        document.documentElement.setAttribute("data-theme", "dark");
+      }
     })();
   </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet"
-    href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Instrument+Serif:ital@0;1&display=swap">
+    href="https://fonts.googleapis.com/css2?family=Abhaya+Libre:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600;700;800&display=swap">
   <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-  <div class="app-frame">
-    <div class="screen" data-screen="login">
 
-      <div class="content"
-        style="min-height:100%;display:flex;flex-direction:column;justify-content:center;padding:0 32px;box-sizing:border-box;">
-        <div style="display:flex;flex-direction:column;align-items:center;text-align:center;margin-bottom:44px;">
-          <div class="raised"
-            style="width:68px;height:68px;border-radius:22px;display:flex;align-items:center;justify-content:center;margin-bottom:18px;">
-            <span class="serif" style="font-style:italic;font-size:32px;color:var(--primary);">p</span>
-          </div>
-          <div class="brandname" style="font-size:13px;margin-bottom:14px;">ateliê parágrafo</div>
-          <div class="quote" style="font-size:23px;max-width:260px;">um descanso</div>
-        </div>
-
-        <div class="pressed field">
-          <label class="label" for="loginEmail">e-mail</label>
-          <input type="text" id="loginEmail" placeholder="ana@ateliedaana.com" />
-        </div>
-        <div class="pressed field between">
-          <div style="flex:1;">
-            <label class="label" for="loginSenha">senha</label>
-            <input type="password" id="loginSenha" placeholder="••••••••" />
-          </div>
-          <div class="tapicon" role="button" tabindex="0" aria-label="Mostrar senha"><svg viewBox="0 0 24 24"
-              fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M1.5 12S5 5.5 12 5.5 22.5 12 22.5 12 19 18.5 12 18.5 1.5 12 1.5 12z" />
-              <circle cx="12" cy="12" r="3" />
-            </svg></div>
-        </div>
-
-        <div style="font-size:12px;color:var(--warn);font-weight:600;margin:-6px 4px 12px;text-align:center;"
-          id="loginError" role="alert" hidden></div>
-
-        <button class="btn btn-primary" data-action="login-submit" style="width:100%;margin-top:8px;">Entrar</button>
-        <div style="text-align:center;margin-top:18px;font-size:13px;color:var(--text-dim);">
-          Primeira vez? <span role="button" tabindex="0" data-goto="criarConta"
-            style="font-weight:600;color:var(--primary);cursor:pointer;">Criar a conta da loja</span>
-        </div>
-
-        <div class="quote" style="text-align:center;margin-top:40px;font-size:15px;color:var(--text-faint);">
-          "Que bom te ver por aqui.<br />Vamos acender esse dia?"
-        </div>
-      </div>
-
+  <!-- ---------- Gradiente de boas-vindas — mesh de blobs em movimento lento, referência:
+       exemplo de footer animado do motion.dev (motion.dev/footers), cores trocadas pra
+       paleta da marca. Cobre a tela inteira (mobile e computador, é position:fixed e usa
+       vmax) por cima da troca #authView → .app-frame logo após o login/criar conta —
+       playWelcomeGradient() em app.js liga/desliga a classe "show" e troca as telas por
+       baixo enquanto ele está opaco, então a transição nunca aparece "crua". Decorativo e
+       sem interação: aria-hidden + pointer-events:none. ---------- -->
+  <div class="welcome-gradient" id="welcomeGradient" aria-hidden="true">
+    <span class="wg-blob wg-blob-1"></span>
+    <span class="wg-blob wg-blob-2"></span>
+    <span class="wg-blob wg-blob-3"></span>
+    <span class="wg-blob wg-blob-4"></span>
+    <div class="wg-mark">
+      <span class="wg-mark-dots"><span></span><span></span></span>
+      <span class="wg-mark-text">parágrafo</span>
     </div>
-    <div class="screen" data-screen="criarConta" hidden>
+  </div>
 
-      <div class="backrow">
-        <div class="iconbtn" role="button" tabindex="0" aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M19 12H5M11 18l-6-6 6-6" />
-          </svg></div>
-      </div>
-      <div class="content" style="padding:14px 32px 0;box-sizing:border-box;">
-        <div style="display:flex;flex-direction:column;align-items:center;text-align:center;margin-bottom:36px;">
-          <div class="raised"
-            style="width:60px;height:60px;border-radius:20px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;">
-            <span class="serif" style="font-style:italic;font-size:28px;color:var(--primary);">p</span>
-          </div>
-          <div class="pagetitle" style="font-size:21px;">Criar a conta da loja</div>
-        </div>
+  <!-- ---------- Alternador computador/celular — fixo no canto superior direito, fora de
+       #authView e .app-frame, pra ficar visível em qualquer tela. Força o layout mesmo
+       fora da largura real da janela (ver data-preview em style.css e setPreview() em
+       app.js), pra comparar os dois formatos sem precisar redimensionar o navegador. -->
+  <div class="devswitch" role="group" aria-label="Visualizar como">
+    <button type="button" class="devswitch-btn" data-preview-set="desktop" aria-pressed="false"
+      aria-label="Visualizar como computador" title="Computador">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+        stroke-linejoin="round">
+        <rect x="3" y="4" width="18" height="13" rx="2" />
+        <path d="M8 21h8" />
+        <path d="M12 17v4" />
+      </svg>
+    </button>
+    <button type="button" class="devswitch-btn" data-preview-set="mobile" aria-pressed="false"
+      aria-label="Visualizar como celular" title="Celular">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+        stroke-linejoin="round">
+        <rect x="7" y="2" width="10" height="20" rx="2.4" />
+        <path d="M11 18h2" />
+      </svg>
+    </button>
+  </div>
 
-        <div class="pressed field">
-          <label class="label" for="signupEmail">e-mail</label>
-          <input type="text" id="signupEmail" placeholder="ana@ateliedaana.com" />
-        </div>
-        <div class="pressed field">
-          <label class="label" for="signupSenha">senha</label>
-          <input type="password" id="signupSenha" placeholder="mínimo 6 caracteres" />
-        </div>
-        <div class="pressed field">
-          <label class="label" for="signupSenhaConfirm">confirmar senha</label>
-          <input type="password" id="signupSenhaConfirm" placeholder="repita a senha" />
-        </div>
-
-        <div style="font-size:12px;color:var(--warn);font-weight:600;margin:-4px 4px 14px;text-align:center;"
-          id="signupError" role="alert" hidden></div>
-
-        <button class="btn btn-primary" data-action="signup-submit"
-          style="width:100%;margin-top:2px;margin-bottom:16px;">Criar conta e entrar</button>
-
-        <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;text-align:center;">A conta fica salva
-          neste aparelho — sem sincronizar com outros por enquanto.</div>
-      </div>
-
+  <!-- ---------- Login / criar conta — tela cheia, fora do cartão do app ---------- -->
+  <div id="authView">
+    <div class="auth-bg-wg" aria-hidden="true">
+      <span class="wg-blob wg-blob-1"></span>
+      <span class="wg-blob wg-blob-2"></span>
+      <span class="wg-blob wg-blob-3"></span>
+      <span class="wg-blob wg-blob-4"></span>
     </div>
-    <div class="screen" data-screen="dashboard" hidden>
+    <div class="auth-row">
 
-      <div class="topbar">
-        <div class="brandrow">
-          <div class="brandmark">p</div>
-          <div class="brandname">.parágrafo</div>
+      <div class="auth-brand">
+        <div class="auth-wordmark">
+          <span class="auth-wordmark-dots"><span></span><span></span></span>
+          <span class="auth-wordmark-text">parágrafo</span>
         </div>
-        <div class="avatar" data-goto="mais" role="button" tabindex="0" aria-label="Perfil">A</div>
+        <p class="auth-tagline">o aplicativo por trás da pausa — a ferramenta que sustenta, nos bastidores, a mesma
+          energia autoral do ateliê.</p>
+        <p class="auth-footnote">ACESSO EXCLUSIVO DA EQUIPE · ATELIÊ .PARÁGRAFO</p>
       </div>
-      <div class="content">
-        <div class="between" style="align-items:flex-start;margin-bottom:22px;">
+
+      <div class="auth-panel">
+        <div class="auth-panel-inner">
+
+          <!-- ===== Entrar ===== -->
+          <div class="auth-screen" data-authscreen="login">
+            <form class="auth-form" data-action="login-submit">
+              <div class="auth-field">
+                <label class="auth-field-label" for="loginEmail">E-mail</label>
+                <input class="auth-input" type="email" id="loginEmail" name="email" autocomplete="email"
+                  placeholder="voce@paragrafo.com">
+              </div>
+              <div class="auth-field">
+                <span class="auth-field-label">Senha<button type="button" class="auth-forgot"
+                    data-action="auth-forgot">Esqueci</button></span>
+                <div class="auth-eyewrap">
+                  <input class="auth-input" type="password" id="loginSenha" name="senha"
+                    autocomplete="current-password" placeholder="••••••••">
+                  <button type="button" class="auth-eye" data-toggle-senha="loginSenha" aria-label="Mostrar senha">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+                      stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M1.5 12S5 5.5 12 5.5 22.5 12 22.5 12 19 18.5 12 18.5 1.5 12 1.5 12z" />
+                      <circle cx="12" cy="12" r="3" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              <div class="auth-error" id="loginError" role="alert" hidden></div>
+              <button type="button" class="auth-check-row" data-action="toggle-lembrar" aria-pressed="true"
+                id="loginLembrarRow">
+                <span class="auth-checkbox" id="loginLembrarCheck">✓</span>
+                <span class="auth-check-label">Manter conectado neste dispositivo</span>
+              </button>
+              <button type="submit" class="auth-submit">Entrar no painel</button>
+            </form>
+            <p class="auth-switch">Ainda não tem acesso? <button type="button" class="auth-switch-btn"
+                data-goto-auth="criarConta">Criar conta</button></p>
+          </div>
+
+          <!-- ===== Criar conta ===== -->
+          <div class="auth-screen" data-authscreen="criarConta" hidden>
+            <form class="auth-form" data-action="signup-submit">
+              <div class="auth-field">
+                <label class="auth-field-label" for="signupNome">Nome</label>
+                <input class="auth-input" type="text" id="signupNome" name="nome" autocomplete="name"
+                  placeholder="Como te chamamos">
+              </div>
+              <div class="auth-field">
+                <label class="auth-field-label" for="signupEmail">E-mail</label>
+                <input class="auth-input" type="email" id="signupEmail" name="email" autocomplete="email"
+                  placeholder="voce@paragrafo.com">
+              </div>
+              <div class="auth-field">
+                <span class="auth-field-label">Senha</span>
+                <div class="auth-eyewrap">
+                  <input class="auth-input" type="password" id="signupSenha" name="senha"
+                    autocomplete="new-password" placeholder="••••••••">
+                  <button type="button" class="auth-eye" data-toggle-senha="signupSenha" aria-label="Mostrar senha">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+                      stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M1.5 12S5 5.5 12 5.5 22.5 12 22.5 12 19 18.5 12 18.5 1.5 12 1.5 12z" />
+                      <circle cx="12" cy="12" r="3" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              <div class="auth-field">
+                <label class="auth-field-label" for="signupSenhaConfirm">Confirmar senha</label>
+                <input class="auth-input" type="password" id="signupSenhaConfirm" name="senha2"
+                  autocomplete="new-password" placeholder="••••••••">
+              </div>
+              <div class="auth-error" id="signupError" role="alert" hidden></div>
+              <button type="button" class="auth-check-row" data-action="toggle-aceite" aria-pressed="false"
+                id="signupAceiteRow">
+                <span class="auth-checkbox" id="signupAceiteCheck"></span>
+                <span class="auth-check-label">Aceito as regras internas de uso</span>
+              </button>
+              <button type="submit" class="auth-submit">Criar conta</button>
+            </form>
+            <p class="auth-switch">Já tem acesso? <button type="button" class="auth-switch-btn"
+                data-goto-auth="login">Entrar</button></p>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ---------- App: cartão de celular, dashboard e telas ligadas a ele ---------- -->
+  <div class="app-frame" hidden>
+
+    <div class="screen" data-screen="dashboard">
+      <!-- Bloco "hero" — cor sólida da marca (Spiced Wine) + texto creme, tira dos 7 dias
+           da semana com hoje em destaque. Ver o repin de --bg/--text/etc. pra esta tela em
+           style.css (mesma lógica de #authView: ignora o toggle claro/escuro). -->
+      <div class="dash-hero">
+        <div class="topbar">
+          <div class="brandrow">
+            <div class="brandmark">p</div>
+            <div class="brandname">.parágrafo</div>
+          </div>
+          <div class="avatar" data-goto="mais" role="button" tabindex="0" aria-label="Perfil" id="dashAvatar">A</div>
+        </div>
+        <div class="dash-hero-greetrow">
           <div>
-            <div class="serif" style="font-style:italic;font-size:26px;">Bom dia, Clara</div>
-            <div style="font-size:12.5px;color:var(--text-dim);margin-top:3px;">quarta, 24 de agosto</div>
+            <div class="serif dash-hero-greet" id="dashSaudacao">Bom dia</div>
+            <div class="dash-hero-date" id="dashDataHoje">—</div>
           </div>
           <div class="iconbtn" style="position:relative;" role="button" tabindex="0" data-action="go-reposicao"
             id="dashAvisosBtn" aria-label="Avisos urgentes, 0 pendentes, em ordem de prioridade">
@@ -130,13 +205,30 @@
                 d="M12 17c-4.4 0-6.6 0-6.6-1.4 0-1.4 1.7-1.3 1.7-4.9C7.1 7.5 8.9 5 12 5s4.9 2.5 4.9 5.7c0 3.6 1.7 3.5 1.7 4.9C18.6 17 16.4 17 12 17z" />
               <path d="M10.3 19.5a1.8 1.8 0 0 0 3.4 0" />
             </svg>
-            <div id="dashAvisosBadge" hidden
-              style="position:absolute;top:-4px;right:-4px;background:var(--warn);color:#fff;font-size:9px;font-weight:800;width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;">
-              0</div>
+            <div id="dashAvisosBadge" class="avisos-badge" hidden>0</div>
           </div>
         </div>
+        <div class="dash-hero-week" id="dashSemanaStrip"></div>
+      </div>
+      <div class="content">
 
-        <div class="raised" role="button" tabindex="0" data-action="go-reposicao" id="dashUrgentBanner"
+        <div class="skel-overlay" aria-hidden="true" hidden>
+          <div class="skel-block" style="height:150px;"></div>
+          <div style="display:flex;gap:9px;">
+            <div class="skel-block" style="height:34px;flex:1;border-radius:12px;"></div>
+            <div class="skel-block" style="height:34px;flex:1;border-radius:12px;"></div>
+            <div class="skel-block" style="height:34px;flex:1;border-radius:12px;"></div>
+          </div>
+          <div class="skel-block" style="height:96px;"></div>
+          <div style="display:flex;gap:12px;">
+            <div class="skel-block" style="height:84px;flex:1;"></div>
+            <div class="skel-block" style="height:84px;flex:1;"></div>
+          </div>
+          <div class="skel-block" style="height:58px;border-radius:15px;"></div>
+          <div class="skel-block" style="height:170px;"></div>
+        </div>
+
+        <div class="raised dash-area-urgent" role="button" tabindex="0" data-action="go-reposicao" id="dashUrgentBanner"
           aria-label="Ver todos os avisos, em ordem de prioridade" hidden
           style="padding:13px 16px;display:flex;align-items:center;gap:11px;margin-bottom:18px;">
           <div class="badge warn" style="flex:none;">urgente</div>
@@ -146,95 +238,52 @@
             <span id="dashUrgentMoreCount"></span><svg viewBox="0 0 24 24" width="13" height="13" fill="none"
               stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
               <path d="m9 6 6 6-6 6" />
-            </svg></div>
+            </svg>
+          </div>
         </div>
 
-        <div class="raised card">
+        <div class="raised card dash-resumo dash-area-resumo">
           <div class="between" style="margin-bottom:12px;">
             <div class="label" style="margin:0;">resumo de hoje</div>
-            <div style="font-size:11px;color:var(--text-faint);">quarta, 24/08</div>
+            <div class="dash-meta" id="dashResumoData">—</div>
           </div>
-          <div class="row" role="button" tabindex="0" style="padding:8px 0;border-bottom:1px solid var(--line);">
-            <div class="raised-sm"
-              style="width:32px;height:32px;border-radius:11px;display:flex;align-items:center;justify-content:center;color:var(--primary);flex:none;">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"
-                stroke-linejoin="round">
-                <path
-                  d="M12 3c-3 4-5.2 6.4-5.2 9.4A5.2 5.2 0 0 0 12 21a5.2 5.2 0 0 0 5.2-5.2c0-1.2-.4-2.1-1.1-2.8.1 1-.3 2-1.1 2.5.4-2.1-1-3.6-3-6.5z" />
-              </svg></div>
-            <div style="flex:1;">
-              <div style="font-size:13px;font-weight:600;">produção</div>
-              <div style="font-size:11.5px;color:var(--text-faint);margin-top:1px;">1 lote · 24 velas de Pera e Fresia
-              </div>
-            </div>
-            <div style="color:var(--text-faint);width:13px;height:13px;flex:none;"><svg viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-                <path d="m9 6 6 6-6 6" />
-              </svg></div>
+          <div id="dashResumoList"></div>
+        </div>
+
+        <div class="row dash-area-periodo" style="gap:9px;margin-bottom:8px;" id="dashPeriodoPills">
+          <div class="pill active" style="flex:1;text-align:center;" data-periodo="7" role="button" tabindex="0"
+            aria-pressed="true">7 dias</div>
+          <div class="pill" style="flex:1;text-align:center;" data-periodo="30" role="button" tabindex="0"
+            aria-pressed="false">30 dias</div>
+          <div class="pill" style="flex:1;text-align:center;" data-periodo="custom" role="button" tabindex="0"
+            aria-pressed="false">personalizado</div>
+        </div>
+        <div class="row dash-area-periodo2" style="gap:9px;margin-bottom:20px;" id="dashPeriodoCustomWrap" hidden>
+          <div class="pressed field" style="flex:1;margin-bottom:0;">
+            <label class="label" for="dashPeriodoInicio">de</label>
+            <input type="date" id="dashPeriodoInicio" />
           </div>
-          <div class="row" role="button" tabindex="0" style="padding:8px 0;border-bottom:1px solid var(--line);">
-            <div class="raised-sm"
-              style="width:32px;height:32px;border-radius:11px;display:flex;align-items:center;justify-content:center;color:var(--primary);flex:none;">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"
-                stroke-linejoin="round">
-                <rect x="4" y="4" width="16" height="5" rx="1.2" />
-                <rect x="4" y="11" width="16" height="9" rx="1.2" />
-                <path d="M9 15h6" />
-              </svg></div>
-            <div style="flex:1;">
-              <div style="font-size:13px;font-weight:600;">insumos</div>
-              <div style="font-size:11.5px;color:var(--text-faint);margin-top:1px;">entrada: cera de soja +5 kg</div>
-            </div>
-            <div style="color:var(--text-faint);width:13px;height:13px;flex:none;"><svg viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-                <path d="m9 6 6 6-6 6" />
-              </svg></div>
-          </div>
-          <div class="row" role="button" tabindex="0" style="padding:8px 0;">
-            <div class="raised-sm"
-              style="width:32px;height:32px;border-radius:11px;display:flex;align-items:center;justify-content:center;color:var(--primary);flex:none;">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"
-                stroke-linejoin="round">
-                <path d="M6 8h12l1 12H5L6 8z" />
-                <path d="M9 8V6a3 3 0 0 1 6 0v2" />
-              </svg></div>
-            <div style="flex:1;">
-              <div style="font-size:13px;font-weight:600;">vendas</div>
-              <div style="font-size:11.5px;color:var(--text-faint);margin-top:1px;">3 vendas · R$ 340,00</div>
-            </div>
-            <div style="color:var(--text-faint);width:13px;height:13px;flex:none;"><svg viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-                <path d="m9 6 6 6-6 6" />
-              </svg></div>
+          <div class="pressed field" style="flex:1;margin-bottom:0;">
+            <label class="label" for="dashPeriodoFim">até</label>
+            <input type="date" id="dashPeriodoFim" />
           </div>
         </div>
 
-        <!-- Flat pill row, matching the period filter in Vendas → Histórico (same "escolha um
-       período" idiom) rather than the segmented-track style used for form pickers. -->
-        <div style="display:flex;gap:9px;margin-bottom:20px;">
-          <div class="pill active" style="flex:1;text-align:center;">7 dias</div>
-          <div class="pill" style="flex:1;text-align:center;">30 dias</div>
-          <div class="pill" style="flex:1;text-align:center;">personalizado</div>
-        </div>
-
-        <!-- Hero metric: lucro líquido real is the one number this dashboard should lead with,
-       so it gets the same "stat on primary background" treatment used in Custos, sized up
-       and placed first — everything below is secondary at a glance. -->
-        <div class="raised card" style="background:var(--primary);margin-bottom:12px;">
+        <div class="raised card dash-area-lucro" style="background:var(--primary);margin-bottom:12px;">
           <div
-            style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:rgba(253,252,250,.7);margin-bottom:8px;">
+            style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--on-primary);opacity:.7;margin-bottom:8px;">
             lucro líquido real</div>
           <div style="font-size:30px;font-weight:800;letter-spacing:-.01em;color:var(--on-primary);"
             id="dashLucroLiquido">R$ 0,00</div>
-          <div style="font-size:11px;color:rgba(253,252,250,.6);margin-top:6px;">este mês · vem de Custos, já rateado
-          </div>
+          <div style="font-size:11px;color:var(--on-primary);opacity:.6;margin-top:6px;" id="dashLucroSub">vem de
+            Custos, já rateado</div>
         </div>
 
-        <div style="display:flex;gap:12px;margin-bottom:12px;">
+        <div class="dash-area-metrics" style="display:flex;gap:12px;margin-bottom:12px;">
           <div class="raised-sm" style="padding:16px;flex:1;">
             <div class="label" style="margin-bottom:8px;">total de vendas</div>
             <div style="font-size:18px;font-weight:700;letter-spacing:-.01em;" id="dashTotalVendas">R$ 0,00</div>
-            <div style="font-size:11px;color:var(--text-faint);margin-top:6px;">este mês · antes de cupons</div>
+            <div style="font-size:11px;color:var(--text-faint);margin-top:6px;">no período · antes de cupons</div>
           </div>
           <div class="raised-sm" style="padding:16px;flex:1;">
             <div class="label" style="margin-bottom:8px;">receita real</div>
@@ -243,15 +292,15 @@
           </div>
         </div>
 
-        <div class="raised-sm between" style="padding:14px 16px;margin-bottom:8px;">
+        <div class="raised-sm between dash-area-produzido" style="padding:14px 16px;margin-bottom:8px;">
           <div>
             <div class="label" style="margin-bottom:4px;">produzido</div>
-            <div style="font-size:11px;color:var(--text-faint);">2 lotes · 3 variações</div>
+            <div style="font-size:11px;color:var(--text-faint);" id="dashProduzidoSub">—</div>
           </div>
-          <div style="font-size:18px;font-weight:700;letter-spacing:-.01em;">40 velas</div>
+          <div style="font-size:18px;font-weight:700;letter-spacing:-.01em;" id="dashProduzidoQtd">0 velas</div>
         </div>
 
-        <div class="row" role="button" tabindex="0"
+        <div class="row dash-area-report" role="button" tabindex="0" data-action="toast-em-breve"
           style="justify-content:center;gap:6px;padding:2px 0 6px;margin-bottom:6px;color:var(--primary);font-size:12.5px;font-weight:600;">
           ver relatório completo do período
           <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"
@@ -260,2467 +309,94 @@
           </svg>
         </div>
 
-        <div class="raised card" style="margin-top:16px;">
+        <div class="raised card dash-area-pizza" style="margin-top:16px;">
           <div class="between" style="margin-bottom:14px;">
-            <div class="label" style="margin:0;">vendas por variação</div>
-            <div style="font-size:11px;color:var(--text-faint);">17 un</div>
+            <div class="label" style="margin:0;">velas vendidas por variação</div>
+            <div style="font-size:11px;color:var(--text-faint);" id="dashPizzaTotal">0 un</div>
           </div>
-          <div style="display:flex;align-items:center;gap:20px;">
-            <div
-              style="position:relative;width:100px;height:100px;flex:none;border-radius:50%;background:conic-gradient(var(--primary) 0deg 169.4deg,var(--chart-2) 169.4deg 275.3deg,var(--shadow-d) 275.3deg 360deg);box-shadow:var(--shadow-raised-xs);">
-              <div
-                style="position:absolute;inset:15px;border-radius:50%;background:var(--bg);box-shadow:var(--shadow-pressed-xs);display:flex;flex-direction:column;align-items:center;justify-content:center;">
-                <div style="font-size:16px;font-weight:800;letter-spacing:-.01em;">17</div>
-                <div style="font-size:10px;color:var(--text-faint);">un</div>
-              </div>
-            </div>
-            <div style="display:flex;flex-direction:column;gap:9px;flex:1;">
-              <div class="between"><span style="display:flex;align-items:center;gap:8px;font-size:13px;"><span
-                    style="width:8px;height:8px;border-radius:50%;background:var(--primary);"></span>Pera e
-                  Fresia</span><span style="font-size:13px;font-weight:600;">8 un</span></div>
-              <div class="between"><span style="display:flex;align-items:center;gap:8px;font-size:13px;"><span
-                    style="width:8px;height:8px;border-radius:50%;background:var(--chart-2);"></span>Lavanda ·
-                  fosco</span><span style="font-size:13px;font-weight:600;">5 un</span></div>
-              <div class="between"><span style="display:flex;align-items:center;gap:8px;font-size:13px;"><span
-                    style="width:8px;height:8px;border-radius:50%;background:var(--shadow-d);"></span>Outras</span><span
-                  style="font-size:13px;font-weight:600;">4 un</span></div>
-            </div>
-          </div>
+          <div id="dashPizzaWrap"></div>
         </div>
-      </div>
-      <div class="navbar">
-        <div class="navitem active" data-nav="inicio" role="button" tabindex="0" aria-label="Início">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path d="M4 11.5 12 4l8 7.5" />
-              <path d="M6 10v9a1 1 0 0 0 1 1h3v-6h4v6h3a1 1 0 0 0 1-1v-9" />
-            </svg></div><span>Início</span>
-        </div>
-        <div class="navitem" data-nav="estoque" role="button" tabindex="0" aria-label="Estoque">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <rect x="4" y="4" width="16" height="5" rx="1.2" />
-              <rect x="4" y="11" width="16" height="9" rx="1.2" />
-              <path d="M9 15h6" />
-            </svg></div><span>Estoque</span>
-        </div>
-        <div class="navitem" data-nav="producao" role="button" tabindex="0" aria-label="Produção">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path
-                d="M12 3c-3 4-5.2 6.4-5.2 9.4A5.2 5.2 0 0 0 12 21a5.2 5.2 0 0 0 5.2-5.2c0-1.2-.4-2.1-1.1-2.8.1 1-.3 2-1.1 2.5.4-2.1-1-3.6-3-6.5z" />
-            </svg></div><span>Produção</span>
-        </div>
-        <div class="navitem" data-nav="vendas" role="button" tabindex="0" aria-label="Vendas">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path d="M6 8h12l1 12H5L6 8z" />
-              <path d="M9 8V6a3 3 0 0 1 6 0v2" />
-            </svg></div><span>Vendas</span>
-        </div>
-        <div class="navitem" data-nav="mais" role="button" tabindex="0" aria-label="Mais">
-          <div class="icwrap"><svg viewBox="0 0 24 24">
-              <circle cx="6" cy="12" r="1.6" fill="currentColor" />
-              <circle cx="12" cy="12" r="1.6" fill="currentColor" />
-              <circle cx="18" cy="12" r="1.6" fill="currentColor" />
-            </svg></div><span>Mais</span>
+
+        <div class="reveal-footer" aria-hidden="true">
+          <span class="reveal-footer-mark">.parágrafo</span>
         </div>
       </div>
 
+      <div class="dock" id="dashDock" role="navigation" aria-label="Navegação principal"></div>
     </div>
-    <div class="screen" data-screen="estoque" hidden>
 
-      <div class="topbar">
-        <div class="brandrow">
-          <div class="brandmark">p</div>
-          <div class="brandname">ateliê parágrafo</div>
-        </div>
-        <div class="iconbtn" role="button" tabindex="0" aria-label="Cadastrar insumo" data-action="estoque-add"
-          id="estoqueAddBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"
-            stroke-linecap="round">
-            <path d="M12 5v14M5 12h14" />
-          </svg></div>
-      </div>
-      <div class="content" style="padding-top:8px;">
-        <div class="pagetitle" style="margin-bottom:16px;">Estoque</div>
-
-        <div style="display:flex;gap:9px;overflow-x:auto;margin-bottom:16px;padding-bottom:2px;">
-          <div class="pill active" data-esttab="insumos" role="button" tabindex="0" aria-pressed="true"
-            style="flex:none;">Insumos</div>
-          <div class="pill" data-esttab="velas" role="button" tabindex="0" aria-pressed="false" style="flex:none;">Velas
-          </div>
-          <div class="pill" data-esttab="soon" role="button" tabindex="0" aria-pressed="false" style="flex:none;">
-            Catálogo</div>
-          <div class="pill" data-esttab="reposicao" role="button" tabindex="0" aria-pressed="false"
-            style="flex:none;display:flex;align-items:center;gap:6px;">Reposição <span class="badge warn"
-              id="estReposicaoBadge" hidden style="padding:2px 6px;">0</span></div>
-        </div>
-
-        <div id="estoquePanelInsumos">
-          <div class="pressed field row" style="padding:12px 16px;margin-bottom:18px;">
-            <div style="color:var(--text-faint);width:17px;height:17px;"><svg viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="10.5" cy="10.5" r="6" />
-                <path d="m20 20-4.8-4.8" />
-              </svg></div>
-            <input type="text" id="estoqueSearchInput" placeholder="buscar insumo" aria-label="Buscar insumo" />
-          </div>
-
-          <div class="label" id="estoqueCount">insumos</div>
-
-          <div id="estoqueList"></div>
-
-          <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;margin-top:10px;text-align:center;">Custo
-            médio ponderado — atualiza sozinho a cada entrada de compra.</div>
-        </div>
-
-        <div id="estoquePanelVelas" hidden>
-          <div class="label" id="estoqueVelasCount">variações</div>
-
-          <div id="estoqueVelasList"></div>
-
-          <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;margin-top:10px;text-align:center;">Toque
-            numa variação pra ajustar o estoque. Cadastrar, renomear ou excluir variações é feito em Configurações.
-          </div>
-        </div>
-
-        <div id="estoquePanelReposicao" hidden>
-          <div class="label" id="estoqueReposicaoCount">itens abaixo do mínimo</div>
-
-          <div id="estoqueReposicaoList"></div>
-
-          <div class="raised card" style="margin-top:6px;">
-            <div class="label" style="margin-bottom:10px;">mandar aviso</div>
-            <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;margin-bottom:12px;">Usa os canais
-              ligados em Configurações → aviso de reposição por.</div>
-            <button class="btn btn-ghost" data-action="reposicao-notificar" style="width:100%;">Enviar aviso
-              agora</button>
-            <div style="font-size:11px;color:var(--text-faint);margin-top:10px;text-align:center;"
-              id="reposicaoNotifyStatus" role="status"></div>
-          </div>
-        </div>
-
-        <div id="estoquePanelSoon" hidden
-          style="text-align:center;padding:50px 12px;color:var(--text-faint);font-size:12.5px;line-height:1.6;">Em
-          construção.</div>
-      </div>
-      <div class="navbar">
-        <div class="navitem" data-nav="inicio" role="button" tabindex="0" aria-label="Início">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path d="M4 11.5 12 4l8 7.5" />
-              <path d="M6 10v9a1 1 0 0 0 1 1h3v-6h4v6h3a1 1 0 0 0 1-1v-9" />
-            </svg></div><span>Início</span>
-        </div>
-        <div class="navitem active" data-nav="estoque" role="button" tabindex="0" aria-label="Estoque">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <rect x="4" y="4" width="16" height="5" rx="1.2" />
-              <rect x="4" y="11" width="16" height="9" rx="1.2" />
-              <path d="M9 15h6" />
-            </svg></div><span>Estoque</span>
-        </div>
-        <div class="navitem" data-nav="producao" role="button" tabindex="0" aria-label="Produção">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path
-                d="M12 3c-3 4-5.2 6.4-5.2 9.4A5.2 5.2 0 0 0 12 21a5.2 5.2 0 0 0 5.2-5.2c0-1.2-.4-2.1-1.1-2.8.1 1-.3 2-1.1 2.5.4-2.1-1-3.6-3-6.5z" />
-            </svg></div><span>Produção</span>
-        </div>
-        <div class="navitem" data-nav="vendas" role="button" tabindex="0" aria-label="Vendas">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path d="M6 8h12l1 12H5L6 8z" />
-              <path d="M9 8V6a3 3 0 0 1 6 0v2" />
-            </svg></div><span>Vendas</span>
-        </div>
-        <div class="navitem" data-nav="mais" role="button" tabindex="0" aria-label="Mais">
-          <div class="icwrap"><svg viewBox="0 0 24 24">
-              <circle cx="6" cy="12" r="1.6" fill="currentColor" />
-              <circle cx="12" cy="12" r="1.6" fill="currentColor" />
-              <circle cx="18" cy="12" r="1.6" fill="currentColor" />
-            </svg></div><span>Mais</span>
-        </div>
-      </div>
-
-    </div>
-    <div class="screen" data-screen="estoqueForm" hidden>
-
-      <div class="backrow between">
-        <div class="row">
-          <div class="iconbtn" role="button" tabindex="0" aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M19 12H5M11 18l-6-6 6-6" />
-            </svg></div>
-          <div>
-            <div class="crumb">Estoque</div>
-            <div class="pagetitle" style="font-size:19px;margin-top:1px;" id="formTitle">Novo insumo</div>
-          </div>
-        </div>
-      </div>
-      <div class="content" style="padding-top:14px;">
-
-        <div class="pressed field">
-          <label class="label" for="formNome">nome do insumo</label>
-          <input type="text" id="formNome" placeholder="ex.: Cera de soja" />
-        </div>
-
-        <div class="raised card">
-          <div class="label">unidade de medida</div>
-          <div class="row" id="formUnitPills" style="gap:9px;flex-wrap:wrap;">
-            <div class="pressed-pill pill active" data-unit="kg" role="button" tabindex="0" aria-pressed="true"
-              style="padding:9px 15px;">kg</div>
-            <div class="pressed-pill pill" data-unit="g" role="button" tabindex="0" aria-pressed="false"
-              style="padding:9px 15px;">g</div>
-            <div class="pressed-pill pill" data-unit="ml" role="button" tabindex="0" aria-pressed="false"
-              style="padding:9px 15px;">ml</div>
-            <div class="pressed-pill pill" data-unit="L" role="button" tabindex="0" aria-pressed="false"
-              style="padding:9px 15px;">L</div>
-            <div class="pressed-pill pill" data-unit="un" role="button" tabindex="0" aria-pressed="false"
-              style="padding:9px 15px;">un</div>
-          </div>
-        </div>
-
-        <div id="formNewFields">
-          <div class="pressed field">
-            <label class="label" for="formQtd">quantidade inicial</label>
-            <div class="row">
-              <input type="text" id="formQtd" placeholder="0" style="flex:1;" />
-              <div style="font-size:14.5px;font-weight:600;color:var(--text-faint);" id="formQtdUnit">kg</div>
-            </div>
-          </div>
-          <div class="pressed field">
-            <label class="label" for="formCusto">custo estimado inicial (por unidade)</label>
-            <div class="row">
-              <div style="font-size:14.5px;font-weight:600;color:var(--text-faint);">R$</div>
-              <input type="text" id="formCusto" placeholder="0,00" style="flex:1;" />
-            </div>
-          </div>
-        </div>
-
-        <div id="formEditInfo" hidden>
-          <div class="raised card">
-            <div class="between" style="padding:10px 0;border-bottom:1px solid var(--line);">
-              <span style="font-size:13px;color:var(--text-faint);">em estoque</span>
-              <span style="font-size:13.5px;font-weight:700;" id="formInfoQtd">—</span>
-            </div>
-            <div class="between" style="padding:10px 0 0;">
-              <span style="font-size:13px;color:var(--text-faint);">custo médio ponderado</span>
-              <span style="font-size:13.5px;font-weight:700;" id="formInfoCusto">—</span>
-            </div>
-          </div>
-          <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;margin:-6px 4px 18px;">Quantidade e custo
-            só mudam por movimentações — registre uma entrada ou saída pra ajustá-los.</div>
-        </div>
-
-        <div class="pressed field">
-          <label class="label" for="formMinimo">mínimo desejado (opcional)</label>
-          <div class="row">
-            <input type="text" id="formMinimo" placeholder="0" style="flex:1;" />
-            <div style="font-size:14.5px;font-weight:600;color:var(--text-faint);" id="formMinUnit">kg</div>
-          </div>
-        </div>
-
-        <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;margin:2px 4px 22px;" id="formHint">
-          O custo por unidade começa como a estimativa acima e passa a ser o <strong
-            style="color:var(--text-dim);">custo médio ponderado</strong> assim que a primeira compra for registrada.
-        </div>
-
-        <button class="btn btn-primary" data-action="form-save" style="width:100%;margin-bottom:12px;">Salvar
-          insumo</button>
-        <div style="text-align:center;" id="formRemoveWrap" hidden>
-          <button class="btn btn-text" data-action="form-remove">Remover insumo</button>
-        </div>
-      </div>
-      <div class="navbar">
-        <div class="navitem" data-nav="inicio" role="button" tabindex="0" aria-label="Início">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path d="M4 11.5 12 4l8 7.5" />
-              <path d="M6 10v9a1 1 0 0 0 1 1h3v-6h4v6h3a1 1 0 0 0 1-1v-9" />
-            </svg></div><span>Início</span>
-        </div>
-        <div class="navitem active" data-nav="estoque" role="button" tabindex="0" aria-label="Estoque">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <rect x="4" y="4" width="16" height="5" rx="1.2" />
-              <rect x="4" y="11" width="16" height="9" rx="1.2" />
-              <path d="M9 15h6" />
-            </svg></div><span>Estoque</span>
-        </div>
-        <div class="navitem" data-nav="producao" role="button" tabindex="0" aria-label="Produção">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path
-                d="M12 3c-3 4-5.2 6.4-5.2 9.4A5.2 5.2 0 0 0 12 21a5.2 5.2 0 0 0 5.2-5.2c0-1.2-.4-2.1-1.1-2.8.1 1-.3 2-1.1 2.5.4-2.1-1-3.6-3-6.5z" />
-            </svg></div><span>Produção</span>
-        </div>
-        <div class="navitem" data-nav="vendas" role="button" tabindex="0" aria-label="Vendas">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path d="M6 8h12l1 12H5L6 8z" />
-              <path d="M9 8V6a3 3 0 0 1 6 0v2" />
-            </svg></div><span>Vendas</span>
-        </div>
-        <div class="navitem" data-nav="mais" role="button" tabindex="0" aria-label="Mais">
-          <div class="icwrap"><svg viewBox="0 0 24 24">
-              <circle cx="6" cy="12" r="1.6" fill="currentColor" />
-              <circle cx="12" cy="12" r="1.6" fill="currentColor" />
-              <circle cx="18" cy="12" r="1.6" fill="currentColor" />
-            </svg></div><span>Mais</span>
-        </div>
-      </div>
-
-    </div>
-    <div class="screen" data-screen="estoqueDetalhe" hidden>
-
-      <div class="backrow between">
-        <div class="row">
-          <div class="iconbtn" role="button" tabindex="0" aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M19 12H5M11 18l-6-6 6-6" />
-            </svg></div>
-          <div>
-            <div class="crumb">Estoque</div>
-            <div class="pagetitle" style="font-size:19px;margin-top:1px;" id="detalheNome">—</div>
-          </div>
-        </div>
-        <div class="row" style="gap:8px;">
-          <div class="tapicon" role="button" tabindex="0" aria-label="Editar insumo" data-action="detalhe-edit"><svg
-              viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"
-              stroke-linejoin="round">
-              <path d="M12 20h9" />
-              <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z" />
-            </svg></div>
-          <div class="iconbtn" role="button" tabindex="0" aria-label="Nova movimentação" data-action="mov-add"><svg
-              viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
-              <path d="M12 5v14M5 12h14" />
-            </svg></div>
-        </div>
-      </div>
-      <div class="content" style="padding-top:14px;">
-
-        <div class="raised card">
-          <div class="between" style="margin-bottom:10px;">
-            <div class="label" style="margin:0;">em estoque</div>
-            <div class="badge warn" id="detalheBadge" hidden>abaixo do mínimo</div>
-          </div>
-          <div style="font-size:26px;font-weight:700;margin-bottom:14px;" id="detalheQtd">—</div>
-          <div class="between" style="padding:11px 0;border-top:1px solid var(--line);">
-            <span style="font-size:13px;color:var(--text-faint);">custo médio ponderado</span>
-            <span style="font-size:13.5px;font-weight:700;" id="detalheCusto">—</span>
-          </div>
-          <div class="between" style="padding:11px 0 0;">
-            <span style="font-size:13px;color:var(--text-faint);">mínimo desejado</span>
-            <span style="font-size:13.5px;font-weight:600;color:var(--text-dim);" id="detalheMinimo">—</span>
-          </div>
-        </div>
-
-        <div class="row" style="gap:10px;margin-bottom:22px;">
-          <button class="btn btn-ghost" data-action="mov-entrada" style="flex:1;">Registrar entrada</button>
-          <button class="btn btn-ghost" data-action="mov-saida" style="flex:1;">Registrar saída</button>
-        </div>
-
-        <div class="between" style="margin-bottom:10px;">
-          <div class="label" style="margin:0;">histórico de movimentações</div>
-          <div style="font-size:11px;color:var(--text-faint);" id="detalheHistCount">0 registros</div>
-        </div>
-
-        <div id="detalheHistEmpty" style="font-size:12.5px;color:var(--text-faint);text-align:center;padding:18px 0;"
-          hidden>Nenhuma movimentação ainda.</div>
-        <div class="raised card" id="detalheHistCard">
-          <div id="detalheHistList"></div>
-        </div>
-
-        <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;margin-top:6px;text-align:center;">Cada
-          entrada e saída fica registrada aqui, com data, quantidade e valor, para auditoria.</div>
-      </div>
-      <div class="navbar">
-        <div class="navitem" data-nav="inicio" role="button" tabindex="0" aria-label="Início">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path d="M4 11.5 12 4l8 7.5" />
-              <path d="M6 10v9a1 1 0 0 0 1 1h3v-6h4v6h3a1 1 0 0 0 1-1v-9" />
-            </svg></div><span>Início</span>
-        </div>
-        <div class="navitem active" data-nav="estoque" role="button" tabindex="0" aria-label="Estoque">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <rect x="4" y="4" width="16" height="5" rx="1.2" />
-              <rect x="4" y="11" width="16" height="9" rx="1.2" />
-              <path d="M9 15h6" />
-            </svg></div><span>Estoque</span>
-        </div>
-        <div class="navitem" data-nav="producao" role="button" tabindex="0" aria-label="Produção">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path
-                d="M12 3c-3 4-5.2 6.4-5.2 9.4A5.2 5.2 0 0 0 12 21a5.2 5.2 0 0 0 5.2-5.2c0-1.2-.4-2.1-1.1-2.8.1 1-.3 2-1.1 2.5.4-2.1-1-3.6-3-6.5z" />
-            </svg></div><span>Produção</span>
-        </div>
-        <div class="navitem" data-nav="vendas" role="button" tabindex="0" aria-label="Vendas">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path d="M6 8h12l1 12H5L6 8z" />
-              <path d="M9 8V6a3 3 0 0 1 6 0v2" />
-            </svg></div><span>Vendas</span>
-        </div>
-        <div class="navitem" data-nav="mais" role="button" tabindex="0" aria-label="Mais">
-          <div class="icwrap"><svg viewBox="0 0 24 24">
-              <circle cx="6" cy="12" r="1.6" fill="currentColor" />
-              <circle cx="12" cy="12" r="1.6" fill="currentColor" />
-              <circle cx="18" cy="12" r="1.6" fill="currentColor" />
-            </svg></div><span>Mais</span>
-        </div>
-      </div>
-
-    </div>
-    <div class="screen" data-screen="estoqueMovimentar" hidden>
-
+    <div class="screen" data-screen="reposicao" hidden>
       <div class="backrow">
-        <div class="iconbtn" role="button" tabindex="0" aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M19 12H5M11 18l-6-6 6-6" />
-          </svg></div>
+        <div class="iconbtn" role="button" tabindex="0" data-goto="dashboard" aria-label="Voltar ao início">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"
+            stroke-linejoin="round">
+            <path d="m15 6-6 6 6 6" />
+          </svg>
+        </div>
         <div>
-          <div class="crumb" id="movCrumb">—</div>
-          <div class="pagetitle" style="font-size:19px;margin-top:1px;">Nova movimentação</div>
+          <div class="crumb">início</div>
+          <div class="pagetitle" style="font-size:19px;">avisos de reposição</div>
         </div>
       </div>
-      <div class="content" style="padding-top:14px;">
-
-        <div class="row" style="gap:9px;margin-bottom:18px;">
-          <div class="pressed-pill pill active" data-tipo="entrada" role="button" tabindex="0" aria-pressed="true"
-            style="padding:11px 16px;flex:1;text-align:center;">Entrada · compra</div>
-          <div class="pressed-pill pill" data-tipo="saida" role="button" tabindex="0" aria-pressed="false"
-            style="padding:11px 16px;flex:1;text-align:center;">Saída · uso</div>
+      <div class="content">
+        <div class="skel-overlay" aria-hidden="true" hidden>
+          <div class="skel-block" style="height:14px;width:120px;border-radius:7px;"></div>
+          <div class="skel-block" style="height:64px;"></div>
+          <div class="skel-block" style="height:64px;"></div>
+          <div class="skel-block" style="height:64px;"></div>
         </div>
-
-        <div id="movEntradaFields">
-          <div class="pressed field">
-            <label class="label" for="movQtdEntrada">quantidade comprada</label>
-            <div class="row">
-              <input type="text" id="movQtdEntrada" placeholder="0" style="flex:1;" />
-              <div style="font-size:14.5px;font-weight:600;color:var(--text-faint);" id="movUnitEntrada">kg</div>
-            </div>
-          </div>
-          <div class="pressed field">
-            <label class="label" for="movPreco">preço pago</label>
-            <div class="row">
-              <div style="font-size:14.5px;font-weight:600;color:var(--text-faint);">R$</div>
-              <input type="text" id="movPreco" placeholder="0,00" style="flex:1;" />
-            </div>
-          </div>
-        </div>
-
-        <div id="movSaidaFields" hidden>
-          <div class="pressed field">
-            <label class="label" for="movQtdSaida">quantidade usada</label>
-            <div class="row">
-              <input type="text" id="movQtdSaida" placeholder="0" style="flex:1;" />
-              <div style="font-size:14.5px;font-weight:600;color:var(--text-faint);" id="movUnitSaida">kg</div>
-            </div>
-          </div>
-          <div class="label" style="margin:2px 4px 8px;">motivo</div>
-          <div class="row" id="movMotivoPills" style="gap:9px;margin-bottom:14px;">
-            <div class="pressed-pill pill active" data-motivo="Produção" role="button" tabindex="0" aria-pressed="true"
-              style="padding:9px 14px;">Produção</div>
-            <div class="pressed-pill pill" data-motivo="Perda" role="button" tabindex="0" aria-pressed="false"
-              style="padding:9px 14px;">Perda</div>
-            <div class="pressed-pill pill" data-motivo="Ajuste" role="button" tabindex="0" aria-pressed="false"
-              style="padding:9px 14px;">Ajuste</div>
-          </div>
-        </div>
-
-        <div class="pressed field">
-          <div class="label">data</div>
-          <div class="val" style="font-size:14.5px;font-weight:600;" id="movData">—</div>
-        </div>
-
-        <div class="raised card">
-          <div class="label" id="movPreviewLabel">depois desta entrada</div>
-          <div class="between" style="padding:10px 0;border-bottom:1px solid var(--line);">
-            <span style="font-size:13px;color:var(--text-faint);">estoque</span>
-            <span style="font-size:13.5px;font-weight:700;" id="movPreviewQtd">—</span>
-          </div>
-          <div class="between" style="padding:10px 0 0;" id="movPreviewCustoRow">
-            <span style="font-size:13px;color:var(--text-faint);">custo médio ponderado</span>
-            <span style="font-size:13.5px;font-weight:700;color:var(--good);" id="movPreviewCusto">—</span>
-          </div>
-        </div>
-        <div style="font-size:12px;color:var(--warn);font-weight:600;margin:-8px 4px 14px;text-align:center;"
-          id="movWarning" role="alert" hidden></div>
-
-        <button class="btn btn-primary" data-action="mov-submit" style="width:100%;margin-bottom:14px;"
-          id="movSubmitBtn">Registrar entrada</button>
-        <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;text-align:center;">O custo médio ponderado
-          é recalculado automaticamente a cada compra registrada.</div>
-      </div>
-      <div class="navbar">
-        <div class="navitem" data-nav="inicio" role="button" tabindex="0" aria-label="Início">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path d="M4 11.5 12 4l8 7.5" />
-              <path d="M6 10v9a1 1 0 0 0 1 1h3v-6h4v6h3a1 1 0 0 0 1-1v-9" />
-            </svg></div><span>Início</span>
-        </div>
-        <div class="navitem active" data-nav="estoque" role="button" tabindex="0" aria-label="Estoque">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <rect x="4" y="4" width="16" height="5" rx="1.2" />
-              <rect x="4" y="11" width="16" height="9" rx="1.2" />
-              <path d="M9 15h6" />
-            </svg></div><span>Estoque</span>
-        </div>
-        <div class="navitem" data-nav="producao" role="button" tabindex="0" aria-label="Produção">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path
-                d="M12 3c-3 4-5.2 6.4-5.2 9.4A5.2 5.2 0 0 0 12 21a5.2 5.2 0 0 0 5.2-5.2c0-1.2-.4-2.1-1.1-2.8.1 1-.3 2-1.1 2.5.4-2.1-1-3.6-3-6.5z" />
-            </svg></div><span>Produção</span>
-        </div>
-        <div class="navitem" data-nav="vendas" role="button" tabindex="0" aria-label="Vendas">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path d="M6 8h12l1 12H5L6 8z" />
-              <path d="M9 8V6a3 3 0 0 1 6 0v2" />
-            </svg></div><span>Vendas</span>
-        </div>
-        <div class="navitem" data-nav="mais" role="button" tabindex="0" aria-label="Mais">
-          <div class="icwrap"><svg viewBox="0 0 24 24">
-              <circle cx="6" cy="12" r="1.6" fill="currentColor" />
-              <circle cx="12" cy="12" r="1.6" fill="currentColor" />
-              <circle cx="18" cy="12" r="1.6" fill="currentColor" />
-            </svg></div><span>Mais</span>
+        <div style="font-size:12.5px;color:var(--text-faint);margin-bottom:16px;" id="reposicaoCount">—</div>
+        <div id="reposicaoList"></div>
+        <div class="reveal-footer" aria-hidden="true">
+          <span class="reveal-footer-mark">.parágrafo</span>
         </div>
       </div>
-
+      <div class="dock" id="reposicaoDock" role="navigation" aria-label="Navegação principal"></div>
     </div>
-    <div class="screen" data-screen="estoqueVelasAjustar" hidden>
 
-      <div class="backrow">
-        <div class="iconbtn" role="button" tabindex="0" aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M19 12H5M11 18l-6-6 6-6" />
-          </svg></div>
-        <div>
-          <div class="crumb" id="velaMovCrumb">—</div>
-          <div class="pagetitle" style="font-size:19px;margin-top:1px;">Ajustar estoque</div>
-        </div>
-      </div>
-      <div class="content" style="padding-top:14px;">
-
-        <div class="row" style="gap:9px;margin-bottom:18px;">
-          <div class="pressed-pill pill active" data-velatipo="entrada" role="button" tabindex="0" aria-pressed="true"
-            style="padding:11px 16px;flex:1;text-align:center;">Adicionar</div>
-          <div class="pressed-pill pill" data-velatipo="saida" role="button" tabindex="0" aria-pressed="false"
-            style="padding:11px 16px;flex:1;text-align:center;">Remover</div>
-        </div>
-
-        <div class="pressed field">
-          <label class="label" for="velaMovQtd">quantidade</label>
-          <div class="row">
-            <input type="text" id="velaMovQtd" placeholder="0" style="flex:1;" />
-            <div style="font-size:14.5px;font-weight:600;color:var(--text-faint);">un</div>
-          </div>
-        </div>
-
-        <div class="pressed field">
-          <label class="label" for="velaMovMinimo">mínimo desejado (opcional)</label>
-          <div class="row">
-            <input type="text" id="velaMovMinimo" placeholder="0" style="flex:1;" />
-            <div style="font-size:14.5px;font-weight:600;color:var(--text-faint);">un</div>
-          </div>
-        </div>
-
-        <div class="label" style="margin:2px 4px 8px;">motivo</div>
-        <div class="row" id="velaMotivoPills" style="gap:9px;margin-bottom:14px;flex-wrap:wrap;">
-          <div class="pressed-pill pill active" data-velamotivo="Produção" role="button" tabindex="0"
-            aria-pressed="true" style="padding:9px 14px;">Produção</div>
-          <div class="pressed-pill pill" data-velamotivo="Venda" role="button" tabindex="0" aria-pressed="false"
-            style="padding:9px 14px;">Venda</div>
-          <div class="pressed-pill pill" data-velamotivo="Perda" role="button" tabindex="0" aria-pressed="false"
-            style="padding:9px 14px;">Perda</div>
-          <div class="pressed-pill pill" data-velamotivo="Ajuste de contagem" role="button" tabindex="0"
-            aria-pressed="false" style="padding:9px 14px;">Ajuste de contagem</div>
-        </div>
-
-        <div class="pressed field">
-          <div class="label">data</div>
-          <div class="val" style="font-size:14.5px;font-weight:600;" id="velaMovData">—</div>
-        </div>
-
-        <div class="raised card">
-          <div class="label">depois deste ajuste</div>
-          <div class="between" style="padding:10px 0;">
-            <span style="font-size:13px;color:var(--text-faint);">em estoque</span>
-            <span style="font-size:13.5px;font-weight:700;" id="velaMovPreview">—</span>
-          </div>
-        </div>
-        <div style="font-size:12px;color:var(--warn);font-weight:600;margin:-8px 4px 14px;text-align:center;"
-          id="velaMovWarning" role="alert" hidden></div>
-
-        <button class="btn btn-primary" data-action="vela-submit" style="width:100%;margin-bottom:14px;"
-          id="velaMovSubmitBtn">Adicionar ao estoque</button>
-        <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;text-align:center;">Este ajuste não altera
-          o histórico de insumos — só o estoque de velas prontas.</div>
-      </div>
-      <div class="navbar">
-        <div class="navitem" data-nav="inicio" role="button" tabindex="0" aria-label="Início">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path d="M4 11.5 12 4l8 7.5" />
-              <path d="M6 10v9a1 1 0 0 0 1 1h3v-6h4v6h3a1 1 0 0 0 1-1v-9" />
-            </svg></div><span>Início</span>
-        </div>
-        <div class="navitem active" data-nav="estoque" role="button" tabindex="0" aria-label="Estoque">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <rect x="4" y="4" width="16" height="5" rx="1.2" />
-              <rect x="4" y="11" width="16" height="9" rx="1.2" />
-              <path d="M9 15h6" />
-            </svg></div><span>Estoque</span>
-        </div>
-        <div class="navitem" data-nav="producao" role="button" tabindex="0" aria-label="Produção">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path
-                d="M12 3c-3 4-5.2 6.4-5.2 9.4A5.2 5.2 0 0 0 12 21a5.2 5.2 0 0 0 5.2-5.2c0-1.2-.4-2.1-1.1-2.8.1 1-.3 2-1.1 2.5.4-2.1-1-3.6-3-6.5z" />
-            </svg></div><span>Produção</span>
-        </div>
-        <div class="navitem" data-nav="vendas" role="button" tabindex="0" aria-label="Vendas">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path d="M6 8h12l1 12H5L6 8z" />
-              <path d="M9 8V6a3 3 0 0 1 6 0v2" />
-            </svg></div><span>Vendas</span>
-        </div>
-        <div class="navitem" data-nav="mais" role="button" tabindex="0" aria-label="Mais">
-          <div class="icwrap"><svg viewBox="0 0 24 24">
-              <circle cx="6" cy="12" r="1.6" fill="currentColor" />
-              <circle cx="12" cy="12" r="1.6" fill="currentColor" />
-              <circle cx="18" cy="12" r="1.6" fill="currentColor" />
-            </svg></div><span>Mais</span>
-        </div>
-      </div>
-
-    </div>
-    <div class="screen" data-screen="producao1" hidden>
-
-      <div class="topbar">
-        <div class="brandrow">
-          <div class="brandmark">p</div>
-          <div class="brandname">ateliê parágrafo</div>
-        </div>
-        <div class="avatar" data-goto="mais" role="button" tabindex="0" aria-label="Perfil">A</div>
-      </div>
-      <div style="padding:8px 20px 0;">
-        <div class="pagetitle" style="margin-bottom:14px;">Produção</div>
-        <div style="display:flex;gap:9px;margin-bottom:18px;">
-          <div class="pill active">Calcular</div>
-          <div class="pill" data-action="calc-ver-lucro" role="button" tabindex="0">Lucro</div>
-          <div class="pill" data-goto="producaoLotes" role="button" tabindex="0">Lotes</div>
-        </div>
-      </div>
-      <div class="stepper">
-        <div class="step-dot active">1</div>
-        <div class="step-line"></div>
-        <div class="step-dot pending">2</div>
-        <div class="step-line"></div>
-        <div class="step-dot pending">3</div>
-      </div>
-      <div class="content" style="padding-top:0;">
-        <div class="pressed field between" role="button" tabindex="0" data-action="calc-open-variacao"
-          style="align-items:center;cursor:pointer;">
-          <div style="flex:1;">
-            <div class="label">variação do catálogo</div>
-            <div class="val" style="font-size:14.5px;font-weight:600;" id="calcVariacaoLabel">—</div>
-          </div>
-          <div style="color:var(--text-faint);width:18px;height:18px;flex:none;"><svg viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-              <path d="m6 9 6 6 6-6" />
-            </svg></div>
-        </div>
-
-        <div class="raised card">
-          <div class="label">quantidade do lote</div>
-          <div class="row" style="justify-content:center;gap:26px;">
-            <div class="pressed" role="button" tabindex="0" aria-label="Diminuir quantidade"
-              style="width:44px;height:44px;border-radius:15px;display:flex;align-items:center;justify-content:center;color:var(--text);">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
-                <path d="M5 12h14" />
-              </svg></div>
-            <div style="font-size:28px;font-weight:700;min-width:44px;text-align:center;" id="calcQtyOutput">24</div>
-            <div class="raised-sm" role="button" tabindex="0" aria-label="Aumentar quantidade"
-              style="width:44px;height:44px;border-radius:15px;display:flex;align-items:center;justify-content:center;color:var(--primary);">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
-                <path d="M12 5v14M5 12h14" />
-              </svg></div>
-          </div>
-        </div>
-
-        <div class="raised card">
-          <div class="between" style="margin-bottom:4px;">
-            <div class="label" style="margin:0;">insumos que serão usados</div>
-            <div style="font-size:10.5px;color:var(--text-faint);" id="calcPerdaLabel">perda 2% inclusa</div>
-          </div>
-          <div id="calcInsumosList"></div>
-        </div>
-        <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;margin:-6px 4px 18px;"
-          id="calcCapacidadeInfo">—</div>
-
-        <div class="row" style="gap:10px;margin-bottom:16px;">
-          <button class="btn btn-ghost" data-action="calc-adjust-toggle" style="flex:1;"
-            id="calcAdjustToggleBtn">Ajustar só este lote</button>
-          <button class="btn btn-ghost" data-action="calc-save-default" style="flex:1;">Salvar como padrão</button>
-        </div>
-
-        <button class="btn btn-primary" data-action="calc-ver-lucro" style="width:100%;">Ver lucro do lote <span
-            style="width:15px;height:15px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-              stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-              <path d="m9 6 6 6-6 6" />
-            </svg></span></button>
-      </div>
-      <div class="navbar">
-        <div class="navitem" data-nav="inicio" role="button" tabindex="0" aria-label="Início">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path d="M4 11.5 12 4l8 7.5" />
-              <path d="M6 10v9a1 1 0 0 0 1 1h3v-6h4v6h3a1 1 0 0 0 1-1v-9" />
-            </svg></div><span>Início</span>
-        </div>
-        <div class="navitem" data-nav="estoque" role="button" tabindex="0" aria-label="Estoque">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <rect x="4" y="4" width="16" height="5" rx="1.2" />
-              <rect x="4" y="11" width="16" height="9" rx="1.2" />
-              <path d="M9 15h6" />
-            </svg></div><span>Estoque</span>
-        </div>
-        <div class="navitem active" data-nav="producao" role="button" tabindex="0" aria-label="Produção">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path
-                d="M12 3c-3 4-5.2 6.4-5.2 9.4A5.2 5.2 0 0 0 12 21a5.2 5.2 0 0 0 5.2-5.2c0-1.2-.4-2.1-1.1-2.8.1 1-.3 2-1.1 2.5.4-2.1-1-3.6-3-6.5z" />
-            </svg></div><span>Produção</span>
-        </div>
-        <div class="navitem" data-nav="vendas" role="button" tabindex="0" aria-label="Vendas">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path d="M6 8h12l1 12H5L6 8z" />
-              <path d="M9 8V6a3 3 0 0 1 6 0v2" />
-            </svg></div><span>Vendas</span>
-        </div>
-        <div class="navitem" data-nav="mais" role="button" tabindex="0" aria-label="Mais">
-          <div class="icwrap"><svg viewBox="0 0 24 24">
-              <circle cx="6" cy="12" r="1.6" fill="currentColor" />
-              <circle cx="12" cy="12" r="1.6" fill="currentColor" />
-              <circle cx="18" cy="12" r="1.6" fill="currentColor" />
-            </svg></div><span>Mais</span>
-        </div>
-      </div>
-
-    </div>
-    <div class="screen" data-screen="producaoVariacao" hidden>
-
-      <div class="backrow">
-        <div class="iconbtn" role="button" tabindex="0" aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M19 12H5M11 18l-6-6 6-6" />
-          </svg></div>
-        <div>
-          <div class="crumb">Produção</div>
-          <div class="pagetitle" style="font-size:19px;margin-top:1px;">Escolher variação</div>
-        </div>
-      </div>
-      <div class="content" style="padding-top:14px;">
-
-        <div id="calcVariacaoList"></div>
-
-        <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;text-align:center;margin-top:6px;">
-          Cadastrar, renomear ou excluir variações é feito em Configurações.</div>
-      </div>
-      <div class="navbar">
-        <div class="navitem" data-nav="inicio" role="button" tabindex="0" aria-label="Início">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path d="M4 11.5 12 4l8 7.5" />
-              <path d="M6 10v9a1 1 0 0 0 1 1h3v-6h4v6h3a1 1 0 0 0 1-1v-9" />
-            </svg></div><span>Início</span>
-        </div>
-        <div class="navitem" data-nav="estoque" role="button" tabindex="0" aria-label="Estoque">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <rect x="4" y="4" width="16" height="5" rx="1.2" />
-              <rect x="4" y="11" width="16" height="9" rx="1.2" />
-              <path d="M9 15h6" />
-            </svg></div><span>Estoque</span>
-        </div>
-        <div class="navitem active" data-nav="producao" role="button" tabindex="0" aria-label="Produção">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path
-                d="M12 3c-3 4-5.2 6.4-5.2 9.4A5.2 5.2 0 0 0 12 21a5.2 5.2 0 0 0 5.2-5.2c0-1.2-.4-2.1-1.1-2.8.1 1-.3 2-1.1 2.5.4-2.1-1-3.6-3-6.5z" />
-            </svg></div><span>Produção</span>
-        </div>
-        <div class="navitem" data-nav="vendas" role="button" tabindex="0" aria-label="Vendas">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path d="M6 8h12l1 12H5L6 8z" />
-              <path d="M9 8V6a3 3 0 0 1 6 0v2" />
-            </svg></div><span>Vendas</span>
-        </div>
-        <div class="navitem" data-nav="mais" role="button" tabindex="0" aria-label="Mais">
-          <div class="icwrap"><svg viewBox="0 0 24 24">
-              <circle cx="6" cy="12" r="1.6" fill="currentColor" />
-              <circle cx="12" cy="12" r="1.6" fill="currentColor" />
-              <circle cx="18" cy="12" r="1.6" fill="currentColor" />
-            </svg></div><span>Mais</span>
-        </div>
-      </div>
-
-    </div>
-    <div class="screen" data-screen="producao2" hidden>
-
-      <div class="backrow between">
-        <div class="row">
-          <div class="iconbtn" role="button" tabindex="0" aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M19 12H5M11 18l-6-6 6-6" />
-            </svg></div>
-          <div>
-            <div class="pagetitle" style="font-size:19px;margin-top:1px;">Ver lucro</div>
-          </div>
-        </div>
-
-      </div>
-      <div class="stepper">
-        <div class="step-dot done"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1"
-            stroke-linecap="round" stroke-linejoin="round">
-            <path d="m5 12 5 5 9-9" />
-          </svg></div>
-        <div class="step-line done"></div>
-        <div class="step-dot active">2</div>
-        <div class="step-line"></div>
-        <div class="step-dot pending">3</div>
-      </div>
-      <div class="content" style="padding-top:4px;">
-
-        <div class="raised card">
-          <div class="between" style="padding:10px 0;">
-            <div style="font-size:13.5px;color:var(--text-dim);">Custo estimado do lote</div>
-            <div style="font-size:15px;font-weight:700;" id="lucroCustoTotal">—</div>
-          </div>
-          <div class="divider" style="margin:0;"></div>
-          <div class="between" style="padding:10px 0;">
-            <div style="font-size:13.5px;color:var(--text-dim);" id="lucroReceitaLabel">Preço de venda</div>
-            <div style="font-size:15px;font-weight:700;" id="lucroReceitaTotal">—</div>
-          </div>
-          <div class="divider" style="margin:0;"></div>
-          <div class="between" style="padding:10px 0 0;">
-            <div style="font-size:13.5px;color:var(--text-dim);">Margem bruta</div>
-            <div style="font-size:22px;font-weight:800;color:var(--primary);" id="lucroMargemPct">—</div>
-          </div>
-        </div>
-
-        <div style="font-size:12px;color:var(--text-faint);line-height:1.55;margin-bottom:18px;">
-          Esta é a <strong style="color:var(--text-dim);">margem bruta</strong> (preço − custo de insumo). O lucro
-          líquido real, com custos fixos rateados, mora em <a href="#">Custos</a>.
-        </div>
-
-        <div class="stepper" style="padding:0 0 10px;">
-          <div class="step-dot done" style="width:22px;height:22px;font-size:10px;"><svg viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
-              <path d="m5 12 5 5 9-9" />
-            </svg></div>
-          <div class="step-line done"></div>
-          <div class="step-dot active" style="width:22px;height:22px;font-size:10px;">3</div>
-        </div>
-
-        <div class="raised card">
-          <div class="label">registrar faz três coisas</div>
-          <div style="display:flex;flex-direction:column;gap:12px;">
-            <div class="row"><span style="color:var(--warn);flex:none;width:16px;height:16px;"><svg viewBox="0 0 24 24"
-                  fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M12 5v13M6 13l6 6 6-6" />
-                </svg></span><span style="font-size:13px;">debita os insumos usados</span></div>
-            <div class="row"><span style="color:var(--good);flex:none;width:16px;height:16px;"><svg viewBox="0 0 24 24"
-                  fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M12 19V6M6 11l6-6 6 6" />
-                </svg></span><span style="font-size:13px;" id="lucroCreditaTexto">credita as velas prontas no Estoque de
-                Produção</span></div>
-            <div class="row"><span style="color:var(--text-dim);flex:none;width:16px;height:16px;"><svg
-                  viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"
-                  stroke-linejoin="round">
-                  <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />
-                </svg></span><span style="font-size:13px;">cria a entrada no Registro de Produção</span></div>
-          </div>
-        </div>
-
-        <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;margin-bottom:18px;">
-          Não existe um "registro de produção" separado pra preencher depois. Excluir um lote reverte tudo sozinho.
-        </div>
-
-        <div style="font-size:12px;color:var(--warn);font-weight:600;margin:-6px 4px 14px;text-align:center;"
-          id="registrarLoteWarning" role="alert" hidden></div>
-
-        <button class="btn btn-primary" data-action="registrar-lote" id="registrarLoteBtn"
-          style="width:100%;margin-bottom:16px;">Registrar lote</button>
-
-        <div class="quote" style="text-align:center;font-size:14px;color:var(--text-faint);" id="lucroQuote">"Lote
-          pronto: velas na prateleira, cera e essência já descontadas."</div>
-      </div>
-      <div class="navbar">
-        <div class="navitem" data-nav="inicio" role="button" tabindex="0" aria-label="Início">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path d="M4 11.5 12 4l8 7.5" />
-              <path d="M6 10v9a1 1 0 0 0 1 1h3v-6h4v6h3a1 1 0 0 0 1-1v-9" />
-            </svg></div><span>Início</span>
-        </div>
-        <div class="navitem" data-nav="estoque" role="button" tabindex="0" aria-label="Estoque">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <rect x="4" y="4" width="16" height="5" rx="1.2" />
-              <rect x="4" y="11" width="16" height="9" rx="1.2" />
-              <path d="M9 15h6" />
-            </svg></div><span>Estoque</span>
-        </div>
-        <div class="navitem active" data-nav="producao" role="button" tabindex="0" aria-label="Produção">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path
-                d="M12 3c-3 4-5.2 6.4-5.2 9.4A5.2 5.2 0 0 0 12 21a5.2 5.2 0 0 0 5.2-5.2c0-1.2-.4-2.1-1.1-2.8.1 1-.3 2-1.1 2.5.4-2.1-1-3.6-3-6.5z" />
-            </svg></div><span>Produção</span>
-        </div>
-        <div class="navitem" data-nav="vendas" role="button" tabindex="0" aria-label="Vendas">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path d="M6 8h12l1 12H5L6 8z" />
-              <path d="M9 8V6a3 3 0 0 1 6 0v2" />
-            </svg></div><span>Vendas</span>
-        </div>
-        <div class="navitem" data-nav="mais" role="button" tabindex="0" aria-label="Mais">
-          <div class="icwrap"><svg viewBox="0 0 24 24">
-              <circle cx="6" cy="12" r="1.6" fill="currentColor" />
-              <circle cx="12" cy="12" r="1.6" fill="currentColor" />
-              <circle cx="18" cy="12" r="1.6" fill="currentColor" />
-            </svg></div><span>Mais</span>
-        </div>
-      </div>
-
-    </div>
-    <div class="screen" data-screen="producaoLotes" hidden>
-
-      <div class="backrow">
-        <div class="iconbtn" role="button" tabindex="0" aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M19 12H5M11 18l-6-6 6-6" />
-          </svg></div>
-        <div>
-          <div class="crumb">Produção</div>
-          <div class="pagetitle" style="font-size:19px;margin-top:1px;">Registro de produção</div>
-        </div>
-      </div>
-      <div class="content" style="padding-top:14px;">
-
-        <div class="row" style="gap:10px;margin-bottom:18px;">
-          <button class="btn btn-ghost" data-action="lote-export-csv" style="flex:1;">Planilhas (CSV)</button>
-          <button class="btn btn-ghost" data-action="lote-export-pdf" style="flex:1;">PDF</button>
-        </div>
-
-        <div class="label" id="lotesCount">lotes registrados</div>
-
-        <div id="lotesList"></div>
-
-        <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;margin-top:10px;text-align:center;">Excluir
-          um lote devolve os insumos debitados e remove as velas creditadas — o estoque nunca fica desalinhado.</div>
-      </div>
-      <div class="navbar">
-        <div class="navitem" data-nav="inicio" role="button" tabindex="0" aria-label="Início">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path d="M4 11.5 12 4l8 7.5" />
-              <path d="M6 10v9a1 1 0 0 0 1 1h3v-6h4v6h3a1 1 0 0 0 1-1v-9" />
-            </svg></div><span>Início</span>
-        </div>
-        <div class="navitem" data-nav="estoque" role="button" tabindex="0" aria-label="Estoque">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <rect x="4" y="4" width="16" height="5" rx="1.2" />
-              <rect x="4" y="11" width="16" height="9" rx="1.2" />
-              <path d="M9 15h6" />
-            </svg></div><span>Estoque</span>
-        </div>
-        <div class="navitem active" data-nav="producao" role="button" tabindex="0" aria-label="Produção">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path
-                d="M12 3c-3 4-5.2 6.4-5.2 9.4A5.2 5.2 0 0 0 12 21a5.2 5.2 0 0 0 5.2-5.2c0-1.2-.4-2.1-1.1-2.8.1 1-.3 2-1.1 2.5.4-2.1-1-3.6-3-6.5z" />
-            </svg></div><span>Produção</span>
-        </div>
-        <div class="navitem" data-nav="vendas" role="button" tabindex="0" aria-label="Vendas">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path d="M6 8h12l1 12H5L6 8z" />
-              <path d="M9 8V6a3 3 0 0 1 6 0v2" />
-            </svg></div><span>Vendas</span>
-        </div>
-        <div class="navitem" data-nav="mais" role="button" tabindex="0" aria-label="Mais">
-          <div class="icwrap"><svg viewBox="0 0 24 24">
-              <circle cx="6" cy="12" r="1.6" fill="currentColor" />
-              <circle cx="12" cy="12" r="1.6" fill="currentColor" />
-              <circle cx="18" cy="12" r="1.6" fill="currentColor" />
-            </svg></div><span>Mais</span>
-        </div>
-      </div>
-
-    </div>
-    <div class="screen" data-screen="vendas" hidden>
-
-      <div class="topbar">
-        <div class="brandrow">
-          <div class="brandmark">p</div>
-          <div class="brandname">ateliê parágrafo</div>
-        </div>
-        <div class="avatar" data-goto="mais" role="button" tabindex="0" aria-label="Perfil">A</div>
-      </div>
-      <div class="content" style="padding-top:6px;">
-        <div class="pagetitle" style="margin-bottom:16px;">Vendas</div>
-        <div style="display:flex;gap:9px;overflow-x:auto;margin-bottom:18px;padding-bottom:2px;">
-          <div class="pill active" data-vendatab="nova" role="button" tabindex="0" aria-pressed="true"
-            style="flex:none;">Nova venda</div>
-          <div class="pill" data-vendatab="encomendas" role="button" tabindex="0" aria-pressed="false"
-            style="flex:none;display:flex;align-items:center;gap:6px;">Encomendas <span class="badge warn"
-              id="vendaEncomendasBadge" hidden style="padding:2px 6px;">0</span></div>
-          <div class="pill" data-vendatab="historico" role="button" tabindex="0" aria-pressed="false"
-            style="flex:none;">Histórico</div>
-          <div class="pill" data-vendatab="cupons" role="button" tabindex="0" aria-pressed="false" style="flex:none;">
-            Cupons</div>
-        </div>
-
-        <div id="vendaPanelNova">
-          <div class="pressed field between" role="button" tabindex="0" data-action="venda-cliente-picker"
-            style="align-items:center;cursor:pointer;">
-            <div style="flex:1;">
-              <div class="label">cliente</div>
-              <div class="val" style="font-size:14.5px;font-weight:600;" id="vendaClienteLabel">Cliente avulso</div>
-            </div>
-            <div style="color:var(--text-faint);width:18px;height:18px;flex:none;"><svg viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-                <path d="m6 9 6 6 6-6" />
-              </svg></div>
-          </div>
-
-          <div class="raised card">
-            <div class="between" style="margin-bottom:2px;">
-              <div class="label" style="margin:0;">itens · preço editável linha a linha</div>
-            </div>
-            <div id="vendaItensList"></div>
-            <div id="vendaItensEmpty"
-              style="text-align:center;color:var(--text-faint);font-size:12.5px;padding:10px 0;">nenhum item ainda</div>
-            <div role="button" tabindex="0" data-action="venda-item-add"
-              style="text-align:center;padding-top:12px;font-size:12.5px;font-weight:600;color:var(--primary);cursor:pointer;">
-              + adicionar variação</div>
-          </div>
-
-          <div class="pressed field between" style="align-items:center;">
-            <div style="flex:1;">
-              <label class="label" for="vendaCupomInput">cupom (opcional)</label>
-              <input type="text" id="vendaCupomInput" placeholder="ex.: PAUSA10" style="text-transform:uppercase;" />
-            </div>
-            <div id="vendaCupomStatus" role="status" style="flex:none;"></div>
-          </div>
-          <div style="font-size:11px;color:var(--text-faint);margin:-8px 0 16px;" id="vendaCupomHint">Validado por data
-            e uso disponível — o valor recalcula sozinho.</div>
-
-          <div class="label" style="margin:2px 4px 8px;">forma de pagamento</div>
-          <div class="row" id="vendaPagamentoPills" style="gap:9px;margin-bottom:18px;">
-            <div class="pressed-pill pill active" data-vendapag="Pix" role="button" tabindex="0" aria-pressed="true"
-              style="flex:1;text-align:center;">Pix</div>
-            <div class="pressed-pill pill" data-vendapag="Cartão" role="button" tabindex="0" aria-pressed="false"
-              style="flex:1;text-align:center;">Cartão</div>
-            <div class="pressed-pill pill" data-vendapag="Dinheiro" role="button" tabindex="0" aria-pressed="false"
-              style="flex:1;text-align:center;">Dinheiro</div>
-          </div>
-
-          <div class="pressed field">
-            <div class="label">data</div>
-            <div class="val" style="font-size:14.5px;font-weight:600;" id="vendaDataLabel">—</div>
-          </div>
-
-          <div class="raised card">
-            <div class="between" id="vendaSubtotalRow" style="padding:6px 0;" hidden><span
-                style="font-size:13px;color:var(--text-dim);">Subtotal</span><span
-                style="font-size:13.5px;font-weight:600;" id="vendaSubtotalLabel">R$ 0,00</span></div>
-            <div class="between" id="vendaDescontoRow" style="padding:6px 0;" hidden><span
-                style="font-size:13px;color:var(--text-dim);" id="vendaDescontoLabel">Cupom</span><span
-                style="font-size:13.5px;font-weight:600;color:var(--warn);" id="vendaDescontoValor">− R$ 0,00</span>
-            </div>
-            <div class="divider" id="vendaTotalDivider" hidden></div>
-            <div class="between"><span style="font-size:14.5px;font-weight:700;">Total</span><span
-                style="font-size:20px;font-weight:800;color:var(--primary);" id="vendaTotalLabel">R$ 0,00</span></div>
-          </div>
-          <div style="font-size:12px;color:var(--warn);font-weight:600;margin:-8px 4px 14px;text-align:center;"
-            id="vendaWarning" role="alert" hidden></div>
-          <div style="font-size:11px;color:var(--text-faint);margin:-8px 0 16px;text-align:center;"
-            id="vendaConfirmHint">Confirmar debita as velas do Estoque de Produção na hora.</div>
-
-          <div class="row" style="gap:10px;">
-            <button class="btn btn-ghost" data-action="venda-salvar-encomenda" style="flex:1;">Salvar como
-              encomenda</button>
-            <button class="btn btn-primary" data-action="venda-confirmar" id="vendaConfirmarBtn"
-              style="flex:1;">Confirmar venda</button>
-          </div>
-        </div>
-
-        <div id="vendaPanelEncomendas" hidden>
-          <div style="display:flex;gap:9px;overflow-x:auto;margin-bottom:16px;">
-            <div class="pill active" data-encfiltro="abertas" role="button" tabindex="0" aria-pressed="true"
-              style="flex:none;">Em aberto</div>
-            <div class="pill" data-encfiltro="entregues" role="button" tabindex="0" aria-pressed="false"
-              style="flex:none;">Entregues</div>
-            <div class="pill" data-encfiltro="todas" role="button" tabindex="0" aria-pressed="false" style="flex:none;">
-              Todas</div>
-          </div>
-          <div class="label" id="vendaEncomendasCount">encomendas</div>
-          <div id="vendaEncomendasList"></div>
-        </div>
-
-        <div id="vendaPanelHistorico" hidden>
-          <div style="display:flex;gap:9px;overflow-x:auto;margin-bottom:12px;padding-bottom:2px;">
-            <div class="pill active" data-histperiodo="7" role="button" tabindex="0" aria-pressed="true"
-              style="flex:none;">7 dias</div>
-            <div class="pill" data-histperiodo="30" role="button" tabindex="0" aria-pressed="false" style="flex:none;">
-              30 dias</div>
-            <div class="pill" data-histperiodo="tudo" role="button" tabindex="0" aria-pressed="false"
-              style="flex:none;">tudo</div>
-          </div>
-          <div class="pressed field row" style="padding:12px 16px;margin-bottom:12px;">
-            <div style="color:var(--text-faint);width:17px;height:17px;"><svg viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="10.5" cy="10.5" r="6" />
-                <path d="m20 20-4.8-4.8" />
-              </svg></div>
-            <input type="text" id="vendaHistClienteInput" placeholder="filtrar por cliente"
-              aria-label="Filtrar por cliente" />
-          </div>
-          <div id="vendaHistVariacaoPills"
-            style="display:flex;gap:9px;overflow-x:auto;margin-bottom:16px;padding-bottom:2px;"></div>
-          <div class="label" id="vendaHistCount">vendas</div>
-          <div id="vendaHistList"></div>
-          <div id="vendaHistEmpty" hidden
-            style="text-align:center;color:var(--text-faint);font-size:12.5px;padding:24px 0;">nenhuma venda encontrada
-          </div>
-        </div>
-
-        <div id="vendaPanelCupons" hidden>
-          <div style="display:flex;gap:9px;overflow-x:auto;margin-bottom:16px;padding-bottom:2px;">
-            <div class="pill active" data-cupomfiltro="ativos" role="button" tabindex="0" aria-pressed="true"
-              style="flex:none;">Ativos</div>
-            <div class="pill" data-cupomfiltro="expirados" role="button" tabindex="0" aria-pressed="false"
-              style="flex:none;">Expirados</div>
-            <div class="pill" data-cupomfiltro="esgotados" role="button" tabindex="0" aria-pressed="false"
-              style="flex:none;">Esgotados</div>
-            <div class="pill" data-cupomfiltro="todos" role="button" tabindex="0" aria-pressed="false"
-              style="flex:none;">Todos</div>
-          </div>
-          <div class="label" id="cupomCount">cupons</div>
-          <div id="cupomList"></div>
-          <div id="cupomEmpty" hidden
-            style="text-align:center;color:var(--text-faint);font-size:12.5px;padding:24px 0;">nenhum cupom encontrado
-          </div>
-          <div role="button" tabindex="0" data-action="cupom-add"
-            style="text-align:center;padding:14px 0 6px;font-size:12.5px;font-weight:600;color:var(--primary);cursor:pointer;">
-            + novo cupom</div>
-        </div>
-      </div>
-      <div class="navbar">
-        <div class="navitem" data-nav="inicio" role="button" tabindex="0" aria-label="Início">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path d="M4 11.5 12 4l8 7.5" />
-              <path d="M6 10v9a1 1 0 0 0 1 1h3v-6h4v6h3a1 1 0 0 0 1-1v-9" />
-            </svg></div><span>Início</span>
-        </div>
-        <div class="navitem" data-nav="estoque" role="button" tabindex="0" aria-label="Estoque">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <rect x="4" y="4" width="16" height="5" rx="1.2" />
-              <rect x="4" y="11" width="16" height="9" rx="1.2" />
-              <path d="M9 15h6" />
-            </svg></div><span>Estoque</span>
-        </div>
-        <div class="navitem" data-nav="producao" role="button" tabindex="0" aria-label="Produção">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path
-                d="M12 3c-3 4-5.2 6.4-5.2 9.4A5.2 5.2 0 0 0 12 21a5.2 5.2 0 0 0 5.2-5.2c0-1.2-.4-2.1-1.1-2.8.1 1-.3 2-1.1 2.5.4-2.1-1-3.6-3-6.5z" />
-            </svg></div><span>Produção</span>
-        </div>
-        <div class="navitem active" data-nav="vendas" role="button" tabindex="0" aria-label="Vendas">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path d="M6 8h12l1 12H5L6 8z" />
-              <path d="M9 8V6a3 3 0 0 1 6 0v2" />
-            </svg></div><span>Vendas</span>
-        </div>
-        <div class="navitem" data-nav="mais" role="button" tabindex="0" aria-label="Mais">
-          <div class="icwrap"><svg viewBox="0 0 24 24">
-              <circle cx="6" cy="12" r="1.6" fill="currentColor" />
-              <circle cx="12" cy="12" r="1.6" fill="currentColor" />
-              <circle cx="18" cy="12" r="1.6" fill="currentColor" />
-            </svg></div><span>Mais</span>
-        </div>
-      </div>
-
-    </div>
-    <div class="screen" data-screen="cupomForm" hidden>
-
-      <div class="backrow">
-        <div class="iconbtn" role="button" tabindex="0" aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M19 12H5M11 18l-6-6 6-6" />
-          </svg></div>
-        <div>
-          <div class="crumb">Vendas</div>
-          <div class="pagetitle" style="font-size:19px;margin-top:1px;" id="cupomFormTitle">Novo cupom</div>
-        </div>
-      </div>
-      <div class="content" style="padding-top:14px;">
-
-        <div class="pressed field">
-          <label class="label" for="cupomFormCodigo">código</label>
-          <input type="text" id="cupomFormCodigo" placeholder="ex.: PAUSA10" style="text-transform:uppercase;" />
-        </div>
-
-        <div class="raised card">
-          <div class="label">tipo de desconto</div>
-          <div class="row" id="cupomTipoPills" style="gap:9px;">
-            <div class="pressed-pill pill active" data-cupomtipo="percentual" role="button" tabindex="0"
-              aria-pressed="true" style="padding:9px 15px;flex:1;text-align:center;">Percentual (%)</div>
-            <div class="pressed-pill pill" data-cupomtipo="fixo" role="button" tabindex="0" aria-pressed="false"
-              style="padding:9px 15px;flex:1;text-align:center;">Valor fixo (R$)</div>
-          </div>
-        </div>
-
-        <div class="pressed field">
-          <label class="label" for="cupomFormValor" id="cupomFormValorLabel">valor do desconto</label>
-          <div class="row">
-            <div style="font-size:14.5px;font-weight:600;color:var(--text-faint);" id="cupomFormValorPrefix">%</div>
-            <input type="text" id="cupomFormValor" placeholder="0" style="flex:1;" />
-          </div>
-        </div>
-
-        <div class="row" style="gap:12px;">
-          <div class="pressed field" style="flex:1;">
-            <label class="label" for="cupomFormInicio">início da validade</label>
-            <input type="date" id="cupomFormInicio" />
-          </div>
-          <div class="pressed field" style="flex:1;">
-            <label class="label" for="cupomFormFim">fim da validade</label>
-            <input type="date" id="cupomFormFim" />
-          </div>
-        </div>
-
-        <div class="pressed field">
-          <label class="label" for="cupomFormLimite">limite de uso</label>
-          <div class="row">
-            <input type="text" id="cupomFormLimite" placeholder="0 = sem limite" style="flex:1;" />
-            <div style="font-size:14.5px;font-weight:600;color:var(--text-faint);">usos</div>
-          </div>
-        </div>
-
-        <div class="raised card">
-          <div class="label">escopo</div>
-          <div class="row" id="cupomEscopoPills" style="gap:9px;margin-bottom:12px;">
-            <div class="pressed-pill pill active" data-cupomescopo="todas" role="button" tabindex="0"
-              aria-pressed="true" style="padding:9px 15px;flex:1;text-align:center;">Todas as variações</div>
-            <div class="pressed-pill pill" data-cupomescopo="especifica" role="button" tabindex="0" aria-pressed="false"
-              style="padding:9px 15px;flex:1;text-align:center;">Uma variação</div>
-          </div>
-          <div id="cupomEscopoVariacaoList" hidden></div>
-        </div>
-
-        <div class="raised card">
-          <div class="label">status</div>
-          <div class="row" id="cupomAtivoPills" style="gap:9px;">
-            <div class="pressed-pill pill active" data-cupomativo="1" role="button" tabindex="0" aria-pressed="true"
-              style="padding:9px 15px;flex:1;text-align:center;">Ativo</div>
-            <div class="pressed-pill pill" data-cupomativo="0" role="button" tabindex="0" aria-pressed="false"
-              style="padding:9px 15px;flex:1;text-align:center;">Pausado</div>
-          </div>
-        </div>
-
-        <div id="cupomFormUsoInfo" hidden
-          style="font-size:11.5px;color:var(--text-faint);line-height:1.5;margin:2px 4px 22px;"></div>
-
-        <button class="btn btn-primary" data-action="cupom-form-save" style="width:100%;margin-bottom:12px;">Salvar
-          cupom</button>
-        <div style="text-align:center;" id="cupomFormRemoveWrap" hidden>
-          <button class="btn btn-text" data-action="cupom-form-remove">Remover cupom</button>
-        </div>
-      </div>
-      <div class="navbar">
-        <div class="navitem" data-nav="inicio" role="button" tabindex="0" aria-label="Início">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path d="M4 11.5 12 4l8 7.5" />
-              <path d="M6 10v9a1 1 0 0 0 1 1h3v-6h4v6h3a1 1 0 0 0 1-1v-9" />
-            </svg></div><span>Início</span>
-        </div>
-        <div class="navitem" data-nav="estoque" role="button" tabindex="0" aria-label="Estoque">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <rect x="4" y="4" width="16" height="5" rx="1.2" />
-              <rect x="4" y="11" width="16" height="9" rx="1.2" />
-              <path d="M9 15h6" />
-            </svg></div><span>Estoque</span>
-        </div>
-        <div class="navitem" data-nav="producao" role="button" tabindex="0" aria-label="Produção">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path
-                d="M12 3c-3 4-5.2 6.4-5.2 9.4A5.2 5.2 0 0 0 12 21a5.2 5.2 0 0 0 5.2-5.2c0-1.2-.4-2.1-1.1-2.8.1 1-.3 2-1.1 2.5.4-2.1-1-3.6-3-6.5z" />
-            </svg></div><span>Produção</span>
-        </div>
-        <div class="navitem active" data-nav="vendas" role="button" tabindex="0" aria-label="Vendas">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path d="M6 8h12l1 12H5L6 8z" />
-              <path d="M9 8V6a3 3 0 0 1 6 0v2" />
-            </svg></div><span>Vendas</span>
-        </div>
-        <div class="navitem" data-nav="mais" role="button" tabindex="0" aria-label="Mais">
-          <div class="icwrap"><svg viewBox="0 0 24 24">
-              <circle cx="6" cy="12" r="1.6" fill="currentColor" />
-              <circle cx="12" cy="12" r="1.6" fill="currentColor" />
-              <circle cx="18" cy="12" r="1.6" fill="currentColor" />
-            </svg></div><span>Mais</span>
-        </div>
-      </div>
-
-    </div>
-    <div class="screen" data-screen="vendaClientePicker" hidden>
-
-      <div class="backrow">
-        <div class="iconbtn" role="button" tabindex="0" aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M19 12H5M11 18l-6-6 6-6" />
-          </svg></div>
-        <div>
-          <div class="crumb">Vendas</div>
-          <div class="pagetitle" style="font-size:19px;margin-top:1px;">Escolher cliente</div>
-        </div>
-      </div>
-      <div class="content" style="padding-top:14px;">
-
-        <div class="pressed field row" style="padding:12px 16px;margin-bottom:16px;">
-          <div style="color:var(--text-faint);width:17px;height:17px;"><svg viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="10.5" cy="10.5" r="6" />
-              <path d="m20 20-4.8-4.8" />
-            </svg></div>
-          <input type="text" id="vendaClienteSearchInput" placeholder="buscar cliente" aria-label="Buscar cliente" />
-        </div>
-
-        <div class="raised-sm" role="button" tabindex="0" data-pick-cliente-id=""
-          style="padding:15px 16px;margin-bottom:11px;cursor:pointer;">
-          <div style="font-size:14px;font-weight:600;">Cliente avulso</div>
-          <div style="font-size:11.5px;color:var(--text-faint);margin-top:2px;">sem cadastro vinculado</div>
-        </div>
-
-        <div id="vendaClientePickerList"></div>
-      </div>
-      <div class="navbar">
-        <div class="navitem" data-nav="inicio" role="button" tabindex="0" aria-label="Início">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path d="M4 11.5 12 4l8 7.5" />
-              <path d="M6 10v9a1 1 0 0 0 1 1h3v-6h4v6h3a1 1 0 0 0 1-1v-9" />
-            </svg></div><span>Início</span>
-        </div>
-        <div class="navitem" data-nav="estoque" role="button" tabindex="0" aria-label="Estoque">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <rect x="4" y="4" width="16" height="5" rx="1.2" />
-              <rect x="4" y="11" width="16" height="9" rx="1.2" />
-              <path d="M9 15h6" />
-            </svg></div><span>Estoque</span>
-        </div>
-        <div class="navitem" data-nav="producao" role="button" tabindex="0" aria-label="Produção">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path
-                d="M12 3c-3 4-5.2 6.4-5.2 9.4A5.2 5.2 0 0 0 12 21a5.2 5.2 0 0 0 5.2-5.2c0-1.2-.4-2.1-1.1-2.8.1 1-.3 2-1.1 2.5.4-2.1-1-3.6-3-6.5z" />
-            </svg></div><span>Produção</span>
-        </div>
-        <div class="navitem active" data-nav="vendas" role="button" tabindex="0" aria-label="Vendas">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path d="M6 8h12l1 12H5L6 8z" />
-              <path d="M9 8V6a3 3 0 0 1 6 0v2" />
-            </svg></div><span>Vendas</span>
-        </div>
-        <div class="navitem" data-nav="mais" role="button" tabindex="0" aria-label="Mais">
-          <div class="icwrap"><svg viewBox="0 0 24 24">
-              <circle cx="6" cy="12" r="1.6" fill="currentColor" />
-              <circle cx="12" cy="12" r="1.6" fill="currentColor" />
-              <circle cx="18" cy="12" r="1.6" fill="currentColor" />
-            </svg></div><span>Mais</span>
-        </div>
-      </div>
-
-    </div>
-    <div class="screen" data-screen="vendaItemPicker" hidden>
-
-      <div class="backrow">
-        <div class="iconbtn" role="button" tabindex="0" aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M19 12H5M11 18l-6-6 6-6" />
-          </svg></div>
-        <div>
-          <div class="crumb">Vendas</div>
-          <div class="pagetitle" style="font-size:19px;margin-top:1px;" id="vendaItemTitle">Adicionar item</div>
-        </div>
-      </div>
-      <div class="content" style="padding-top:14px;">
-
-        <div id="vendaItemVariacaoPicker">
-          <div class="label" style="margin:2px 4px 8px;">variação</div>
-          <div id="vendaItemVariacaoList"></div>
-        </div>
-
-        <div id="vendaItemVariacaoLocked" class="pressed field" hidden>
-          <div class="label">variação</div>
-          <div class="val" style="font-size:14.5px;font-weight:600;" id="vendaItemVariacaoLockedLabel">—</div>
-        </div>
-
-        <div class="pressed field">
-          <label class="label" for="vendaItemQtd">quantidade</label>
-          <div class="row">
-            <input type="text" id="vendaItemQtd" placeholder="0" style="flex:1;" />
-            <div style="font-size:14.5px;font-weight:600;color:var(--text-faint);">un</div>
-          </div>
-        </div>
-
-        <div class="pressed field">
-          <label class="label" for="vendaItemPreco">preço unitário</label>
-          <div class="row">
-            <div style="font-size:14.5px;font-weight:600;color:var(--text-faint);">R$</div>
-            <input type="text" id="vendaItemPreco" placeholder="0,00" style="flex:1;" />
-          </div>
-        </div>
-        <div style="font-size:11px;color:var(--text-faint);margin:-8px 4px 18px;" id="vendaItemEstoqueInfo">—</div>
-
-        <button class="btn btn-primary" data-action="venda-item-submit" id="vendaItemSubmitBtn"
-          style="width:100%;margin-bottom:12px;">Adicionar</button>
-        <div style="text-align:center;" id="vendaItemRemoveWrap" hidden>
-          <button class="btn btn-text" data-action="venda-item-remove">Remover item</button>
-        </div>
-        <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;text-align:center;margin-top:6px;">O preço
-          vem do Catálogo por padrão, mas pode ser ajustado linha a linha nesta venda.</div>
-      </div>
-      <div class="navbar">
-        <div class="navitem" data-nav="inicio" role="button" tabindex="0" aria-label="Início">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path d="M4 11.5 12 4l8 7.5" />
-              <path d="M6 10v9a1 1 0 0 0 1 1h3v-6h4v6h3a1 1 0 0 0 1-1v-9" />
-            </svg></div><span>Início</span>
-        </div>
-        <div class="navitem" data-nav="estoque" role="button" tabindex="0" aria-label="Estoque">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <rect x="4" y="4" width="16" height="5" rx="1.2" />
-              <rect x="4" y="11" width="16" height="9" rx="1.2" />
-              <path d="M9 15h6" />
-            </svg></div><span>Estoque</span>
-        </div>
-        <div class="navitem" data-nav="producao" role="button" tabindex="0" aria-label="Produção">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path
-                d="M12 3c-3 4-5.2 6.4-5.2 9.4A5.2 5.2 0 0 0 12 21a5.2 5.2 0 0 0 5.2-5.2c0-1.2-.4-2.1-1.1-2.8.1 1-.3 2-1.1 2.5.4-2.1-1-3.6-3-6.5z" />
-            </svg></div><span>Produção</span>
-        </div>
-        <div class="navitem active" data-nav="vendas" role="button" tabindex="0" aria-label="Vendas">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path d="M6 8h12l1 12H5L6 8z" />
-              <path d="M9 8V6a3 3 0 0 1 6 0v2" />
-            </svg></div><span>Vendas</span>
-        </div>
-        <div class="navitem" data-nav="mais" role="button" tabindex="0" aria-label="Mais">
-          <div class="icwrap"><svg viewBox="0 0 24 24">
-              <circle cx="6" cy="12" r="1.6" fill="currentColor" />
-              <circle cx="12" cy="12" r="1.6" fill="currentColor" />
-              <circle cx="18" cy="12" r="1.6" fill="currentColor" />
-            </svg></div><span>Mais</span>
-        </div>
-      </div>
-
-    </div>
-    <div class="screen" data-screen="vendaLotePicker" hidden>
-
-      <div class="backrow">
-        <div class="iconbtn" role="button" tabindex="0" aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M19 12H5M11 18l-6-6 6-6" />
-          </svg></div>
-        <div>
-          <div class="crumb">Encomenda</div>
-          <div class="pagetitle" style="font-size:19px;margin-top:1px;">Vincular lote de produção</div>
-        </div>
-      </div>
-      <div class="content" style="padding-top:14px;">
-
-        <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;margin:0 4px 16px;">Escolha o lote do
-          Registro de Produção que vai atender esta encomenda — o status "em produção" fica sempre ligado a um lote
-          real.</div>
-
-        <div id="vendaLotePickerList"></div>
-      </div>
-      <div class="navbar">
-        <div class="navitem" data-nav="inicio" role="button" tabindex="0" aria-label="Início">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path d="M4 11.5 12 4l8 7.5" />
-              <path d="M6 10v9a1 1 0 0 0 1 1h3v-6h4v6h3a1 1 0 0 0 1-1v-9" />
-            </svg></div><span>Início</span>
-        </div>
-        <div class="navitem" data-nav="estoque" role="button" tabindex="0" aria-label="Estoque">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <rect x="4" y="4" width="16" height="5" rx="1.2" />
-              <rect x="4" y="11" width="16" height="9" rx="1.2" />
-              <path d="M9 15h6" />
-            </svg></div><span>Estoque</span>
-        </div>
-        <div class="navitem" data-nav="producao" role="button" tabindex="0" aria-label="Produção">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path
-                d="M12 3c-3 4-5.2 6.4-5.2 9.4A5.2 5.2 0 0 0 12 21a5.2 5.2 0 0 0 5.2-5.2c0-1.2-.4-2.1-1.1-2.8.1 1-.3 2-1.1 2.5.4-2.1-1-3.6-3-6.5z" />
-            </svg></div><span>Produção</span>
-        </div>
-        <div class="navitem active" data-nav="vendas" role="button" tabindex="0" aria-label="Vendas">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path d="M6 8h12l1 12H5L6 8z" />
-              <path d="M9 8V6a3 3 0 0 1 6 0v2" />
-            </svg></div><span>Vendas</span>
-        </div>
-        <div class="navitem" data-nav="mais" role="button" tabindex="0" aria-label="Mais">
-          <div class="icwrap"><svg viewBox="0 0 24 24">
-              <circle cx="6" cy="12" r="1.6" fill="currentColor" />
-              <circle cx="12" cy="12" r="1.6" fill="currentColor" />
-              <circle cx="18" cy="12" r="1.6" fill="currentColor" />
-            </svg></div><span>Mais</span>
-        </div>
-      </div>
-
-    </div>
-    <div class="screen" data-screen="clientes" hidden>
-
-      <div class="backrow between">
-        <div class="row">
-          <div class="iconbtn" role="button" tabindex="0" aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M19 12H5M11 18l-6-6 6-6" />
-            </svg></div>
-          <div>
-            <div class="crumb">Mais</div>
-            <div class="pagetitle" style="font-size:19px;margin-top:1px;">Clientes</div>
-          </div>
-        </div>
-        <div class="iconbtn" role="button" tabindex="0" aria-label="Adicionar cliente" data-action="cliente-add"><svg
-            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
-            <path d="M12 5v14M5 12h14" />
-          </svg></div>
-      </div>
-      <div class="content" style="padding-top:6px;">
-
-        <div class="pressed field row" style="padding:12px 16px;margin-bottom:16px;">
-          <div style="color:var(--text-faint);width:17px;height:17px;"><svg viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="10.5" cy="10.5" r="6" />
-              <path d="m20 20-4.8-4.8" />
-            </svg></div>
-          <input type="text" id="clientesSearchInput" placeholder="nome ou telefone"
-            aria-label="Buscar por nome ou telefone" />
-        </div>
-
-        <div class="row" style="gap:9px;margin-bottom:18px;">
-          <div class="pill active" data-clientefiltro="todos" role="button" tabindex="0" aria-pressed="true">Todos</div>
-          <div class="pill" data-clientefiltro="compras" role="button" tabindex="0" aria-pressed="false">Compram mais
-          </div>
-          <div class="pill" data-clientefiltro="gasto" role="button" tabindex="0" aria-pressed="false">Gastam mais</div>
-        </div>
-
-        <div id="clientesFeatured"></div>
-
-        <div id="clientesEmpty" hidden></div>
-
-        <div class="label" id="clientesCount">todos os cadastros</div>
-        <div id="clientesRestList"></div>
-      </div>
-      <div class="navbar">
-        <div class="navitem" data-nav="inicio" role="button" tabindex="0" aria-label="Início">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path d="M4 11.5 12 4l8 7.5" />
-              <path d="M6 10v9a1 1 0 0 0 1 1h3v-6h4v6h3a1 1 0 0 0 1-1v-9" />
-            </svg></div><span>Início</span>
-        </div>
-        <div class="navitem" data-nav="estoque" role="button" tabindex="0" aria-label="Estoque">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <rect x="4" y="4" width="16" height="5" rx="1.2" />
-              <rect x="4" y="11" width="16" height="9" rx="1.2" />
-              <path d="M9 15h6" />
-            </svg></div><span>Estoque</span>
-        </div>
-        <div class="navitem" data-nav="producao" role="button" tabindex="0" aria-label="Produção">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path
-                d="M12 3c-3 4-5.2 6.4-5.2 9.4A5.2 5.2 0 0 0 12 21a5.2 5.2 0 0 0 5.2-5.2c0-1.2-.4-2.1-1.1-2.8.1 1-.3 2-1.1 2.5.4-2.1-1-3.6-3-6.5z" />
-            </svg></div><span>Produção</span>
-        </div>
-        <div class="navitem" data-nav="vendas" role="button" tabindex="0" aria-label="Vendas">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path d="M6 8h12l1 12H5L6 8z" />
-              <path d="M9 8V6a3 3 0 0 1 6 0v2" />
-            </svg></div><span>Vendas</span>
-        </div>
-        <div class="navitem active" data-nav="mais" role="button" tabindex="0" aria-label="Mais">
-          <div class="icwrap"><svg viewBox="0 0 24 24">
-              <circle cx="6" cy="12" r="1.6" fill="currentColor" />
-              <circle cx="12" cy="12" r="1.6" fill="currentColor" />
-              <circle cx="18" cy="12" r="1.6" fill="currentColor" />
-            </svg></div><span>Mais</span>
-        </div>
-      </div>
-
-    </div>
-    <div class="screen" data-screen="clienteForm" hidden>
-
-      <div class="backrow">
-        <div class="iconbtn" role="button" tabindex="0" aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M19 12H5M11 18l-6-6 6-6" />
-          </svg></div>
-        <div>
-          <div class="crumb">Clientes</div>
-          <div class="pagetitle" style="font-size:19px;margin-top:1px;" id="clienteFormTitle">Novo cliente</div>
-        </div>
-      </div>
-      <div class="content" style="padding-top:14px;">
-
-        <div class="pressed field">
-          <label class="label" for="clienteFormNome">nome</label>
-          <input type="text" id="clienteFormNome" placeholder="ex.: Ana Ribeiro" />
-        </div>
-        <div class="pressed field">
-          <label class="label" for="clienteFormTelefone">telefone</label>
-          <input type="text" id="clienteFormTelefone" placeholder="(11) 9 0000-0000" />
-        </div>
-        <div class="pressed field">
-          <label class="label" for="clienteFormEmail">e-mail</label>
-          <input type="text" id="clienteFormEmail" placeholder="opcional" />
-        </div>
-        <div class="pressed field">
-          <label class="label" for="clienteFormEndereco">endereço</label>
-          <input type="text" id="clienteFormEndereco" placeholder="opcional" />
-        </div>
-
-        <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;margin:2px 4px 22px;">O identificador do
-          cliente é gerado automaticamente — não precisa definir.</div>
-
-        <button class="btn btn-primary" data-action="cliente-form-save" style="width:100%;margin-bottom:12px;">Salvar
-          cliente</button>
-        <div style="text-align:center;" id="clienteFormRemoveWrap" hidden>
-          <button class="btn btn-text" data-action="cliente-form-remove">Remover cliente</button>
-        </div>
-      </div>
-      <div class="navbar">
-        <div class="navitem" data-nav="inicio" role="button" tabindex="0" aria-label="Início">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path d="M4 11.5 12 4l8 7.5" />
-              <path d="M6 10v9a1 1 0 0 0 1 1h3v-6h4v6h3a1 1 0 0 0 1-1v-9" />
-            </svg></div><span>Início</span>
-        </div>
-        <div class="navitem" data-nav="estoque" role="button" tabindex="0" aria-label="Estoque">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <rect x="4" y="4" width="16" height="5" rx="1.2" />
-              <rect x="4" y="11" width="16" height="9" rx="1.2" />
-              <path d="M9 15h6" />
-            </svg></div><span>Estoque</span>
-        </div>
-        <div class="navitem" data-nav="producao" role="button" tabindex="0" aria-label="Produção">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path
-                d="M12 3c-3 4-5.2 6.4-5.2 9.4A5.2 5.2 0 0 0 12 21a5.2 5.2 0 0 0 5.2-5.2c0-1.2-.4-2.1-1.1-2.8.1 1-.3 2-1.1 2.5.4-2.1-1-3.6-3-6.5z" />
-            </svg></div><span>Produção</span>
-        </div>
-        <div class="navitem" data-nav="vendas" role="button" tabindex="0" aria-label="Vendas">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path d="M6 8h12l1 12H5L6 8z" />
-              <path d="M9 8V6a3 3 0 0 1 6 0v2" />
-            </svg></div><span>Vendas</span>
-        </div>
-        <div class="navitem" data-nav="mais" role="button" tabindex="0" aria-label="Mais">
-          <div class="icwrap"><svg viewBox="0 0 24 24">
-              <circle cx="6" cy="12" r="1.6" fill="currentColor" />
-              <circle cx="12" cy="12" r="1.6" fill="currentColor" />
-              <circle cx="18" cy="12" r="1.6" fill="currentColor" />
-            </svg></div><span>Mais</span>
-        </div>
-      </div>
-
-    </div>
-    <div class="screen" data-screen="clienteDetalhe" hidden>
-
-      <div class="backrow between">
-        <div class="row">
-          <div class="iconbtn" role="button" tabindex="0" aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M19 12H5M11 18l-6-6 6-6" />
-            </svg></div>
-          <div>
-            <div class="crumb">Clientes</div>
-            <div class="pagetitle" style="font-size:19px;margin-top:1px;" id="clienteDetNome">—</div>
-          </div>
-        </div>
-        <div class="tapicon" role="button" tabindex="0" aria-label="Editar cliente" data-action="cliente-editar"
-          id="clienteDetEditarBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-            stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 20h9" />
-            <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z" />
-          </svg></div>
-      </div>
-      <div class="content" style="padding-top:14px;">
-
-        <div class="raised card">
-          <div class="between" style="padding:10px 0;border-bottom:1px solid var(--line);"><span
-              style="font-size:13px;color:var(--text-faint);">telefone</span><span
-              style="font-size:13.5px;font-weight:600;" id="clienteDetTelefone">—</span></div>
-          <div class="between" style="padding:10px 0;border-bottom:1px solid var(--line);"><span
-              style="font-size:13px;color:var(--text-faint);">e-mail</span><span
-              style="font-size:13.5px;font-weight:600;" id="clienteDetEmail">—</span></div>
-          <div class="between" style="padding:10px 0;border-bottom:1px solid var(--line);"><span
-              style="font-size:13px;color:var(--text-faint);">endereço</span><span
-              style="font-size:13.5px;font-weight:600;" id="clienteDetEndereco">—</span></div>
-          <div class="between" style="padding:10px 0;"><span style="font-size:13px;color:var(--text-faint);">cliente
-              desde</span><span style="font-size:13.5px;font-weight:600;" id="clienteDetDesde">—</span></div>
-        </div>
-
-        <div class="raised card">
-          <div class="label">histórico de compras</div>
-          <div class="row" style="gap:24px;margin-bottom:6px;">
-            <div>
-              <div class="label" style="margin-bottom:4px;">compras</div>
-              <div style="font-size:18px;font-weight:700;" id="clienteDetCompras">0</div>
-            </div>
-            <div>
-              <div class="label" style="margin-bottom:4px;">gasto total</div>
-              <div style="font-size:18px;font-weight:700;" id="clienteDetGasto">R$ 0,00</div>
-            </div>
-            <div>
-              <div class="label" style="margin-bottom:4px;">ticket médio</div>
-              <div style="font-size:18px;font-weight:700;" id="clienteDetTicket">—</div>
-            </div>
-          </div>
-        </div>
-        <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;margin-top:6px;text-align:center;">O
-          histórico de vendas linha a linha aparece aqui quando o módulo de Vendas estiver conectado ao cadastro de
-          clientes.</div>
-      </div>
-      <div class="navbar">
-        <div class="navitem" data-nav="inicio" role="button" tabindex="0" aria-label="Início">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path d="M4 11.5 12 4l8 7.5" />
-              <path d="M6 10v9a1 1 0 0 0 1 1h3v-6h4v6h3a1 1 0 0 0 1-1v-9" />
-            </svg></div><span>Início</span>
-        </div>
-        <div class="navitem" data-nav="estoque" role="button" tabindex="0" aria-label="Estoque">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <rect x="4" y="4" width="16" height="5" rx="1.2" />
-              <rect x="4" y="11" width="16" height="9" rx="1.2" />
-              <path d="M9 15h6" />
-            </svg></div><span>Estoque</span>
-        </div>
-        <div class="navitem" data-nav="producao" role="button" tabindex="0" aria-label="Produção">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path
-                d="M12 3c-3 4-5.2 6.4-5.2 9.4A5.2 5.2 0 0 0 12 21a5.2 5.2 0 0 0 5.2-5.2c0-1.2-.4-2.1-1.1-2.8.1 1-.3 2-1.1 2.5.4-2.1-1-3.6-3-6.5z" />
-            </svg></div><span>Produção</span>
-        </div>
-        <div class="navitem" data-nav="vendas" role="button" tabindex="0" aria-label="Vendas">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path d="M6 8h12l1 12H5L6 8z" />
-              <path d="M9 8V6a3 3 0 0 1 6 0v2" />
-            </svg></div><span>Vendas</span>
-        </div>
-        <div class="navitem" data-nav="mais" role="button" tabindex="0" aria-label="Mais">
-          <div class="icwrap"><svg viewBox="0 0 24 24">
-              <circle cx="6" cy="12" r="1.6" fill="currentColor" />
-              <circle cx="12" cy="12" r="1.6" fill="currentColor" />
-              <circle cx="18" cy="12" r="1.6" fill="currentColor" />
-            </svg></div><span>Mais</span>
-        </div>
-      </div>
-
-    </div>
-    <div class="screen" data-screen="custos" hidden>
-
-      <div class="backrow between">
-        <div class="row">
-          <div class="iconbtn" role="button" tabindex="0" aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M19 12H5M11 18l-6-6 6-6" />
-            </svg></div>
-          <div>
-            <div class="crumb">Mais</div>
-            <div class="pagetitle" style="font-size:19px;margin-top:1px;">Custos</div>
-          </div>
-        </div>
-        <div class="iconbtn" role="button" tabindex="0" aria-label="Cadastrar custo fixo" data-action="custo-fixo-add">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
-            <path d="M12 5v14M5 12h14" />
-          </svg></div>
-      </div>
-      <div class="content" style="padding-top:6px;">
-        <div class="quote" style="font-size:15px;margin-bottom:18px;" id="custosQuote">—</div>
-
-        <div class="raised card">
-          <div class="label">custo real por vela</div>
-          <div style="font-size:30px;font-weight:800;margin-bottom:12px;" id="custosPorVelaValor">R$ 0,00</div>
-          <div style="display:flex;gap:5px;height:10px;border-radius:6px;overflow:hidden;margin-bottom:12px;">
-            <div id="custosBarInsumo" style="flex:1;background:var(--primary);"></div>
-            <div id="custosBarFixo" style="flex:1;background:var(--chart-2);"></div>
-          </div>
-          <div class="row" style="gap:18px;flex-wrap:wrap;">
-            <span class="row" style="font-size:11.5px;color:var(--text-dim);"><span
-                style="width:8px;height:8px;border-radius:50%;background:var(--primary);"></span>insumos <span
-                id="custosInsumoValor">R$ 0,00</span></span>
-            <span class="row" style="font-size:11.5px;color:var(--text-dim);"><span
-                style="width:8px;height:8px;border-radius:50%;background:var(--chart-2);"></span>fixos rateados <span
-                id="custosFixoRateadoValor">R$ 0,00</span></span>
-          </div>
-          <div style="font-size:11px;color:var(--text-faint);margin-top:10px;">custo médio dos insumos usados nos lotes
-            registrados + custos fixos rateados pela produção mensal estimada abaixo.</div>
-        </div>
-
-        <div class="raised card">
-          <div class="label" style="margin-bottom:14px;">custo × preço médio × margem</div>
-          <div class="row" style="justify-content:space-between;">
-            <div style="text-align:center;flex:1;">
-              <div style="font-size:16px;font-weight:700;" id="custosCompCusto">0,00</div>
-              <div style="font-size:10.5px;color:var(--text-faint);">custo</div>
-            </div>
-            <div style="text-align:center;flex:1;">
-              <div style="font-size:16px;font-weight:700;" id="custosCompVenda">0,00</div>
-              <div style="font-size:10.5px;color:var(--text-faint);">venda</div>
-            </div>
-            <div style="text-align:center;flex:1;">
-              <div style="font-size:16px;font-weight:700;color:var(--good);" id="custosCompMargem">0%</div>
-              <div style="font-size:10.5px;color:var(--text-faint);">margem</div>
-            </div>
-          </div>
-          <div style="font-size:11px;color:var(--text-faint);margin-top:10px;">preço de venda médio entre as variações
-            do Catálogo.</div>
-        </div>
-
-        <div class="pressed field">
-          <label class="label" for="custosRateioInput">produção mensal estimada (rateio dos custos fixos)</label>
-          <div class="row">
-            <input type="text" id="custosRateioInput" placeholder="0" />
-            <div style="font-size:14.5px;font-weight:600;color:var(--text-faint);">un/mês</div>
-          </div>
-        </div>
-
-        <div class="raised card">
-          <div class="between" style="margin-bottom:6px;">
-            <div class="label" style="margin:0;">custos fixos do mês</div>
-            <div style="font-size:13px;font-weight:700;" id="custosFixoTotal">R$ 0,00</div>
-          </div>
-          <div id="custosFixosList"></div>
-          <div id="custosFixosEmpty" class="emptystate" style="padding:22px 16px 6px;" hidden>
-            <div class="emptystate-icon" style="width:44px;height:44px;"><svg viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="8" />
-                <path
-                  d="M12 7.5v9M9.4 9.7c0-1.1 1.1-1.9 2.6-1.9s2.6.8 2.6 1.8c0 2.5-5.2 1.4-5.2 3.9 0 1 1.1 1.8 2.6 1.8s2.6-.8 2.6-1.9" />
-              </svg></div>
-            <div class="emptystate-title">nenhum custo fixo cadastrado ainda</div>
-            <div class="emptystate-sub">aluguel, internet, assinaturas — cadastre o que você paga todo mês pra ratear
-              certo no lucro líquido.</div>
-            <button class="btn btn-ghost" data-action="custo-fixo-add"
-              style="display:inline-flex;padding:10px 20px;margin-top:16px;">cadastrar primeiro custo fixo</button>
-          </div>
-        </div>
-
-        <div class="raised card" style="background:var(--primary);">
-          <div class="between">
-            <div>
-              <div
-                style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:rgba(245,243,239,.7);">
-                Lucro líquido real</div>
-              <div style="font-size:11px;color:rgba(245,243,239,.55);margin-top:2px;" id="custosLucroSub">este mês ·
-                alimenta o Dashboard</div>
-            </div>
-            <div style="font-size:24px;font-weight:800;color:var(--on-primary);" id="custosLucroValor">R$ 0,00</div>
-          </div>
-        </div>
-      </div>
-      <div class="navbar">
-        <div class="navitem" data-nav="inicio" role="button" tabindex="0" aria-label="Início">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path d="M4 11.5 12 4l8 7.5" />
-              <path d="M6 10v9a1 1 0 0 0 1 1h3v-6h4v6h3a1 1 0 0 0 1-1v-9" />
-            </svg></div><span>Início</span>
-        </div>
-        <div class="navitem" data-nav="estoque" role="button" tabindex="0" aria-label="Estoque">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <rect x="4" y="4" width="16" height="5" rx="1.2" />
-              <rect x="4" y="11" width="16" height="9" rx="1.2" />
-              <path d="M9 15h6" />
-            </svg></div><span>Estoque</span>
-        </div>
-        <div class="navitem" data-nav="producao" role="button" tabindex="0" aria-label="Produção">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path
-                d="M12 3c-3 4-5.2 6.4-5.2 9.4A5.2 5.2 0 0 0 12 21a5.2 5.2 0 0 0 5.2-5.2c0-1.2-.4-2.1-1.1-2.8.1 1-.3 2-1.1 2.5.4-2.1-1-3.6-3-6.5z" />
-            </svg></div><span>Produção</span>
-        </div>
-        <div class="navitem" data-nav="vendas" role="button" tabindex="0" aria-label="Vendas">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path d="M6 8h12l1 12H5L6 8z" />
-              <path d="M9 8V6a3 3 0 0 1 6 0v2" />
-            </svg></div><span>Vendas</span>
-        </div>
-        <div class="navitem active" data-nav="mais" role="button" tabindex="0" aria-label="Mais">
-          <div class="icwrap"><svg viewBox="0 0 24 24">
-              <circle cx="6" cy="12" r="1.6" fill="currentColor" />
-              <circle cx="12" cy="12" r="1.6" fill="currentColor" />
-              <circle cx="18" cy="12" r="1.6" fill="currentColor" />
-            </svg></div><span>Mais</span>
-        </div>
-      </div>
-
-    </div>
-    <div class="screen" data-screen="custoFixoForm" hidden>
-
-      <div class="backrow">
-        <div class="iconbtn" role="button" tabindex="0" aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M19 12H5M11 18l-6-6 6-6" />
-          </svg></div>
-        <div>
-          <div class="crumb">Custos</div>
-          <div class="pagetitle" style="font-size:19px;margin-top:1px;" id="custoFixoFormTitle">Novo custo fixo</div>
-        </div>
-      </div>
-      <div class="content" style="padding-top:14px;">
-
-        <div class="pressed field">
-          <label class="label" for="custoFixoFormNome">nome do custo</label>
-          <input type="text" id="custoFixoFormNome" placeholder="ex.: Aluguel do ateliê" />
-        </div>
-        <div class="pressed field">
-          <label class="label" for="custoFixoFormValor">valor mensal</label>
-          <div class="row">
-            <div style="font-size:14.5px;font-weight:600;color:var(--text-faint);">R$</div>
-            <input type="text" id="custoFixoFormValor" placeholder="0,00" style="flex:1;" />
-          </div>
-        </div>
-
-        <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;margin:2px 4px 22px;">Esse valor entra no
-          total de custos fixos do mês e no rateio do custo real por vela.</div>
-
-        <button class="btn btn-primary" data-action="custo-fixo-form-save" style="width:100%;margin-bottom:12px;">Salvar
-          custo fixo</button>
-        <div style="text-align:center;" id="custoFixoFormRemoveWrap" hidden>
-          <button class="btn btn-text" data-action="custo-fixo-form-remove">Remover custo fixo</button>
-        </div>
-      </div>
-      <div class="navbar">
-        <div class="navitem" data-nav="inicio" role="button" tabindex="0" aria-label="Início">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path d="M4 11.5 12 4l8 7.5" />
-              <path d="M6 10v9a1 1 0 0 0 1 1h3v-6h4v6h3a1 1 0 0 0 1-1v-9" />
-            </svg></div><span>Início</span>
-        </div>
-        <div class="navitem" data-nav="estoque" role="button" tabindex="0" aria-label="Estoque">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <rect x="4" y="4" width="16" height="5" rx="1.2" />
-              <rect x="4" y="11" width="16" height="9" rx="1.2" />
-              <path d="M9 15h6" />
-            </svg></div><span>Estoque</span>
-        </div>
-        <div class="navitem" data-nav="producao" role="button" tabindex="0" aria-label="Produção">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path
-                d="M12 3c-3 4-5.2 6.4-5.2 9.4A5.2 5.2 0 0 0 12 21a5.2 5.2 0 0 0 5.2-5.2c0-1.2-.4-2.1-1.1-2.8.1 1-.3 2-1.1 2.5.4-2.1-1-3.6-3-6.5z" />
-            </svg></div><span>Produção</span>
-        </div>
-        <div class="navitem" data-nav="vendas" role="button" tabindex="0" aria-label="Vendas">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path d="M6 8h12l1 12H5L6 8z" />
-              <path d="M9 8V6a3 3 0 0 1 6 0v2" />
-            </svg></div><span>Vendas</span>
-        </div>
-        <div class="navitem active" data-nav="mais" role="button" tabindex="0" aria-label="Mais">
-          <div class="icwrap"><svg viewBox="0 0 24 24">
-              <circle cx="6" cy="12" r="1.6" fill="currentColor" />
-              <circle cx="12" cy="12" r="1.6" fill="currentColor" />
-              <circle cx="18" cy="12" r="1.6" fill="currentColor" />
-            </svg></div><span>Mais</span>
-        </div>
-      </div>
-
-    </div>
-    <div class="screen" data-screen="configuracoes" hidden>
-
-      <div class="backrow between">
-        <div class="row">
-          <div class="iconbtn" role="button" tabindex="0" aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M19 12H5M11 18l-6-6 6-6" />
-            </svg></div>
-          <div>
-            <div class="crumb">Mais</div>
-            <div class="pagetitle" style="font-size:19px;margin-top:1px;">Configurações</div>
-          </div>
-        </div>
-
-      </div>
-      <div class="content" style="padding-top:6px;">
-
-        <div class="raised card">
-          <div class="label">aparência</div>
-          <div class="between" style="padding:4px 0;">
-            <span style="font-size:13.5px;">Modo escuro</span>
-            <div class="pressed-pill" role="switch" tabindex="0" data-tema-toggle aria-checked="false"
-              aria-label="Modo escuro" style="width:42px;height:24px;position:relative;">
-              <div
-                style="position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:var(--on-primary);box-shadow:0 2px 4px var(--knob-shadow);">
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="raised card">
-          <div class="label">receita padrão por vela</div>
-          <div id="cfgReceitaList"></div>
-          <div role="button" tabindex="0" data-action="receita-item-add"
-            style="text-align:center;padding-top:12px;font-size:12.5px;font-weight:600;color:var(--primary);cursor:pointer;">
-            + adicionar ingrediente</div>
-          <div style="font-size:11px;color:var(--text-faint);line-height:1.5;margin:8px 2px 0;">É esta receita que a
-            Calculadora de velas usa como padrão — "salvar como padrão" por lá atualiza estes valores. Toque num
-            ingrediente pra renomear, trocar o insumo ou excluir.</div>
-        </div>
-
-        <div class="raised card">
-          <div class="label">jarra e derretimento</div>
-          <div class="between" style="padding:11px 0;border-bottom:1px solid var(--line);">
-            <label style="font-size:13.5px;" for="cfgJarraCap">Capacidade da jarra</label>
-            <span class="row" style="gap:4px;"><input type="text" id="cfgJarraCap" inputmode="decimal"
-                style="width:56px;text-align:right;border:none;background:none;font-family:'DM Sans',sans-serif;font-size:13.5px;font-weight:600;color:var(--text-dim);padding:0;" /><span
-                style="font-size:13.5px;font-weight:600;color:var(--text-dim);">ml</span></span>
-          </div>
-          <div class="between" style="padding:11px 0;">
-            <label style="font-size:13.5px;" for="cfgPerda">Perda de derretimento</label>
-            <span class="row" style="gap:4px;"><input type="text" id="cfgPerda" inputmode="decimal"
-                style="width:56px;text-align:right;border:none;background:none;font-family:'DM Sans',sans-serif;font-size:13.5px;font-weight:600;color:var(--text-dim);padding:0;" /><span
-                style="font-size:13.5px;font-weight:600;color:var(--text-dim);">%</span></span>
-          </div>
-        </div>
-
-        <div class="raised card">
-          <div class="between" style="margin-bottom:2px;">
-            <div class="label" style="margin:0;">preço de venda por variação</div>
-            <div style="font-size:11.5px;font-weight:600;color:var(--primary);" id="cfgPrecosCount">itens</div>
-          </div>
-          <div id="cfgPrecosList"></div>
-          <div role="button" tabindex="0" data-action="variacao-add"
-            style="text-align:center;padding-top:12px;font-size:12.5px;font-weight:600;color:var(--primary);cursor:pointer;">
-            + adicionar variação</div>
-          <div style="font-size:11px;color:var(--text-faint);line-height:1.5;margin:8px 2px 0;">Toque numa variação pra
-            renomear cheiro, cor, preço ou excluir.</div>
-        </div>
-
-        <div class="raised card">
-          <div class="label">aviso de reposição por</div>
-          <div class="between" style="padding:12px 0;border-bottom:1px solid var(--line);">
-            <span style="font-size:13.5px;">Push</span>
-            <div class="pressed-pill" role="switch" tabindex="0" data-canal="push" aria-checked="true"
-              aria-label="Avisar por Push" style="width:42px;height:24px;position:relative;background:var(--primary);">
-              <div
-                style="position:absolute;top:3px;right:3px;width:18px;height:18px;border-radius:50%;background:var(--on-primary);box-shadow:0 2px 4px var(--knob-shadow);">
-              </div>
-            </div>
-          </div>
-          <div class="between" style="padding:12px 0;border-bottom:1px solid var(--line);">
-            <span style="font-size:13.5px;">E-mail</span>
-            <div class="pressed-pill" role="switch" tabindex="0" data-canal="email" aria-checked="false"
-              aria-label="Avisar por E-mail" style="width:42px;height:24px;position:relative;">
-              <div
-                style="position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:var(--on-primary);box-shadow:0 2px 4px var(--knob-shadow);">
-              </div>
-            </div>
-          </div>
-          <div class="between" style="padding:12px 0;">
-            <span style="font-size:13.5px;">WhatsApp</span>
-            <div class="pressed-pill" role="switch" tabindex="0" data-canal="whatsapp" aria-checked="false"
-              aria-label="Avisar por WhatsApp" style="width:42px;height:24px;position:relative;">
-              <div
-                style="position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:var(--on-primary);box-shadow:0 2px 4px var(--knob-shadow);">
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div style="text-align:center;padding:10px 0 4px;">
-          <button class="btn btn-text" data-action="logout">Sair da conta</button>
-        </div>
-      </div>
-      <div class="navbar">
-        <div class="navitem" data-nav="inicio" role="button" tabindex="0" aria-label="Início">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path d="M4 11.5 12 4l8 7.5" />
-              <path d="M6 10v9a1 1 0 0 0 1 1h3v-6h4v6h3a1 1 0 0 0 1-1v-9" />
-            </svg></div><span>Início</span>
-        </div>
-        <div class="navitem" data-nav="estoque" role="button" tabindex="0" aria-label="Estoque">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <rect x="4" y="4" width="16" height="5" rx="1.2" />
-              <rect x="4" y="11" width="16" height="9" rx="1.2" />
-              <path d="M9 15h6" />
-            </svg></div><span>Estoque</span>
-        </div>
-        <div class="navitem" data-nav="producao" role="button" tabindex="0" aria-label="Produção">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path
-                d="M12 3c-3 4-5.2 6.4-5.2 9.4A5.2 5.2 0 0 0 12 21a5.2 5.2 0 0 0 5.2-5.2c0-1.2-.4-2.1-1.1-2.8.1 1-.3 2-1.1 2.5.4-2.1-1-3.6-3-6.5z" />
-            </svg></div><span>Produção</span>
-        </div>
-        <div class="navitem" data-nav="vendas" role="button" tabindex="0" aria-label="Vendas">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path d="M6 8h12l1 12H5L6 8z" />
-              <path d="M9 8V6a3 3 0 0 1 6 0v2" />
-            </svg></div><span>Vendas</span>
-        </div>
-        <div class="navitem active" data-nav="mais" role="button" tabindex="0" aria-label="Mais">
-          <div class="icwrap"><svg viewBox="0 0 24 24">
-              <circle cx="6" cy="12" r="1.6" fill="currentColor" />
-              <circle cx="12" cy="12" r="1.6" fill="currentColor" />
-              <circle cx="18" cy="12" r="1.6" fill="currentColor" />
-            </svg></div><span>Mais</span>
-        </div>
-      </div>
-
-    </div>
-    <div class="screen" data-screen="receitaItemForm" hidden>
-
-      <div class="backrow">
-        <div class="iconbtn" role="button" tabindex="0" aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M19 12H5M11 18l-6-6 6-6" />
-          </svg></div>
-        <div>
-          <div class="crumb">Configurações</div>
-          <div class="pagetitle" style="font-size:19px;margin-top:1px;" id="receitaItemFormTitle">Novo ingrediente</div>
-        </div>
-      </div>
-      <div class="content" style="padding-top:14px;">
-
-        <div class="pressed field">
-          <label class="label" for="receitaItemFormNome">nome do ingrediente</label>
-          <input type="text" id="receitaItemFormNome" placeholder="ex.: Corante líquido" />
-        </div>
-
-        <div id="receitaItemFormInsumoWrap">
-          <div class="label" style="margin:14px 4px 8px;">insumo do estoque</div>
-          <div id="receitaItemFormInsumoList"></div>
-          <div id="receitaItemFormInsumoEmpty"
-            style="font-size:11.5px;color:var(--text-faint);line-height:1.5;margin:2px 4px 10px;" hidden>nenhum insumo
-            cadastrado ainda — cadastre um insumo no Estoque primeiro.</div>
-        </div>
-
-        <div class="pressed field">
-          <label class="label" for="receitaItemFormQtd">quantidade por vela</label>
-          <div class="row">
-            <input type="text" id="receitaItemFormQtd" inputmode="decimal" placeholder="0" style="flex:1;" />
-            <div style="font-size:14.5px;font-weight:600;color:var(--text-faint);" id="receitaItemFormUnidade">un</div>
-          </div>
-        </div>
-
-        <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;margin:2px 4px 22px;"
-          id="receitaItemFormHint"></div>
-
-        <button class="btn btn-primary" data-action="receita-item-form-save"
-          style="width:100%;margin-bottom:12px;">Salvar ingrediente</button>
-        <div style="text-align:center;" id="receitaItemFormRemoveWrap" hidden>
-          <button class="btn btn-text" data-action="receita-item-form-remove">Remover ingrediente</button>
-        </div>
-      </div>
-      <div class="navbar">
-        <div class="navitem" data-nav="inicio" role="button" tabindex="0" aria-label="Início">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path d="M4 11.5 12 4l8 7.5" />
-              <path d="M6 10v9a1 1 0 0 0 1 1h3v-6h4v6h3a1 1 0 0 0 1-1v-9" />
-            </svg></div><span>Início</span>
-        </div>
-        <div class="navitem" data-nav="estoque" role="button" tabindex="0" aria-label="Estoque">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <rect x="4" y="4" width="16" height="5" rx="1.2" />
-              <rect x="4" y="11" width="16" height="9" rx="1.2" />
-              <path d="M9 15h6" />
-            </svg></div><span>Estoque</span>
-        </div>
-        <div class="navitem" data-nav="producao" role="button" tabindex="0" aria-label="Produção">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path
-                d="M12 3c-3 4-5.2 6.4-5.2 9.4A5.2 5.2 0 0 0 12 21a5.2 5.2 0 0 0 5.2-5.2c0-1.2-.4-2.1-1.1-2.8.1 1-.3 2-1.1 2.5.4-2.1-1-3.6-3-6.5z" />
-            </svg></div><span>Produção</span>
-        </div>
-        <div class="navitem" data-nav="vendas" role="button" tabindex="0" aria-label="Vendas">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path d="M6 8h12l1 12H5L6 8z" />
-              <path d="M9 8V6a3 3 0 0 1 6 0v2" />
-            </svg></div><span>Vendas</span>
-        </div>
-        <div class="navitem active" data-nav="mais" role="button" tabindex="0" aria-label="Mais">
-          <div class="icwrap"><svg viewBox="0 0 24 24">
-              <circle cx="6" cy="12" r="1.6" fill="currentColor" />
-              <circle cx="12" cy="12" r="1.6" fill="currentColor" />
-              <circle cx="18" cy="12" r="1.6" fill="currentColor" />
-            </svg></div><span>Mais</span>
-        </div>
-      </div>
-
-    </div>
-    <div class="screen" data-screen="variacaoForm" hidden>
-
-      <div class="backrow">
-        <div class="iconbtn" role="button" tabindex="0" aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M19 12H5M11 18l-6-6 6-6" />
-          </svg></div>
-        <div>
-          <div class="crumb">Configurações</div>
-          <div class="pagetitle" style="font-size:19px;margin-top:1px;" id="variacaoFormTitle">Nova variação</div>
-        </div>
-      </div>
-      <div class="content" style="padding-top:14px;">
-
-        <div class="pressed field">
-          <label class="label" for="variacaoFormCheiro">cheiro</label>
-          <input type="text" id="variacaoFormCheiro" placeholder="ex.: Baunilha" />
-        </div>
-        <div class="pressed field">
-          <label class="label" for="variacaoFormCor">cor</label>
-          <input type="text" id="variacaoFormCor" placeholder="ex.: âmbar" />
-        </div>
-        <div class="pressed field">
-          <label class="label" for="variacaoFormPreco">preço de venda</label>
-          <div class="row">
-            <div style="font-size:14.5px;font-weight:600;color:var(--text-faint);">R$</div>
-            <input type="text" id="variacaoFormPreco" inputmode="decimal" placeholder="0,00" style="flex:1;" />
-          </div>
-        </div>
-
-        <div class="label" style="margin:14px 4px 8px;">insumo de essência</div>
-        <div id="variacaoFormEssenciaList"></div>
-        <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;margin:8px 4px 22px;">Define qual essência
-          do Estoque essa variação consome na Calculadora de velas.</div>
-
-        <button class="btn btn-primary" data-action="variacao-form-save" style="width:100%;margin-bottom:12px;">Salvar
-          variação</button>
-        <div style="text-align:center;" id="variacaoFormRemoveWrap" hidden>
-          <button class="btn btn-text" data-action="variacao-form-remove">Remover variação</button>
-        </div>
-      </div>
-      <div class="navbar">
-        <div class="navitem" data-nav="inicio" role="button" tabindex="0" aria-label="Início">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path d="M4 11.5 12 4l8 7.5" />
-              <path d="M6 10v9a1 1 0 0 0 1 1h3v-6h4v6h3a1 1 0 0 0 1-1v-9" />
-            </svg></div><span>Início</span>
-        </div>
-        <div class="navitem" data-nav="estoque" role="button" tabindex="0" aria-label="Estoque">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <rect x="4" y="4" width="16" height="5" rx="1.2" />
-              <rect x="4" y="11" width="16" height="9" rx="1.2" />
-              <path d="M9 15h6" />
-            </svg></div><span>Estoque</span>
-        </div>
-        <div class="navitem" data-nav="producao" role="button" tabindex="0" aria-label="Produção">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path
-                d="M12 3c-3 4-5.2 6.4-5.2 9.4A5.2 5.2 0 0 0 12 21a5.2 5.2 0 0 0 5.2-5.2c0-1.2-.4-2.1-1.1-2.8.1 1-.3 2-1.1 2.5.4-2.1-1-3.6-3-6.5z" />
-            </svg></div><span>Produção</span>
-        </div>
-        <div class="navitem" data-nav="vendas" role="button" tabindex="0" aria-label="Vendas">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path d="M6 8h12l1 12H5L6 8z" />
-              <path d="M9 8V6a3 3 0 0 1 6 0v2" />
-            </svg></div><span>Vendas</span>
-        </div>
-        <div class="navitem active" data-nav="mais" role="button" tabindex="0" aria-label="Mais">
-          <div class="icwrap"><svg viewBox="0 0 24 24">
-              <circle cx="6" cy="12" r="1.6" fill="currentColor" />
-              <circle cx="12" cy="12" r="1.6" fill="currentColor" />
-              <circle cx="18" cy="12" r="1.6" fill="currentColor" />
-            </svg></div><span>Mais</span>
-        </div>
-      </div>
-
-    </div>
     <div class="screen" data-screen="mais" hidden>
-
-      <div class="topbar">
-        <div class="brandrow">
-          <div class="brandmark">p</div>
-          <div class="brandname">ateliê parágrafo</div>
+      <div class="backrow">
+        <div class="iconbtn" role="button" tabindex="0" data-goto="dashboard" aria-label="Voltar ao início">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"
+            stroke-linejoin="round">
+            <path d="m15 6-6 6 6 6" />
+          </svg>
         </div>
-        <div class="avatar" data-goto="mais" role="button" tabindex="0" aria-label="Perfil">A</div>
+        <div>
+          <div class="crumb">início</div>
+          <div class="pagetitle" style="font-size:19px;">mais</div>
+        </div>
       </div>
-      <div class="content" style="padding-top:6px;">
-        <div class="pagetitle" style="margin-bottom:18px;">Mais</div>
-
-        <div class="raised-sm row" role="button" tabindex="0" data-goto="clientes"
-          style="padding:14px 16px;margin-bottom:11px;cursor:pointer;">
-          <div class="tapicon" style="color:var(--primary);border-radius:13px;background:var(--primary-soft);"><svg
-              viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"
-              stroke-linejoin="round">
-              <circle cx="12" cy="8" r="3.4" />
-              <path d="M5 20c1-4 4-6 7-6s6 2 7 6" />
-            </svg></div>
-          <div style="flex:1;">
-            <div style="font-size:14px;font-weight:600;">Clientes</div>
-            <div style="font-size:11.5px;color:var(--text-faint);margin-top:2px;">38 cadastros · ranking do mês</div>
-          </div>
-          <div style="color:var(--text-faint);width:14px;height:14px;"><svg viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-              <path d="m9 6 6 6-6 6" />
-            </svg></div>
+      <div class="content">
+        <div class="skel-overlay" aria-hidden="true" hidden>
+          <div class="skel-block" style="height:74px;"></div>
+          <div class="skel-block" style="height:46px;border-radius:15px;"></div>
         </div>
-        <div class="raised-sm row" role="button" tabindex="0" data-goto="custos"
-          style="padding:14px 16px;margin-bottom:11px;cursor:pointer;">
-          <div class="tapicon" style="color:var(--primary);border-radius:13px;background:var(--primary-soft);"><svg
-              viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"
-              stroke-linejoin="round">
-              <circle cx="12" cy="12" r="8" />
-              <path
-                d="M12 7.5v9M9.4 9.7c0-1.1 1.1-1.9 2.6-1.9s2.6.8 2.6 1.8c0 2.5-5.2 1.4-5.2 3.9 0 1 1.1 1.8 2.6 1.8s2.6-.8 2.6-1.9" />
-            </svg></div>
-          <div style="flex:1;">
-            <div style="font-size:14px;font-weight:600;">Custos</div>
-            <div style="font-size:11.5px;color:var(--text-faint);margin-top:2px;">lucro líquido real e custos fixos
+        <div class="raised card between" role="button" tabindex="0" data-action="toggle-tema"
+          aria-label="Alternar tema claro/escuro">
+          <div>
+            <div style="font-size:14px;font-weight:600;">tema escuro</div>
+            <div style="font-size:11.5px;color:var(--text-faint);margin-top:2px;">a marca nasceu escura — troque se
+              preferir um fundo claro</div>
+          </div>
+          <div class="pressed-pill" id="temaSwitchKnob" style="width:46px;height:27px;padding:3px;flex:none;">
+            <div id="temaSwitchDot"
+              style="width:21px;height:21px;border-radius:50%;background:var(--primary);transition:transform .18s ease;">
             </div>
           </div>
-          <div style="color:var(--text-faint);width:14px;height:14px;"><svg viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-              <path d="m9 6 6 6-6 6" />
-            </svg></div>
         </div>
-        <div class="raised-sm row" role="button" tabindex="0" data-goto="configuracoes"
-          style="padding:14px 16px;margin-bottom:11px;cursor:pointer;">
-          <div class="tapicon" style="color:var(--primary);border-radius:13px;background:var(--primary-soft);"><svg
-              viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"
-              stroke-linejoin="round">
-              <circle cx="12" cy="12" r="3" />
-              <path
-                d="M19.4 13.5c.1-.5.1-1 0-1.5l1.6-1.3-1.5-2.6-2 .5a7 7 0 0 0-1.3-.8L16 5.5h-3l-.2 2.3c-.5.2-.9.5-1.3.8l-2-.5-1.5 2.6L9.6 12c-.1.5-.1 1 0 1.5l-1.6 1.3 1.5 2.6 2-.5c.4.3.8.6 1.3.8L13 20.5h3l.2-2.3c.5-.2.9-.5 1.3-.8l2 .5 1.5-2.6-1.6-1.3z" />
-            </svg></div>
-          <div style="flex:1;">
-            <div style="font-size:14px;font-weight:600;">Configurações</div>
-            <div style="font-size:11.5px;color:var(--text-faint);margin-top:2px;">receita padrão, preços, avisos</div>
-          </div>
-          <div style="color:var(--text-faint);width:14px;height:14px;"><svg viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-              <path d="m9 6 6 6-6 6" />
-            </svg></div>
-        </div>
-
-        <div style="text-align:center;padding:16px 0 4px;">
-          <button class="btn btn-text" data-action="logout">Sair da conta</button>
+        <button class="btn btn-ghost" data-action="logout" style="width:100%;margin-top:8px;">sair da conta</button>
+        <div class="reveal-footer" aria-hidden="true">
+          <span class="reveal-footer-mark">.parágrafo</span>
         </div>
       </div>
-      <div class="navbar">
-        <div class="navitem" data-nav="inicio" role="button" tabindex="0" aria-label="Início">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path d="M4 11.5 12 4l8 7.5" />
-              <path d="M6 10v9a1 1 0 0 0 1 1h3v-6h4v6h3a1 1 0 0 0 1-1v-9" />
-            </svg></div><span>Início</span>
-        </div>
-        <div class="navitem" data-nav="estoque" role="button" tabindex="0" aria-label="Estoque">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <rect x="4" y="4" width="16" height="5" rx="1.2" />
-              <rect x="4" y="11" width="16" height="9" rx="1.2" />
-              <path d="M9 15h6" />
-            </svg></div><span>Estoque</span>
-        </div>
-        <div class="navitem" data-nav="producao" role="button" tabindex="0" aria-label="Produção">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path
-                d="M12 3c-3 4-5.2 6.4-5.2 9.4A5.2 5.2 0 0 0 12 21a5.2 5.2 0 0 0 5.2-5.2c0-1.2-.4-2.1-1.1-2.8.1 1-.3 2-1.1 2.5.4-2.1-1-3.6-3-6.5z" />
-            </svg></div><span>Produção</span>
-        </div>
-        <div class="navitem" data-nav="vendas" role="button" tabindex="0" aria-label="Vendas">
-          <div class="icwrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path d="M6 8h12l1 12H5L6 8z" />
-              <path d="M9 8V6a3 3 0 0 1 6 0v2" />
-            </svg></div><span>Vendas</span>
-        </div>
-        <div class="navitem active" data-nav="mais" role="button" tabindex="0" aria-label="Mais">
-          <div class="icwrap"><svg viewBox="0 0 24 24">
-              <circle cx="6" cy="12" r="1.6" fill="currentColor" />
-              <circle cx="12" cy="12" r="1.6" fill="currentColor" />
-              <circle cx="18" cy="12" r="1.6" fill="currentColor" />
-            </svg></div><span>Mais</span>
-        </div>
-      </div>
-
+      <div class="dock" id="maisDock" role="navigation" aria-label="Navegação principal"></div>
     </div>
+
   </div>
+
+  <div class="toast" id="toast"></div>
+
   <script src="app.js"></script>
 </body>
 

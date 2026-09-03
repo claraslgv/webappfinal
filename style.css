@@ -1,25 +1,34 @@
 
 :root{
-  --bg:#f5f3ef;
-  --text:#2A211A;
-  --text-dim:#5B4E43;
-  --text-faint:#6B5D50;
-  --primary:#5B4638;
-  --primary-soft:rgba(91,70,56,.10);
-  --primary-soft-2:rgba(91,70,56,.17);
-  --shadow-d:#dad5cb;
-  --shadow-l:#ffffff;
-  --line:rgba(42,33,26,.09);
-  --warn:#9c4a35;
-  --warn-soft:rgba(156,74,53,.11);
-  --good:#4d6a41;
-  --good-soft:rgba(77,106,65,.12);
-  --chart-2:#a3897a;
-  --chart-3:#c9c1b6;
-  --on-primary:#fdfcfa;
-  --knob-shadow:rgba(42,33,26,.28);
-  /* Shared neumorphic "raised" shadow at each depth used across the app, so a tuning pass
-     only has to change the value once instead of finding every class that hard-coded it. */
+  --bg:#FBF6EC;
+  --text:#2B1B10;
+  --text-dim:#84592B;
+  /* #8C7A63 (o tom original) dava só 3.84:1 contra --bg — abaixo do mínimo de 4.5:1
+     do WCAG 2.1 AA pra texto normal, e --text-faint é usado em legendas/rótulos
+     pequenos por todo o app (datas, subtítulos, contagens). #7A6852 escurece a mesma
+     família de marrom quente (mesma proporção entre os canais) até 4.96:1, mantendo a
+     cor "neutra discreta" que o brandbook pede sem deixar o texto ilegível. */
+  --text-faint:#7A6852;
+  --primary:#442D1C;
+  --primary-soft:rgba(68,45,28,.10);
+  --primary-soft-2:rgba(68,45,28,.17);
+  --shadow-d:#E4D6BE;
+  --shadow-l:#FFFFFF;
+  --line:rgba(68,45,28,.12);
+  --warn:#743014;
+  --warn-soft:rgba(116,48,20,.11);
+  --good:#5C6B3F;
+  --good-soft:rgba(92,107,63,.12);
+  --chart-2:#84592B;
+  --chart-3:#9D9167;
+  --on-primary:#E8D1A7;
+  --dock-bg:#FFFDF7;
+  --page-bg:#EFE4CC;
+  --knob-shadow:rgba(68,45,28,.28);
+  /* Altura mínima do rodapé de marca no fim de cada tela (ver .reveal-footer mais abaixo). */
+  --reveal-footer-h:170px;
+  /* Sombra "raised" neumórfica dupla (clara/escura) — cada profundidade calculada uma vez
+     aqui, reaproveitada por todo o app. */
   --shadow-raised-xxs:3px 3px 7px var(--shadow-d),-3px -3px 7px var(--shadow-l);
   --shadow-raised-xs:4px 4px 9px var(--shadow-d),-4px -4px 9px var(--shadow-l);
   --shadow-raised-sm:5px 5px 11px var(--shadow-d),-5px -5px 11px var(--shadow-l);
@@ -27,50 +36,225 @@
   --shadow-pressed-xs:inset 3px 3px 7px var(--shadow-d),inset -3px -3px 7px var(--shadow-l);
   --shadow-pressed-sm:inset 4px 4px 9px var(--shadow-d),inset -4px -4px 9px var(--shadow-l);
 }
-/* Modo escuro — mesmo par de sombras "raised/pressed" reaproveitado; só a paleta muda.
-   O atributo é setado o mais cedo possível (script inline no <head>, antes deste CSS
-   carregar) para não piscar claro antes de aplicar a preferência salva; app.js mantém
-   isto sincronizado depois de carregado. */
+/* Modo escuro — a marca é dark-first (a própria .parágrafo vive num Cowhide Cocoa #442D1C),
+   então este é o tema padrão quando não há preferência salva (ver script inline no <head>).
+   Sem "fôlego" pra escurecer o próprio #442D1C num par de sombras claro/escuro como no modo
+   claro, a técnica muda pra um drop-shadow único bem definido + friso interno sutil — mesmos
+   nomes de variável, valores diferentes, então nenhuma regra abaixo precisa saber a diferença. */
 html[data-theme="dark"]{
-  --bg:#211d1a;
-  --text:#F1EAE1;
-  --text-dim:#C7BBAC;
-  --text-faint:#9A8D7D;
-  --primary:#D9B98F;
-  --primary-soft:rgba(217,185,143,.14);
-  --primary-soft-2:rgba(217,185,143,.24);
-  --shadow-d:#17140f;
-  --shadow-l:#2c2620;
-  --line:rgba(255,255,255,.08);
-  --warn:#e2917a;
-  --warn-soft:rgba(226,145,122,.16);
-  --good:#93c17f;
-  --good-soft:rgba(147,193,127,.14);
-  --chart-2:#b29a86;
-  --chart-3:#4c463d;
-  --on-primary:#261d12;
+  --bg:#442D1C;
+  --text:#F3E7D6;
+  --text-dim:#E8D1A7;
+  --text-faint:#B99E76;
+  --primary:#E8D1A7;
+  --primary-soft:rgba(232,209,167,.14);
+  --primary-soft-2:rgba(232,209,167,.24);
+  --shadow-d:rgba(0,0,0,.45);
+  --shadow-l:rgba(232,209,167,.06);
+  --line:rgba(232,209,167,.14);
+  --warn:#C1552F;
+  --warn-soft:rgba(193,85,47,.18);
+  --good:#C7BE95;
+  --good-soft:rgba(199,190,149,.14);
+  --chart-2:#B98A52;
+  --chart-3:#8A4A2B;
+  --on-primary:#442D1C;
+  --dock-bg:#5A3D27;
+  --page-bg:#2E1D11;
   --knob-shadow:rgba(0,0,0,.5);
+  --shadow-raised-xxs:0 2px 6px rgba(0,0,0,.35),inset 0 1px 0 rgba(232,209,167,.05);
+  --shadow-raised-xs:0 3px 9px rgba(0,0,0,.4),inset 0 1px 0 rgba(232,209,167,.06);
+  --shadow-raised-sm:0 4px 12px rgba(0,0,0,.42),inset 0 1px 0 rgba(232,209,167,.07);
+  --shadow-raised-md:0 6px 18px rgba(0,0,0,.48),inset 0 1px 0 rgba(232,209,167,.08);
+  --shadow-pressed-xs:inset 0 2px 6px rgba(0,0,0,.5),inset 0 -1px 0 rgba(232,209,167,.04);
+  --shadow-pressed-sm:inset 0 3px 8px rgba(0,0,0,.55),inset 0 -1px 0 rgba(232,209,167,.05);
 }
-html[data-theme="dark"] body{background:#141210;}
-html[data-theme="dark"] .app-frame{box-shadow:0 0 1px rgba(0,0,0,.4);}
-@media (min-width:431px){
-  html[data-theme="dark"] .app-frame{box-shadow:0 30px 70px rgba(0,0,0,.55);}
-}
-*{box-sizing:border-box;}
-html,body{margin:0;padding:0;height:100%;}
-body{background:#e7e3db;display:flex;align-items:flex-start;justify-content:center;padding:26px 0;font-family:'DM Sans',system-ui,sans-serif;transition:background-color .2s ease;}
-.serif{font-family:'Instrument Serif',Georgia,serif;}
+/* ---------- Gradiente de boas-vindas (mesh de blobs) — referência: exemplo de footer
+   animado do motion.dev, cores trocadas pra paleta da marca (Golden Batter, Spiced Wine,
+   Olive Harvest, Toasted Caramel, Cowhide Cocoa). Só transform anima (blur fica fixo no
+   elemento, não recalculado a cada frame) pra ficar leve mesmo em celular. Reaproveitado
+   em dois lugares: tela cheia via #welcomeGradient (transição pós-login, ver app.js) e,
+   bem mais sutil/lento, como pano de fundo vivo do próprio #authView logo abaixo. */
+@keyframes wg-drift-1{0%,100%{transform:translate(0,0) scale(1);}50%{transform:translate(9vmax,7vmax) scale(1.12);}}
+@keyframes wg-drift-2{0%,100%{transform:translate(0,0) scale(1);}50%{transform:translate(-7vmax,9vmax) scale(1.08);}}
+@keyframes wg-drift-3{0%,100%{transform:translate(0,0) scale(1);}50%{transform:translate(7vmax,-9vmax) scale(1.1);}}
+@keyframes wg-drift-4{0%,100%{transform:translate(0,0) scale(1);}50%{transform:translate(-9vmax,-6vmax) scale(1.14);}}
 
-/* App shell: .screen fills .app-frame (defined further down) and scrolls internally —
-   width/height are intentionally 100% here, not a fixed mockup-preview size, so the shell
-   shrinks on viewports narrower than a phone instead of overflowing horizontally. */
+#welcomeGradient{
+  position:fixed;inset:0;z-index:45;overflow:hidden;pointer-events:none;
+  background:#442D1C;opacity:0;transition:opacity .55s ease;
+}
+#welcomeGradient.show{opacity:1;}
+.wg-blob{position:absolute;border-radius:50%;filter:blur(60px);mix-blend-mode:screen;will-change:transform;}
+.wg-blob-1{width:60vmax;height:60vmax;left:-16vmax;top:-20vmax;background:radial-gradient(circle,#E8D1A7,transparent 70%);animation:wg-drift-1 7s ease-in-out infinite;}
+.wg-blob-2{width:55vmax;height:55vmax;right:-18vmax;top:-12vmax;background:radial-gradient(circle,#C1552F,transparent 70%);opacity:.85;animation:wg-drift-2 8.5s ease-in-out infinite;}
+.wg-blob-3{width:65vmax;height:65vmax;left:-14vmax;bottom:-26vmax;background:radial-gradient(circle,#8A9B5E,transparent 70%);opacity:.8;animation:wg-drift-3 9s ease-in-out infinite;}
+.wg-blob-4{width:50vmax;height:50vmax;right:-13vmax;bottom:-16vmax;background:radial-gradient(circle,#B98A52,transparent 70%);animation:wg-drift-4 7.5s ease-in-out infinite;}
+.wg-mark{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:14px;
+  opacity:0;transform:translateY(6px) scale(.98);transition:opacity .5s ease .25s,transform .5s ease .25s;
+}
+#welcomeGradient.show .wg-mark{opacity:1;transform:translateY(0) scale(1);}
+.wg-mark-dots{display:flex;align-items:center;gap:8px;height:40px;}
+.wg-mark-dots span{background:#E8D1A7;display:block;}
+.wg-mark-dots span:first-child{width:11px;aspect-ratio:1;border-radius:50%;}
+.wg-mark-dots span:last-child{width:7px;height:100%;border-radius:5px;}
+.wg-mark-text{font:500 44px/1 'Abhaya Libre',Georgia,serif;letter-spacing:.01em;color:#E8D1A7;}
+@media (max-width:480px){
+  .wg-mark-dots{height:32px;gap:6px;}
+  .wg-mark-dots span:first-child{width:9px;}
+  .wg-mark-text{font-size:34px;}
+}
+@media (prefers-reduced-motion: reduce){
+  .wg-blob{animation:none!important;}
+  #welcomeGradient{transition-duration:.001ms!important;}
+  .wg-mark{transition-duration:.001ms!important;}
+}
+
+*{box-sizing:border-box;}
+/* Precisa vencer qualquer classe (.row, .between etc.) que também defina `display` no
+   mesmo elemento — sem o !important, um <div hidden class="row"> ficava visível porque
+   .row{display:flex} (autor) tem prioridade sobre o [hidden]{display:none} padrão do
+   navegador (user-agent), mesmo com especificidade igual. */
+[hidden]{display:none!important;}
+html,body{margin:0;padding:0;height:100%;}
+body{background:var(--page-bg);display:flex;align-items:flex-start;justify-content:center;padding:26px 0;font-family:'Montserrat',system-ui,sans-serif;transition:background-color .2s ease;}
+.serif{font-family:'Abhaya Libre',Georgia,serif;}
+
+/* ---------- #authView: login / criar conta — tela cheia, fora do .app-frame ----------
+   O layout de duas colunas (marca + formulário) foi desenhado pra ocupar o viewport
+   inteiro, não o cartão de celular de 430px do resto do app — por isso vive fora dele,
+   sempre no tom escuro da marca (Cowhide Cocoa), independente do tema claro/escuro do
+   app depois do login. checkAuthAndInit()/enterApp() (app.js) decidem qual dos dois
+   (#authView ou .app-frame) fica visível. */
+#authView{
+  min-height:100vh;width:100%;position:relative;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;background:#442D1C;
+  -webkit-font-smoothing:antialiased;
+}
+#authView[hidden]{display:none;}
+#authView::before{
+  content:"";position:absolute;inset:0;background-image:url("assets/linen-brown.jpeg");
+  background-size:520px;background-repeat:repeat;opacity:.55;mix-blend-mode:overlay;pointer-events:none;z-index:1;
+}
+#authView::after{
+  content:"";position:absolute;inset:0;
+  background:radial-gradient(120% 90% at 18% 0%, rgba(232,209,167,.13), rgba(68,45,28,0) 60%);
+  pointer-events:none;z-index:1;
+}
+/* Mesmo mesh de blobs do #welcomeGradient, só que muito mais sutil e lento — fica atrás
+   do linho/textura acima (por isso o z-index:1 nelas e :0 aqui) como um pano de fundo
+   discretamente vivo antes mesmo do login, em vez de uma cor sólida parada. */
+.auth-bg-wg{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0;}
+.auth-bg-wg .wg-blob{opacity:.6;filter:blur(75px);animation-duration:22s;}
+.auth-bg-wg .wg-blob-2,.auth-bg-wg .wg-blob-3{opacity:.48;}
+@media (prefers-reduced-motion: reduce){
+  .auth-bg-wg .wg-blob{animation:none!important;}
+}
+.auth-row{
+  position:relative;z-index:2;display:flex;flex-wrap:wrap;align-items:stretch;gap:0;
+  width:100%;max-width:960px;min-height:min(600px,calc(100vh - 48px));margin:24px;
+  border-radius:28px;overflow:hidden;box-shadow:0 40px 90px -20px rgba(0,0,0,.55);
+}
+.auth-brand{
+  flex:1 1 420px;display:flex;flex-direction:column;justify-content:space-between;
+  padding:clamp(28px,5vw,64px);min-height:min(46vh,340px);
+}
+.auth-wordmark{display:flex;align-items:center;justify-content:center;gap:clamp(14px,1.6vw,22px);}
+.auth-wordmark-dots{display:flex;align-items:center;gap:clamp(7px,.8vw,10px);height:clamp(44px,5vw,64px);}
+.auth-wordmark-dots span{background:#E8D1A7;display:block;}
+.auth-wordmark-dots span:first-child{width:clamp(10px,1.1vw,14px);aspect-ratio:1;border-radius:50%;}
+.auth-wordmark-dots span:last-child{width:clamp(7px,.75vw,10px);height:100%;border-radius:5px;}
+.auth-wordmark-text{font:500 clamp(44px,5.2vw,68px)/1 'Abhaya Libre',serif;letter-spacing:.01em;color:#E8D1A7;}
+.auth-tagline{
+  margin:clamp(32px,6vw,72px) 0 0;max-width:min(560px,100%);
+  font:300 clamp(14px,1.4vw,16px)/1.6 'Montserrat',sans-serif;color:rgba(232,209,167,.62);max-width:34ch;
+}
+.auth-footnote{
+  margin:clamp(28px,5vw,56px) 0 0;font:300 12px/1.5 'Montserrat',sans-serif;
+  letter-spacing:.06em;color:rgba(232,209,167,.34);
+}
+.auth-panel{flex:1 1 460px;display:flex;align-items:center;justify-content:center;padding:clamp(20px,4vw,56px);}
+.auth-panel-inner{width:100%;max-width:432px;}
+.auth-form{display:flex;flex-direction:column;gap:20px;}
+.auth-field{display:flex;flex-direction:column;gap:8px;}
+.auth-field-label{
+  display:flex;justify-content:space-between;align-items:baseline;gap:12px;
+  font:500 10.5px/1 'Montserrat',sans-serif;letter-spacing:.22em;text-transform:uppercase;color:rgba(232,209,167,.6);
+}
+.auth-input{
+  width:100%;background:transparent;border:none;border-bottom:1px solid rgba(232,209,167,.24);
+  padding:8px 0 11px;font:300 16px/1.3 'Montserrat',sans-serif;color:#F3E6CE;outline:none;
+  transition:border-color .15s ease;
+}
+.auth-input:focus{border-bottom-color:#E8D1A7;}
+.auth-forgot{
+  font:300 11px/1 'Montserrat',sans-serif;letter-spacing:.04em;color:rgba(232,209,167,.55);
+  text-decoration:none;background:none;border:none;padding:0;cursor:pointer;
+}
+.auth-forgot:hover{color:#E8D1A7;}
+.auth-eyewrap{position:relative;}
+.auth-eye{
+  position:absolute;right:0;bottom:9px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;
+  color:rgba(232,209,167,.55);cursor:pointer;background:none;border:none;padding:0;
+}
+.auth-eye:hover{color:#E8D1A7;}
+.auth-eye svg{width:17px;height:17px;}
+.auth-check-row{
+  display:flex;align-items:center;gap:11px;background:none;border:none;padding:0;margin-top:2px;
+  cursor:pointer;text-align:left;
+}
+.auth-checkbox{
+  width:19px;height:19px;flex:none;border-radius:6px;display:flex;align-items:center;justify-content:center;
+  font:600 11px/1 'Montserrat',sans-serif;transition:all .18s ease;
+  background:transparent;color:transparent;border:1px solid rgba(232,209,167,.32);
+}
+.auth-check-row[aria-pressed="true"] .auth-checkbox{background:#E8D1A7;color:#442D1C;border-color:#E8D1A7;}
+.auth-check-label{font:300 13.5px/1 'Montserrat',sans-serif;color:rgba(232,209,167,.72);}
+.auth-error{font-size:12.5px;color:#F2B79A;font-weight:600;line-height:1.5;}
+.auth-submit{
+  width:100%;margin-top:4px;padding:17px 20px;border:none;border-radius:999px;background:#E8D1A7;
+  color:#442D1C;font:500 14px/1 'Montserrat',sans-serif;letter-spacing:.12em;text-transform:uppercase;
+  cursor:pointer;box-shadow:0 12px 28px -12px rgba(0,0,0,.75);transition:transform .18s ease,background .18s ease;
+}
+.auth-submit:hover{background:#F3E6CE;transform:translateY(-1px);}
+.auth-submit:active{transform:translateY(0);}
+.auth-switch{margin:26px 0 0;text-align:center;font:300 13.5px/1.5 'Montserrat',sans-serif;color:rgba(232,209,167,.55);}
+.auth-switch-btn{
+  background:none;border:none;padding:0;font:500 13.5px/1.5 'Montserrat',sans-serif;color:#E8D1A7;
+  cursor:pointer;text-decoration:underline;text-underline-offset:3px;
+}
+input.auth-input:-webkit-autofill{-webkit-text-fill-color:#F3E6CE;transition:background-color 9999s;}
+#authView ::placeholder{color:rgba(232,209,167,.42);}
+
+/* Celular deitado (landscape) com pouca altura: os painéis somam mais largura que altura
+   de sobra, então em vez de empilhar (o que jogaria o formulário bem abaixo da dobra,
+   exigindo rolagem pra sequer ver o "Entrar") eles ficam lado a lado com espaçamento
+   reduzido — a mesma composição do desktop, só compacta o bastante pra caber sem rolar. */
+@media (max-height:560px) and (orientation:landscape){
+  .auth-row{margin:14px;min-height:0;}
+  .auth-brand{flex:1 1 260px;min-height:0;padding:18px clamp(16px,3vw,32px);justify-content:center;gap:14px;}
+  .auth-wordmark-text{font-size:clamp(28px,4vw,40px);}
+  .auth-tagline,.auth-footnote{display:none;}
+  .auth-panel{flex:1 1 320px;padding:18px clamp(16px,3vw,32px);}
+  .auth-form{gap:12px;}
+}
+
+/* ---------- App shell: .screen preenche .app-frame e rola internamente — largura/altura
+   propositalmente 100% aqui, não um tamanho fixo de preview, pra encolher em telas menores
+   que um celular em vez de vazar horizontalmente. ---------- */
 .app-frame{
   width:100%;max-width:430px;margin:0 auto;height:100vh;background:var(--bg);
   position:relative;overflow:hidden;
   box-shadow:0 0 1px rgba(42,33,26,.15);
 }
+.app-frame[hidden]{display:none;}
 @media (min-width:431px){
   .app-frame{box-shadow:0 30px 70px rgba(42,33,26,.22);}
+}
+html[data-theme="dark"] .app-frame{box-shadow:0 0 1px rgba(0,0,0,.4);}
+@media (min-width:431px){
+  html[data-theme="dark"] .app-frame{box-shadow:0 30px 70px rgba(0,0,0,.55);}
 }
 .screen{
   width:100%;height:100%;background:var(--bg);color:var(--text);
@@ -79,17 +263,72 @@ body{background:#e7e3db;display:flex;align-items:flex-start;justify-content:cent
   transition:opacity .18s ease,transform .18s ease,background-color .2s ease,color .2s ease;
 }
 .screen[hidden]{display:none;}
-/* Crossfade classes toggled by showScreen() in app.js: the incoming screen starts
-   here and animates to the resting state above; the outgoing screen animates from
-   resting to here before being hidden. Kept as a simple fade + slight vertical drift
-   rather than a directional slide, since back/forward isn't tracked. */
 .screen.screen-enter{opacity:0;transform:translateY(10px);}
 .screen.screen-exit{opacity:0;transform:translateY(-10px);pointer-events:none;}
 
-.content{padding:26px 20px 118px;}
+/* ---------- Skeleton de carregamento na troca de tela pelo dock — referência: exemplo
+   "loaders" do motion.dev (motion.dev/examples, padrão skeleton-pulsante → revelação do
+   conteúdo real), com os blocos usando --primary-soft/--primary-soft-2 (já calibrados por
+   tema/tela) pra parecer um "raised" apagado em vez do cinza genérico do exemplo. Cada tela
+   do dock carrega seu próprio .skel-overlay (mesmo desenho grosso dos cards reais, só sem
+   o texto); showScreen() em app.js liga/desliga via playScreenSkeleton(). Cobre o conteúdo
+   real com --bg sólido, então não precisa esconder os elementos de baixo. ---------- */
+.skel-overlay{
+  position:absolute;inset:0;z-index:3;background:var(--bg);
+  padding:26px 20px 132px;box-sizing:border-box;
+  display:flex;flex-direction:column;gap:14px;
+  opacity:1;transition:opacity .32s ease;
+}
+.skel-overlay[hidden]{display:none;}
+.skel-overlay.skel-out{opacity:0;pointer-events:none;}
+.skel-block{
+  border-radius:16px;flex:none;
+  background:linear-gradient(100deg,var(--primary-soft) 25%,var(--primary-soft-2) 50%,var(--primary-soft) 75%);
+  background-size:200% 100%;
+  animation:skel-shimmer 1.4s ease-in-out infinite;
+}
+@keyframes skel-shimmer{0%{background-position:160% 0;}100%{background-position:-60% 0;}}
+@media (prefers-reduced-motion: reduce){
+  .skel-block{animation:none;background-position:50% 0;}
+}
+
+.content{position:relative;padding:26px 20px 132px;}
+
+/* ---------- Rodapé de marca no fim de cada tela — fundo marrom (Cowhide Cocoa) com
+   ".parágrafo" em Abhaya Libre no meio, último bloco de .content antes do dock (referência:
+   exemplo de footer animado do motion.dev citado acima). A ideia original era um "sticky
+   reveal" puro (rodapé colado atrás do conteúdo, só descoberto ao rolar) — descartada:
+   o dock, sendo sticky e o último elemento de cada tela, limita matematicamente até onde
+   .content consegue "recuar" no scroll, então o rodapé nunca ficava de fato visível atrás
+   dele. Em vez disso, o rodapé entra no fluxo normal (aparece rolando até o fim, como
+   qualquer conteúdo) e ganha só a entrada suave — fade + leve subida — quando cruza a
+   viewport, via IntersectionObserver (playRevealFooters() em app.js) alternando
+   .reveal-footer-in; sem JS ou com prefers-reduced-motion, fica sempre visível, sem animar. */
+.reveal-footer{
+  margin-top:20px;min-height:var(--reveal-footer-h);border-radius:24px;
+  display:flex;align-items:center;justify-content:center;
+  background:#442D1C;
+  /* --bg no tema escuro já É #442D1C — sem sombra o rodapé "some" contra o próprio fundo
+     da tela (mesmo problema que .raised resolve pros cards: cor igual à página, separado só
+     pelo relevo). box-shadow fixo (não var(--shadow-raised-md), que no tema claro é dupla
+     clara/escura pensada pra um fundo claro) garante o mesmo relevo escuro em qualquer tema. */
+  box-shadow:0 6px 18px rgba(0,0,0,.35),inset 0 1px 0 rgba(232,209,167,.08);
+  opacity:0;transform:translateY(18px);transition:opacity .6s ease,transform .6s ease;
+}
+.reveal-footer.reveal-footer-in{opacity:1;transform:translateY(0);}
+.reveal-footer-mark{
+  font:500 clamp(26px,7vw,38px)/1 'Abhaya Libre',Georgia,serif;
+  color:#E8D1A7;letter-spacing:.01em;
+}
+@media (max-width:380px){
+  .reveal-footer-mark{font-size:26px;}
+}
+@media (prefers-reduced-motion: reduce){
+  .reveal-footer{opacity:1;transform:none;transition:none;}
+}
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:26px 20px 4px;}
 .brandrow{display:flex;align-items:center;gap:9px;}
-.brandmark{width:26px;height:26px;border-radius:8px;background:var(--primary);display:flex;align-items:center;justify-content:center;color:var(--bg);font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-size:15px;flex:none;}
+.brandmark{width:26px;height:26px;border-radius:8px;background:var(--primary);display:flex;align-items:center;justify-content:center;color:var(--on-primary);font-family:'Abhaya Libre',Georgia,serif;font-style:italic;font-size:15px;flex:none;}
 .brandname{font-size:12.5px;font-weight:600;letter-spacing:.03em;color:var(--text-dim);text-transform:lowercase;}
 .avatar{width:44px;height:44px;border-radius:15px;background:var(--bg);box-shadow:var(--shadow-raised-xs);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--primary);cursor:pointer;transition:box-shadow .15s ease,transform .1s ease;}
 .avatar:active{box-shadow:var(--shadow-pressed-sm);transform:scale(.94);}
@@ -97,8 +336,6 @@ body{background:#e7e3db;display:flex;align-items:flex-start;justify-content:cent
 .iconbtn{width:44px;height:44px;border-radius:15px;background:var(--bg);box-shadow:var(--shadow-raised-xs);display:flex;align-items:center;justify-content:center;color:var(--text);flex:none;transition:box-shadow .15s ease,transform .1s ease;}
 .iconbtn svg{width:19px;height:19px;}
 .iconbtn:active{box-shadow:var(--shadow-pressed-sm);transform:scale(.94);}
-/* 40px min. side — was 32px, under the ~44px comfortable touch-target guideline; every call
-   site was already overriding it back up to 40px individually, so the default belongs here. */
 .tapicon{width:40px;height:40px;border-radius:14px;display:flex;align-items:center;justify-content:center;color:var(--text-faint);flex:none;transition:opacity .15s ease,transform .1s ease;}
 .tapicon svg{width:17px;height:17px;}
 .tapicon:active{opacity:.6;transform:scale(.92);}
@@ -112,16 +349,13 @@ body{background:#e7e3db;display:flex;align-items:flex-start;justify-content:cent
 .label{display:block;font-size:10.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);margin:0 0 10px;}
 .row{display:flex;align-items:center;gap:12px;}
 .between{display:flex;align-items:center;justify-content:space-between;}
-/* Tappable list rows and cards (e.g. dashboard summary rows, the urgent-notice banner)
-   use role="button" on a plain .row/.raised div rather than a dedicated component class,
-   so they get their touch feedback from these generic attribute-selector rules instead. */
 .row[role="button"],
 .raised[role="button"]{transition:opacity .15s ease,box-shadow .15s ease,transform .1s ease;}
 .row[role="button"]:active{opacity:.6;}
 .raised[role="button"]:active{transform:scale(.99);}
-.btn{border:none;font-family:'DM Sans',sans-serif;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:box-shadow .15s ease,transform .1s ease,opacity .15s ease;}
-.btn-primary{background:var(--primary);color:var(--on-primary);border-radius:16px;padding:16px;font-size:15px;box-shadow:7px 7px 15px rgba(91,70,56,.32),-3px -3px 9px rgba(255,255,255,.55);}
-.btn-primary:active{box-shadow:3px 3px 8px rgba(91,70,56,.32),-1px -1px 5px rgba(255,255,255,.55);transform:scale(.98) translateY(1px);}
+.btn{border:none;font-family:'Montserrat',sans-serif;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:box-shadow .15s ease,transform .1s ease,opacity .15s ease;}
+.btn-primary{background:var(--primary);color:var(--on-primary);border-radius:16px;padding:16px;font-size:15px;box-shadow:0 10px 22px -8px rgba(0,0,0,.4);}
+.btn-primary:active{box-shadow:0 5px 12px -6px rgba(0,0,0,.4);transform:scale(.98) translateY(1px);}
 .btn-ghost{background:var(--bg);color:var(--text);border-radius:16px;padding:14px;font-size:13.5px;box-shadow:var(--shadow-raised-sm);}
 .btn-ghost:active{box-shadow:var(--shadow-pressed-sm);transform:scale(.98);}
 .btn-text{background:none;color:var(--warn);font-size:13.5px;font-weight:600;padding:6px 0;}
@@ -129,7 +363,7 @@ body{background:#e7e3db;display:flex;align-items:flex-start;justify-content:cent
 .btn[disabled]{opacity:.45;pointer-events:none;}
 .field{padding:14px 16px;margin-bottom:14px;}
 .field .label{margin-bottom:6px;}
-.field input, .field .val{border:none;background:none;outline:none;font-family:'DM Sans',sans-serif;font-size:14.5px;color:var(--text);width:100%;padding:0;}
+.field input, .field .val{border:none;background:none;outline:none;font-family:'Montserrat',sans-serif;font-size:14.5px;color:var(--text);width:100%;padding:0;}
 .field:focus-within{box-shadow:var(--shadow-pressed-sm),0 0 0 2px var(--primary);}
 .field input::placeholder{color:var(--text-faint);}
 .pill{padding:11px 16px;border-radius:999px;font-size:12.5px;font-weight:600;color:var(--text-dim);white-space:nowrap;cursor:pointer;transition:box-shadow .15s ease,color .15s ease,transform .1s ease;}
@@ -139,99 +373,350 @@ body{background:#e7e3db;display:flex;align-items:flex-start;justify-content:cent
 .badge.warn{background:var(--warn-soft);color:var(--warn);}
 .badge.good{background:var(--good-soft);color:var(--good);}
 .badge.primary{background:var(--primary-soft-2);color:var(--primary);}
-.navbar{position:sticky;bottom:0;height:96px;padding:12px 12px 30px;background:var(--bg);box-shadow:0 -10px 22px var(--shadow-d),0 -1px 0 var(--shadow-l);display:flex;justify-content:space-between;align-items:center;}
-.navitem{display:flex;flex-direction:column;align-items:center;gap:5px;width:58px;color:var(--text-faint);font-size:10px;font-weight:500;cursor:pointer;transition:color .15s ease;}
-.navitem.active{color:var(--primary);font-weight:700;}
-.navitem .icwrap{width:42px;height:42px;border-radius:14px;display:flex;align-items:center;justify-content:center;transition:box-shadow .15s ease,transform .1s ease;}
-.navitem.active .icwrap{box-shadow:var(--shadow-pressed-xs);}
-.navitem:active .icwrap{transform:scale(.9);}
-.navitem svg{width:20px;height:20px;}
+.avisos-badge{
+  position:absolute;top:-4px;right:-4px;background:var(--warn);color:#fff;font-size:9px;font-weight:800;
+  width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+}
+.dash-meta{font-size:11px;color:var(--text-faint);}
+
+/* Cada linha da lista "avisos de reposição" (ver reposicaoRowHTML/playAvisosStackReveal em
+   app.js) — referência: componente <ListNotificationsStack> do motion.dev/ui/lists (baralho
+   de notificações que se abre em cascata). transform-origin no topo pra escalar "saindo de
+   baixo do card anterior", igual ao preview original. */
+.avisos-row{
+  transform-origin:50% 0%;
+  transition:transform .55s cubic-bezier(.34,1.56,.64,1), opacity .4s ease;
+}
+
+/* Linhas do card "resumo de hoje" (ver resumoRowHTML em app.js) — extraídas de estilo
+   inline pra classe, pra dar pra recolorir inteiras quando o card vira um bloco sólido
+   (.dash-resumo, mais abaixo). */
+.resumo-row{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--line);}
+.resumo-row.resumo-row-last{border-bottom:none;}
+.resumo-row-icon{width:32px;height:32px;border-radius:11px;display:flex;align-items:center;justify-content:center;color:var(--primary);flex:none;}
+.resumo-row-title{font-size:13px;font-weight:600;}
+.resumo-row-detail{font-size:11.5px;color:var(--text-faint);margin-top:1px;}
+
+/* ---------- Dock inferior: cluster de botões circulares coloridos (referência visual:
+   dock do app "Bloom"), substitui a antiga barra de abas com ícone+texto. Fica horizontal
+   e centralizado em qualquer largura — um cluster de círculos de tamanhos variados é uma
+   composição horizontal por natureza, então (diferente da antiga .navbar) NÃO vira coluna
+   lateral no desktop. Cada botão carrega aria-label (não tem texto visível) e tem no mínimo
+   44px de lado; o item ativo se diferencia por mais que cor (anel + leve escala). ---------- */
+.dock{
+  position:sticky;bottom:0;z-index:3;display:flex;align-items:center;justify-content:space-between;
+  gap:8px;margin:0 14px calc(14px + env(safe-area-inset-bottom));padding:10px 14px;
+  border-radius:28px;background:var(--dock-bg);box-shadow:var(--shadow-raised-md);
+}
+.dockitem{
+  position:relative;flex:none;width:46px;height:46px;border-radius:50%;border:none;padding:0;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  box-shadow:0 6px 14px -6px rgba(0,0,0,.4);transition:transform .15s ease,box-shadow .15s ease;
+}
+.dockitem svg{width:19px;height:19px;}
+.dockitem.dockitem-lg{width:56px;height:56px;}
+.dockitem.dockitem-lg svg{width:23px;height:23px;}
+.dockitem:active{transform:scale(.92);}
+.dockitem.active{transform:scale(1.08);box-shadow:0 6px 14px -6px rgba(0,0,0,.4),0 0 0 3px var(--dock-bg),0 0 0 5px var(--on-primary,var(--primary));}
+.dockitem[aria-disabled="true"]{opacity:.45;}
+
 .stepper{display:flex;align-items:center;gap:8px;padding:0 20px 18px;}
 .step-dot{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex:none;}
 .step-dot.done{background:var(--primary);color:var(--on-primary);}
-.step-dot.active{background:var(--bg);color:var(--primary);box-shadow:inset 3px 3px 6px var(--shadow-d),inset -3px -3px 6px var(--shadow-l);border:1.5px solid var(--primary);}
+.step-dot.active{background:var(--bg);color:var(--primary);box-shadow:var(--shadow-pressed-xs);border:1.5px solid var(--primary);}
 .step-dot.pending{background:var(--bg);color:var(--text-faint);box-shadow:var(--shadow-raised-xxs);}
 .step-line{flex:1;height:2px;background:var(--line);}
 .step-line.done{background:var(--primary);opacity:.4;}
-/* Shared "you haven't created anything here yet" state — see emptyStateHTML() in app.js.
-   Reserved for true first-run zero-states; a zero-result search/filter uses a plain one-line
-   message instead so it doesn't get inflated into a fake dead end. */
 .emptystate{text-align:center;padding:34px 16px 18px;}
 .emptystate-icon{width:52px;height:52px;border-radius:18px;background:var(--bg);box-shadow:var(--shadow-raised-sm);display:flex;align-items:center;justify-content:center;color:var(--text-faint);margin:0 auto 16px;}
 .emptystate-icon svg{width:22px;height:22px;}
 .emptystate-title{font-size:13.5px;font-weight:700;color:var(--text-dim);margin-bottom:6px;}
 .emptystate-sub{font-size:12px;color:var(--text-faint);line-height:1.5;max-width:260px;margin:0 auto;}
-.quote{font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-size:16px;line-height:1.4;color:var(--text-dim);}
+.quote{font-family:'Abhaya Libre',Georgia,serif;font-style:italic;font-size:16px;line-height:1.4;color:var(--text-dim);}
 .divider{height:1px;background:var(--line);margin:14px 0;}
 a{color:var(--primary);}
-a:hover{color:#42332a;}
 
 [role="button"]{cursor:pointer;}
 [role="switch"]{cursor:pointer;}
 
+/* Toast simples ("em breve" nos itens do dock ainda não construídos) — showToast() em app.js. */
+.toast{
+  position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));transform:translate(-50%,8px);
+  background:var(--primary);color:var(--on-primary);font:600 12.5px/1 'Montserrat',sans-serif;
+  padding:11px 18px;border-radius:999px;box-shadow:0 10px 24px -8px rgba(0,0,0,.4);
+  opacity:0;pointer-events:none;transition:opacity .18s ease,transform .18s ease;z-index:20;
+}
+.toast.show{opacity:1;transform:translate(-50%,0);}
+
 @media (prefers-reduced-motion: reduce){
   .raised,.raised-sm,.pressed,.pressed-pill,.btn,.pill,.iconbtn,.tapicon,
-  .navitem,.navitem .icwrap,.row[role="button"],.raised[role="button"]{
+  .dockitem,.row[role="button"],.raised[role="button"]{
     transition-duration:.001ms !important;
   }
-  /* Screen crossfade is skipped entirely in app.js when this preference is set
-     (it swaps .hidden instantly instead), so no override is needed here. */
 }
 
+/* ---------- Dashboard: pílulas de período em telas estreitas ----------
+   #dashPeriodoPills usa 3 pílulas com flex:1 e texto sem quebra (.pill tem
+   white-space:nowrap) — funciona enquanto a soma do texto cabe, mas "personalizado"
+   sozinho já não cabe no terço de linha disponível em celulares comuns (~360-390px de
+   largura), estourando a pílula pra fora do cartão e criando rolagem horizontal na
+   tela inteira (já que .screen só define overflow-y, o eixo X vira "auto" também
+   quando o conteúdo é mais largo que a tela). Abaixo de 380px as pílulas quebram em
+   duas linhas — "7 dias"/"30 dias" lado a lado, "personalizado" ocupando a linha
+   toda — em vez de cortar/estourar o texto. */
+@media (max-width:380px){
+  #dashPeriodoPills{flex-wrap:wrap;}
+  #dashPeriodoPills .pill{flex:1 1 calc(50% - 4.5px);}
+  #dashPeriodoPills .pill:last-child{flex-basis:100%;}
+}
+
+/* ---------- Dashboard: paleta fixa da marca (Squarespace "createmor" — Golden Batter,
+   Toasted Caramel, Spiced Wine, Olive Harvest, Cowhide Cocoa), independente do toggle
+   claro/escuro de "mais" — mesma lógica de #authView, que também sempre usa as cores da
+   marca em vez do tema. Reaproveita os tokens do tema claro (já validados em WCAG AA
+   pelo resto do app, ver o comentário de --text-faint no topo do arquivo) e só troca
+   --bg pelo tom mais dourado do moodboard, pra dar o "fundo creme" pedido. */
+.screen[data-screen="dashboard"]{
+  --bg:#FBF6EC;--text:#2B1B10;--text-dim:#84592B;--text-faint:#7A6852;
+  --primary:#442D1C;--primary-soft:rgba(68,45,28,.10);--primary-soft-2:rgba(68,45,28,.17);
+  --shadow-d:#E4D6BE;--shadow-l:#FFFFFF;--line:rgba(68,45,28,.12);
+  --warn:#743014;--warn-soft:rgba(116,48,20,.11);--good:#5C6B3F;--good-soft:rgba(92,107,63,.12);
+  --chart-2:#84592B;--chart-3:#9D9167;--on-primary:#E8D1A7;--dock-bg:#FFFDF7;
+  background:#E8D1A7;
+}
+
+/* Bloco "hero" — cor sólida (Spiced Wine) + texto creme, com a tira dos 7 dias da semana
+   (hoje em destaque) no lugar do calendário mensal da referência. Ícones/avatar viram
+   chips translúcidos claros sobre a cor, em vez do relevo neumórfico usado no resto do
+   app (que só faz sentido sobre um fundo neutro). */
+/* Eco, bem mais contido, do mesmo mesh de blobs — o hero é a primeira coisa que aparece
+   quando o gradiente de boas-vindas se abre (ver playWelcomeGradient em app.js), então
+   ganha um brilho lento em vez de ficar parado assim que a animação de entrada some.
+   position:relative + overflow:hidden no próprio .dash-hero recorta o blob nos cantos
+   arredondados; o conteúdo (.topbar etc.) segue por cima via z-index. */
+.dash-hero{background:#743014;color:#F3E6CE;padding-bottom:24px;border-radius:0 0 32px 32px;position:relative;overflow:hidden;isolation:isolate;}
+.dash-hero::before{
+  content:"";position:absolute;width:70vmax;height:70vmax;left:50%;top:-46vmax;
+  transform:translateX(-50%);border-radius:50%;pointer-events:none;z-index:0;
+  background:radial-gradient(circle,rgba(232,209,167,.4),transparent 68%);
+  filter:blur(50px);animation:wg-drift-1 16s ease-in-out infinite;
+}
+.dash-hero>*{position:relative;z-index:1;}
+@media (prefers-reduced-motion: reduce){
+  .dash-hero::before{animation:none!important;}
+}
+.dash-hero .brandname{color:rgba(243,230,206,.7);}
+.dash-hero .brandmark{background:#F3E6CE;color:#743014;}
+.dash-hero .avatar,
+.dash-hero .iconbtn{background:rgba(243,230,206,.14);box-shadow:none;color:#F3E6CE;}
+.dash-hero .avatar:active,
+.dash-hero .iconbtn:active{background:rgba(243,230,206,.24);box-shadow:none;}
+.dash-hero .avisos-badge{background:#F3E6CE;color:#743014;}
+.dash-hero-greetrow{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:10px 20px 0;}
+.dash-hero-greet{font-style:italic;font-size:27px;color:#F3E6CE;}
+.dash-hero-date{font-size:12.5px;color:rgba(243,230,206,.68);margin-top:4px;}
+.dash-hero-week{display:flex;justify-content:space-between;gap:5px;padding:22px 20px 2px;}
+.dash-hero-day{flex:1;display:flex;flex-direction:column;align-items:center;gap:7px;padding:9px 2px;border-radius:16px;}
+.dash-hero-day-label{font-size:10px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;color:rgba(243,230,206,.5);}
+.dash-hero-day-num{font-size:14px;font-weight:700;color:#F3E6CE;}
+.dash-hero-day.is-today{background:#F3E6CE;}
+.dash-hero-day.is-today .dash-hero-day-label{color:rgba(116,48,20,.62);}
+.dash-hero-day.is-today .dash-hero-day-num{color:#743014;}
+
+/* Card "resumo de hoje" — segundo bloco colorido (Toasted Caramel), mesmo tratamento do
+   hero: fundo sólido + texto creme. Os ícones continuam em chip claro (.raised-sm), que
+   já lê bem sobre a cor — o mesmo contraste do círculo branco de "concluído" na
+   referência — então não precisam de override. */
+.dash-resumo{background:#84592B;}
+.dash-resumo .label,
+.dash-resumo .dash-meta{color:rgba(243,230,206,.65);}
+.dash-resumo .resumo-row{border-bottom-color:rgba(243,230,206,.18);}
+.dash-resumo .resumo-row-title{color:#F3E6CE;}
+.dash-resumo .resumo-row-detail{color:rgba(243,230,206,.68);}
+
 /* ---------- Layout de computador (>=900px) ----------
-   Abaixo disto o app continua sendo o cartão de celular centralizado (com a barra de
-   abas grudada embaixo). A partir daqui, sem duplicar telas nem mudar a lógica de
-   navegação em app.js, a mesma barra de abas vira uma coluna lateral fixa e cada tela
-   passa a usar CSS Grid pra posicionar cabeçalho (.topbar/.backrow) e conteúdo (.content)
-   à direita dela — os elementos continuam os mesmos, só a área de cada um muda. */
+   Antes o cartão de celular só ficava um pouco mais largo (640px), flutuando pequeno no
+   meio da tela — em telas de computador de verdade isso sobra vazio nas laterais. Agora
+   o .app-frame vira a própria página de verdade: 100% da largura da janela, sem moldura
+   de cartão (sem sombra, sem cantos arredondados, sem margem) — é o que faz o hero colorido
+   do dashboard esticar de ponta a ponta da tela, banner de verdade em vez de cartão flutuante.
+   Só o CONTEÚDO de leitura (texto, controles, grade de cards) fica centralizado num teto de
+   1180px dentro dele — sem isso, uma única coluna de cards ficaria absurdamente esticada
+   numa tela grande. O dashboard, especificamente, troca a pilha vertical única por uma
+   grade de 2 colunas (ver mais abaixo) pra aproveitar essa largura em vez de só esticar
+   os mesmos cards. */
+/* Toda regra aqui dentro é prefixada com "html:not([data-preview=mobile])" — sem isso,
+   forçar "celular" no alternador (ver .devswitch) só travava a largura do .app-frame (essa
+   parte já ganhava por especificidade, ver o bloco html[data-preview="mobile"] mais abaixo),
+   mas o CONTEÚDO continuava lendo a media query de verdade (min-width:900px, que só olha
+   pra largura real da janela) e a grade de 2 colunas do dashboard aplicava do mesmo jeito
+   dentro do cartão estreito — cards cortados, cada um mais largo que o próprio cartão. */
 @media (min-width:900px){
-  body{padding:40px 24px;align-items:center;}
-  .app-frame{
-    max-width:1280px;height:min(880px,calc(100vh - 80px));border-radius:28px;
-    box-shadow:0 40px 90px rgba(42,33,26,.24);
+  html:not([data-preview="mobile"]) body{padding:0;align-items:stretch;}
+  html:not([data-preview="mobile"]) .app-frame{
+    width:100%;max-width:none;height:100vh;border-radius:0;box-shadow:none;margin:0;
   }
-  html[data-theme="dark"] .app-frame{box-shadow:0 40px 90px rgba(0,0,0,.6);}
+  html[data-theme="dark"]:not([data-preview="mobile"]) .app-frame{box-shadow:none;}
+  html:not([data-preview="mobile"]) .content{max-width:1180px;width:100%;margin-left:auto;margin-right:auto;padding:36px 40px 60px;box-sizing:border-box;}
+  html:not([data-preview="mobile"]) .topbar,
+  html:not([data-preview="mobile"]) .backrow{max-width:1180px;width:100%;margin:0 auto;padding-left:40px;padding-right:40px;box-sizing:border-box;}
+  html:not([data-preview="mobile"]) .dash-hero-greetrow,
+  html:not([data-preview="mobile"]) .dash-hero-week{max-width:1180px;width:100%;margin-left:auto;margin-right:auto;padding-left:40px;padding-right:40px;box-sizing:border-box;}
+  /* O dock é um cluster compacto de botões (não uma barra que deve preencher a largura) —
+     esticado por 1100px+ os 5 círculos ficariam absurdamente espalhados, então mantém uma
+     largura de cluster e centraliza, em vez de acompanhar a largura do quadro. */
+  html:not([data-preview="mobile"]) .dock{max-width:420px;margin-left:auto;margin-right:auto;}
 
-  .screen{display:grid;grid-template-columns:104px minmax(0,1fr);grid-template-rows:auto 1fr;overflow:hidden;}
-
-  .topbar,.backrow{grid-column:2;grid-row:1;max-width:760px;width:100%;margin:0 auto;box-sizing:border-box;}
-  .content{
-    grid-column:2;grid-row:2;max-width:760px;width:100%;margin:0 auto;box-sizing:border-box;
-    overflow-y:auto;height:100%;padding-bottom:48px;
+  /* Dashboard: grade de 2 colunas — a lista de "resumo de hoje" e o gráfico de pizza
+     (leitura mais longa/visual) numa coluna, os números-chave (lucro, vendas, produzido)
+     na outra, com os controles de topo (avisos, período) ocupando a largura inteira.
+     grid-area dá a ordem visual; a ordem no HTML continua a leitura linear do celular. */
+  html:not([data-preview="mobile"]) .screen[data-screen="dashboard"] .content{
+    display:grid;grid-template-columns:1.1fr .9fr;gap:22px 28px;align-items:start;align-content:start;
+    grid-template-areas:
+      "urgent urgent"
+      "periodo periodo"
+      "periodo2 periodo2"
+      "resumo lucro"
+      "resumo metrics"
+      "pizza produzido"
+      "report report"
+      "reveal reveal";
   }
-
-  /* Mesma barra de navegação do celular, só reorientada: de faixa horizontal grudada
-     embaixo pra coluna vertical grudada à esquerda, ocupando a altura toda da tela. */
-  .navbar{
-    grid-column:1;grid-row:1 / -1;position:static;height:100%;
-    flex-direction:column;justify-content:flex-start;gap:30px;
-    padding:36px 8px 24px;box-shadow:8px 0 20px var(--shadow-d),-2px 0 10px var(--shadow-l);
+  /* .reveal-footer precisa de uma linha PRÓPRIA e nomeada ("reveal", sempre por último) —
+     sem isso ele é um item sem área explícita, e o auto-posicionamento do grid enfia
+     qualquer item assim na primeira célula livre que encontrar. "periodo2" fica oculto
+     (display:none) na maior parte do tempo, então essa célula sobra vazia e "livre" aos
+     olhos do grid — foi exatamente ali que o rodapé parava, entre os pills de período e os
+     cards, empurrando tudo pra baixo. Área nomeada fixa resolve pra sempre, independente do
+     que mais estiver oculto. */
+  html:not([data-preview="mobile"]) .screen[data-screen="dashboard"] .content > .reveal-footer{grid-area:reveal;}
+  html:not([data-preview="mobile"]) .dash-area-urgent{grid-area:urgent;}
+  html:not([data-preview="mobile"]) .dash-area-periodo{grid-area:periodo;}
+  html:not([data-preview="mobile"]) .dash-area-periodo2{grid-area:periodo2;}
+  html:not([data-preview="mobile"]) .dash-area-resumo{grid-area:resumo;}
+  html:not([data-preview="mobile"]) .dash-area-lucro{grid-area:lucro;}
+  html:not([data-preview="mobile"]) .dash-area-metrics{grid-area:metrics;}
+  html:not([data-preview="mobile"]) .dash-area-pizza{grid-area:pizza;}
+  html:not([data-preview="mobile"]) .dash-area-produzido{grid-area:produzido;}
+  html:not([data-preview="mobile"]) .dash-area-report{grid-area:report;}
+  /* O gap da grade já espaça as células — os mesmos elementos usam margin inline pra se
+     empilhar no celular (ver index.html), então precisa vencer o estilo inline aqui. */
+  html:not([data-preview="mobile"]) .dash-area-urgent,
+  html:not([data-preview="mobile"]) .dash-area-periodo,
+  html:not([data-preview="mobile"]) .dash-area-periodo2,
+  html:not([data-preview="mobile"]) .dash-area-resumo,
+  html:not([data-preview="mobile"]) .dash-area-lucro,
+  html:not([data-preview="mobile"]) .dash-area-metrics,
+  html:not([data-preview="mobile"]) .dash-area-pizza,
+  html:not([data-preview="mobile"]) .dash-area-produzido{
+    margin:0!important;
   }
+}
 
-  /* Login e criação de conta não têm barra lateral — o conteúdo ocupa a tela toda e
-     fica centralizado, como uma página de entrada, em vez de colado à esquerda. */
-  .screen[data-screen="login"] .content{
-    grid-column:1 / -1;grid-row:1 / -1;max-width:420px;align-self:center;
-  }
+/* ---------- Alternador computador/celular — fixo no canto superior direito da viewport,
+   fora de #authView e .app-frame (ver o botão em index.html e setPreview() em app.js). ---------- */
+.devswitch{
+  position:fixed;top:14px;right:14px;z-index:50;display:flex;gap:3px;
+  background:#442D1C;padding:4px;border-radius:14px;box-shadow:0 10px 24px -8px rgba(0,0,0,.5);
+}
+.devswitch-btn{
+  width:34px;height:34px;border:none;border-radius:10px;background:transparent;color:rgba(232,209,167,.55);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .15s ease,color .15s ease;
+}
+.devswitch-btn svg{width:17px;height:17px;}
+.devswitch-btn:hover{color:#E8D1A7;}
+.devswitch-btn[aria-pressed="true"]{background:#E8D1A7;color:#442D1C;}
+@media (max-width:480px){
+  .devswitch{top:10px;right:10px;}
+  .devswitch-btn{width:30px;height:30px;}
+  .devswitch-btn svg{width:15px;height:15px;}
+}
+
+/* ---------- Preview forçado (computador/celular) ----------
+   Reaplica os mesmos valores do @media(min-width:900px) acima, mas fora de uma media
+   query — como seletor de elemento (html[data-preview=...]) tem mais especificidade que
+   a regra simples de classe (.app-frame etc.), ganha dos dois lados: força o cartão largo
+   numa janela estreita, ou trava o cartão de celular numa janela larga, sem duplicar a
+   lógica dos componentes internos (que já herdam a largura do .app-frame). */
+html[data-preview="desktop"] body{padding:0;align-items:stretch;}
+html[data-preview="desktop"] .app-frame{
+  width:100%;max-width:none;height:100vh;border-radius:0;box-shadow:none;margin:0;
+}
+html[data-preview="desktop"][data-theme="dark"] .app-frame{box-shadow:none;}
+html[data-preview="desktop"] .content{max-width:1180px;width:100%;margin-left:auto;margin-right:auto;padding:36px 40px 60px;box-sizing:border-box;}
+html[data-preview="desktop"] .topbar,
+html[data-preview="desktop"] .backrow{max-width:1180px;width:100%;margin:0 auto;padding-left:40px;padding-right:40px;box-sizing:border-box;}
+html[data-preview="desktop"] .dash-hero-greetrow,
+html[data-preview="desktop"] .dash-hero-week{max-width:1180px;width:100%;margin-left:auto;margin-right:auto;padding-left:40px;padding-right:40px;box-sizing:border-box;}
+html[data-preview="desktop"] .dock{max-width:420px;margin-left:auto;margin-right:auto;}
+
+html[data-preview="desktop"] .screen[data-screen="dashboard"] .content{
+  display:grid;grid-template-columns:1.1fr .9fr;gap:22px 28px;align-items:start;align-content:start;
+  grid-template-areas:
+    "urgent urgent"
+    "periodo periodo"
+    "periodo2 periodo2"
+    "resumo lucro"
+    "resumo metrics"
+    "pizza produzido"
+    "report report"
+    "reveal reveal";
+}
+html[data-preview="desktop"] .screen[data-screen="dashboard"] .content > .reveal-footer{grid-area:reveal;}
+html[data-preview="desktop"] .dash-area-urgent{grid-area:urgent;}
+html[data-preview="desktop"] .dash-area-periodo{grid-area:periodo;}
+html[data-preview="desktop"] .dash-area-periodo2{grid-area:periodo2;}
+html[data-preview="desktop"] .dash-area-resumo{grid-area:resumo;}
+html[data-preview="desktop"] .dash-area-lucro{grid-area:lucro;}
+html[data-preview="desktop"] .dash-area-metrics{grid-area:metrics;}
+html[data-preview="desktop"] .dash-area-pizza{grid-area:pizza;}
+html[data-preview="desktop"] .dash-area-produzido{grid-area:produzido;}
+html[data-preview="desktop"] .dash-area-report{grid-area:report;}
+html[data-preview="desktop"] .dash-area-urgent,
+html[data-preview="desktop"] .dash-area-periodo,
+html[data-preview="desktop"] .dash-area-periodo2,
+html[data-preview="desktop"] .dash-area-resumo,
+html[data-preview="desktop"] .dash-area-lucro,
+html[data-preview="desktop"] .dash-area-metrics,
+html[data-preview="desktop"] .dash-area-pizza,
+html[data-preview="desktop"] .dash-area-produzido{
+  margin:0!important;
+}
+
+html[data-preview="mobile"] body{padding:26px 0;align-items:flex-start;}
+html[data-preview="mobile"] .app-frame{
+  max-width:430px;height:100vh;border-radius:0;box-shadow:0 0 1px rgba(42,33,26,.15);
+}
+html[data-preview="mobile"][data-theme="dark"] .app-frame{box-shadow:0 0 1px rgba(0,0,0,.4);}
+@media (min-width:431px){
+  html[data-preview="mobile"] .app-frame{box-shadow:0 30px 70px rgba(42,33,26,.22);}
+  html[data-preview="mobile"][data-theme="dark"] .app-frame{box-shadow:0 30px 70px rgba(0,0,0,.55);}
 }
 
 @media print{
   body{background:#fff;padding:0;}
   .app-frame{box-shadow:none;max-width:100%;height:auto;}
-  .navbar,.topbar,.backrow{display:none !important;}
+  .dock,.topbar,.backrow{display:none !important;}
   .screen{height:auto;overflow:visible;box-shadow:none;border-radius:0;}
   .screen[hidden]{display:none;}
 }
 
-/* Visible keyboard focus — inputs suppress the native outline above (it clashes with the
-   pressed/raised neumorphic shells), so .field:focus-within supplies the ring for text fields
-   and this rule covers every other focusable control (custom role="button"/"switch" elements,
-   real buttons, links) that doesn't already get one from the browser default. */
+/* Foco de teclado visível — inputs suprimem o outline nativo acima (conflita com as cascas
+   neumórficas), então .field:focus-within cobre campos de texto e esta regra cobre o resto
+   (role="button"/"switch" customizados, botões reais, links) que não ganham um por padrão. */
 a:focus-visible,
 button:focus-visible,
 input:focus-visible,
 [role="button"]:focus-visible,
 [role="switch"]:focus-visible{
   outline:2px solid var(--primary);
+  outline-offset:2px;
+}
+#authView a:focus-visible,
+#authView button:focus-visible,
+#authView input:focus-visible,
+#authView [role="button"]:focus-visible{
+  outline:2px solid #E8D1A7;
   outline-offset:2px;
 }
