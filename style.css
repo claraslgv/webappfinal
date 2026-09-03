@@ -436,8 +436,45 @@ html[data-theme="dark"] .app-frame{box-shadow:0 0 1px rgba(0,0,0,.4);}
 .divider{height:1px;background:var(--line);margin:14px 0;}
 a{color:var(--primary);}
 
+/* Pastas do Estoque (hub) — 3 blocos empilhados de cor sólida fixa da marca, clareando pra
+   escurecendo de cima pra baixo, na mesma lógica de "sempre uma das cores da marca,
+   independente do tema" do dock e do dash-hero (ver DOCK_ITEMS/.dash-hero). O texto e a
+   seta usam a cor `color` de cada bloco (definida inline por cartão), não tokens de tema.
+   Layout de lista única (ref: mockup "Expenses" — faixas coloridas grandes, coladas uma na
+   outra sem gap. Cada faixa mantém seu próprio raio nos 4 cantos (em vez de só o bloco todo
+   arredondado): encostadas sem gap, o raio de cada uma "morde" um cantinho do fundo da
+   página bem na emenda — é esse recorte que dá a leitura de um cartão deitado por cima do
+   outro, não uma lista comum. */
+.folder-stack{display:flex;flex-direction:column;margin-bottom:14px;}
+.folder-card{
+  display:flex;align-items:center;gap:14px;min-height:150px;padding:28px 30px;border-radius:26px;
+  box-shadow:0 8px 16px -10px rgba(0,0,0,.4);transition:transform .12s ease;transform-origin:50% 0%;
+}
+.folder-card:active{transform:scale(.98);}
+/* Só durante playStackReveal() (app.js) — troca pra uma curva mais lenta/elástica que a do
+   :active de toque, senão o toque normal ficaria "mole" o tempo todo. */
+.folder-card.stack-revealing{transition:transform .55s cubic-bezier(.34,1.56,.64,1), opacity .4s ease;}
+.folder-card-title{font:700 21px/1.25 'Montserrat',sans-serif;}
+.folder-card-sub{font-size:14px;opacity:.72;margin-top:5px;}
+.folder-card-arrow{width:24px;height:24px;flex:none;opacity:.8;}
+
 [role="button"]{cursor:pointer;}
 [role="switch"]{cursor:pointer;}
+
+/* Bounce de toque genérico (referência: motion.dev — mesma família de curva elástica de
+   .avisos-row/.folder-card.stack-revealing) — usado nos blocos do Dashboard pra dar retorno
+   visual ao clique em cada cartão (resumo, lucro, métricas, produzido, pizza…), mesmo nos
+   que ainda não abrem uma tela própria. Dispara via classe (ver ".dash-tap" na delegação de
+   clique em app.js) em vez de :active puro, porque um toque rápido cortaria a animação no
+   meio — a classe garante que o "estica e assenta" sempre termina, mesmo num tap curto. */
+@keyframes dashTapBounce{
+  0%{transform:scale(1);}
+  40%{transform:scale(.965);}
+  72%{transform:scale(1.018);}
+  100%{transform:scale(1);}
+}
+.dash-tap{transform-origin:50% 50%;}
+.dash-tap.tap-bounce{animation:dashTapBounce .42s cubic-bezier(.34,1.56,.64,1);}
 
 /* Toast simples ("em breve" nos itens do dock ainda não construídos) — showToast() em app.js. */
 .toast{
@@ -453,6 +490,7 @@ a{color:var(--primary);}
   .dockitem,.row[role="button"],.raised[role="button"]{
     transition-duration:.001ms !important;
   }
+  .dash-tap.tap-bounce{animation:none;}
 }
 
 /* ---------- Dashboard: pílulas de período em telas estreitas ----------

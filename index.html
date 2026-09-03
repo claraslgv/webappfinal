@@ -228,7 +228,7 @@
           <div class="skel-block" style="height:170px;"></div>
         </div>
 
-        <div class="raised dash-area-urgent" role="button" tabindex="0" data-action="go-reposicao" id="dashUrgentBanner"
+        <div class="raised dash-tap dash-area-urgent" role="button" tabindex="0" data-action="go-reposicao" id="dashUrgentBanner"
           aria-label="Ver todos os avisos, em ordem de prioridade" hidden
           style="padding:13px 16px;display:flex;align-items:center;gap:11px;margin-bottom:18px;">
           <div class="badge warn" style="flex:none;">urgente</div>
@@ -251,11 +251,11 @@
         </div>
 
         <div class="row dash-area-periodo" style="gap:9px;margin-bottom:8px;" id="dashPeriodoPills">
-          <div class="pill active" style="flex:1;text-align:center;" data-periodo="7" role="button" tabindex="0"
+          <div class="pill dash-tap active" style="flex:1;text-align:center;" data-periodo="7" role="button" tabindex="0"
             aria-pressed="true">7 dias</div>
-          <div class="pill" style="flex:1;text-align:center;" data-periodo="30" role="button" tabindex="0"
+          <div class="pill dash-tap" style="flex:1;text-align:center;" data-periodo="30" role="button" tabindex="0"
             aria-pressed="false">30 dias</div>
-          <div class="pill" style="flex:1;text-align:center;" data-periodo="custom" role="button" tabindex="0"
+          <div class="pill dash-tap" style="flex:1;text-align:center;" data-periodo="custom" role="button" tabindex="0"
             aria-pressed="false">personalizado</div>
         </div>
         <div class="row dash-area-periodo2" style="gap:9px;margin-bottom:20px;" id="dashPeriodoCustomWrap" hidden>
@@ -269,7 +269,7 @@
           </div>
         </div>
 
-        <div class="raised card dash-area-lucro" style="background:var(--primary);margin-bottom:12px;">
+        <div class="raised card dash-tap dash-area-lucro" style="background:var(--primary);margin-bottom:12px;">
           <div
             style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--on-primary);opacity:.7;margin-bottom:8px;">
             lucro líquido real</div>
@@ -280,19 +280,19 @@
         </div>
 
         <div class="dash-area-metrics" style="display:flex;gap:12px;margin-bottom:12px;">
-          <div class="raised-sm" style="padding:16px;flex:1;">
+          <div class="raised-sm dash-tap" style="padding:16px;flex:1;">
             <div class="label" style="margin-bottom:8px;">total de vendas</div>
             <div style="font-size:18px;font-weight:700;letter-spacing:-.01em;" id="dashTotalVendas">R$ 0,00</div>
             <div style="font-size:11px;color:var(--text-faint);margin-top:6px;">no período · antes de cupons</div>
           </div>
-          <div class="raised-sm" style="padding:16px;flex:1;">
+          <div class="raised-sm dash-tap" style="padding:16px;flex:1;">
             <div class="label" style="margin-bottom:8px;">receita real</div>
             <div style="font-size:18px;font-weight:700;letter-spacing:-.01em;" id="dashReceitaReal">R$ 0,00</div>
             <div style="font-size:11px;color:var(--text-faint);margin-top:6px;">− cupons, − estornos</div>
           </div>
         </div>
 
-        <div class="raised-sm between dash-area-produzido" style="padding:14px 16px;margin-bottom:8px;">
+        <div class="raised-sm between dash-tap dash-area-produzido" style="padding:14px 16px;margin-bottom:8px;">
           <div>
             <div class="label" style="margin-bottom:4px;">produzido</div>
             <div style="font-size:11px;color:var(--text-faint);" id="dashProduzidoSub">—</div>
@@ -300,7 +300,7 @@
           <div style="font-size:18px;font-weight:700;letter-spacing:-.01em;" id="dashProduzidoQtd">0 velas</div>
         </div>
 
-        <div class="row dash-area-report" role="button" tabindex="0" data-action="toast-em-breve"
+        <div class="row dash-tap dash-area-report" role="button" tabindex="0" data-action="toast-em-breve"
           style="justify-content:center;gap:6px;padding:2px 0 6px;margin-bottom:6px;color:var(--primary);font-size:12.5px;font-weight:600;">
           ver relatório completo do período
           <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"
@@ -309,7 +309,7 @@
           </svg>
         </div>
 
-        <div class="raised card dash-area-pizza" style="margin-top:16px;">
+        <div class="raised card dash-tap dash-area-pizza" style="margin-top:16px;">
           <div class="between" style="margin-bottom:14px;">
             <div class="label" style="margin:0;">velas vendidas por variação</div>
             <div style="font-size:11px;color:var(--text-faint);" id="dashPizzaTotal">0 un</div>
@@ -352,6 +352,493 @@
         </div>
       </div>
       <div class="dock" id="reposicaoDock" role="navigation" aria-label="Navegação principal"></div>
+    </div>
+
+    <!-- ---------- Estoque: hub com as 3 pastas (insumos / produção / calculadora) ---------- -->
+    <div class="screen" data-screen="estoque" hidden>
+      <div class="backrow">
+        <div class="iconbtn" role="button" tabindex="0" data-goto="dashboard" aria-label="Voltar ao início">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"
+            stroke-linejoin="round">
+            <path d="m15 6-6 6 6 6" />
+          </svg>
+        </div>
+        <div>
+          <div class="crumb">início</div>
+          <div class="pagetitle" style="font-size:19px;">estoque</div>
+        </div>
+      </div>
+      <div class="content">
+        <!-- Sem skel-overlay aqui de propósito: a própria cascata das 3 pastas
+             (playStackReveal, ver showScreen() em app.js) já cumpre o papel de revelação —
+             um skeleton por cima só ia tampar essa animação. -->
+
+        <!-- As 3 pastas empilhadas — mesma lógica de cor fixa do dash-hero e do dock: sempre
+             uma das cores da marca, cascateando de mais clara pra mais escura (a mesma
+             sequência de cores do dock, só reordenada), independente do tema claro/escuro. -->
+        <div class="folder-stack">
+          <div class="folder-card" role="button" tabindex="0" data-goto="estoqueInsumos"
+            aria-label="Abrir Estoque de Insumos" style="background:#9D9167;color:#2B1B10;">
+            <div style="flex:1;min-width:0;">
+              <div class="folder-card-title">Estoque de Insumos</div>
+              <div class="folder-card-sub" id="folderInsumosSub">—</div>
+            </div>
+            <svg class="folder-card-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="m9 6 6 6-6 6" />
+            </svg>
+          </div>
+
+          <div class="folder-card" role="button" tabindex="0" data-goto="estoqueProducao"
+            aria-label="Abrir Estoque de Produção" style="background:#84592B;color:#F3E6CE;">
+            <div style="flex:1;min-width:0;">
+              <div class="folder-card-title">Estoque de Produção</div>
+              <div class="folder-card-sub" id="folderProducaoSub">—</div>
+            </div>
+            <svg class="folder-card-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="m9 6 6 6-6 6" />
+            </svg>
+          </div>
+
+          <div class="folder-card" role="button" tabindex="0" data-goto="estoqueCalculadora"
+            aria-label="Abrir Calculadora de Velas" style="background:#743014;color:#F3E6CE;">
+            <div style="flex:1;min-width:0;">
+              <div class="folder-card-title">Calculadora de Velas</div>
+              <div class="folder-card-sub">monte um lote e veja o que falta</div>
+            </div>
+            <svg class="folder-card-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="m9 6 6 6-6 6" />
+            </svg>
+          </div>
+        </div>
+
+        <div class="reveal-footer" aria-hidden="true">
+          <span class="reveal-footer-mark">.parágrafo</span>
+        </div>
+      </div>
+      <div class="dock" id="estoqueDock" role="navigation" aria-label="Navegação principal"></div>
+    </div>
+
+    <!-- ---------- Estoque de Insumos — módulo 1 ---------- -->
+    <div class="screen" data-screen="estoqueInsumos" hidden>
+      <div class="backrow between">
+        <div class="row">
+          <div class="iconbtn" role="button" tabindex="0" data-goto="estoque" aria-label="Voltar ao estoque">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path d="m15 6-6 6 6 6" />
+            </svg>
+          </div>
+          <div>
+            <div class="crumb">estoque</div>
+            <div class="pagetitle" style="font-size:19px;">insumos</div>
+          </div>
+        </div>
+        <div class="iconbtn" role="button" tabindex="0" data-action="insumo-add" aria-label="Cadastrar insumo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+            <path d="M12 5v14M5 12h14" />
+          </svg>
+        </div>
+      </div>
+      <div class="content">
+        <div class="skel-overlay" aria-hidden="true" hidden>
+          <div class="skel-block" style="height:46px;border-radius:16px;"></div>
+          <div class="skel-block" style="height:64px;"></div>
+          <div class="skel-block" style="height:64px;"></div>
+          <div class="skel-block" style="height:64px;"></div>
+        </div>
+
+        <div class="pressed field row" style="padding:12px 16px;margin-bottom:18px;">
+          <div style="color:var(--text-faint);width:17px;height:17px;"><svg viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="10.5" cy="10.5" r="6" />
+              <path d="m20 20-4.8-4.8" />
+            </svg></div>
+          <input type="text" id="estoqueSearchInput" placeholder="buscar insumo" />
+        </div>
+
+        <div class="label" id="estoqueInsumosCount">insumos</div>
+
+        <div id="estoqueInsumosList"></div>
+
+        <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;margin-top:10px;text-align:center;">custo
+          médio ponderado — atualiza sozinho a cada entrada de compra.</div>
+
+        <div class="reveal-footer" aria-hidden="true">
+          <span class="reveal-footer-mark">.parágrafo</span>
+        </div>
+      </div>
+      <div class="dock" id="estoqueInsumosDock" role="navigation" aria-label="Navegação principal"></div>
+    </div>
+
+    <div class="screen" data-screen="insumoForm" hidden>
+      <div class="backrow">
+        <div class="iconbtn" role="button" tabindex="0" data-goto="estoqueInsumos" aria-label="Voltar aos insumos">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"
+            stroke-linejoin="round">
+            <path d="m15 6-6 6 6 6" />
+          </svg>
+        </div>
+        <div>
+          <div class="crumb">estoque de insumos</div>
+          <div class="pagetitle" style="font-size:19px;" id="insumoFormTitle">Novo insumo</div>
+        </div>
+      </div>
+      <div class="content">
+        <div class="skel-overlay" aria-hidden="true" hidden>
+          <div class="skel-block" style="height:56px;"></div>
+          <div class="skel-block" style="height:96px;"></div>
+          <div class="skel-block" style="height:56px;"></div>
+        </div>
+
+        <div class="pressed field">
+          <div class="label">nome do insumo</div>
+          <input type="text" id="insumoFormNome" placeholder="ex.: Cera de soja" />
+        </div>
+
+        <div class="raised card">
+          <div class="label">unidade de medida</div>
+          <div class="row" id="insumoFormUnitPills" style="gap:9px;flex-wrap:wrap;">
+            <div class="pressed-pill pill active" data-unit="kg" style="padding:9px 15px;">kg</div>
+            <div class="pressed-pill pill" data-unit="g" style="padding:9px 15px;">g</div>
+            <div class="pressed-pill pill" data-unit="ml" style="padding:9px 15px;">ml</div>
+            <div class="pressed-pill pill" data-unit="L" style="padding:9px 15px;">L</div>
+            <div class="pressed-pill pill" data-unit="un" style="padding:9px 15px;">un</div>
+          </div>
+        </div>
+
+        <div id="insumoFormNewFields">
+          <div class="pressed field">
+            <div class="label">quantidade inicial</div>
+            <div class="row">
+              <input type="text" id="insumoFormQtd" placeholder="0" style="flex:1;" />
+              <div style="font-size:14.5px;font-weight:600;color:var(--text-faint);" id="insumoFormQtdUnit">kg</div>
+            </div>
+          </div>
+          <div class="pressed field">
+            <div class="label">custo estimado inicial (por unidade)</div>
+            <div class="row">
+              <div style="font-size:14.5px;font-weight:600;color:var(--text-faint);">R$</div>
+              <input type="text" id="insumoFormCusto" placeholder="0,00" style="flex:1;" />
+            </div>
+          </div>
+        </div>
+
+        <div id="insumoFormEditInfo" hidden>
+          <div class="raised card">
+            <div class="between" style="padding:10px 0;border-bottom:1px solid var(--line);">
+              <span style="font-size:13px;color:var(--text-faint);">em estoque</span>
+              <span style="font-size:13.5px;font-weight:700;" id="insumoFormInfoQtd">—</span>
+            </div>
+            <div class="between" style="padding:10px 0 0;">
+              <span style="font-size:13px;color:var(--text-faint);">custo médio ponderado</span>
+              <span style="font-size:13.5px;font-weight:700;" id="insumoFormInfoCusto">—</span>
+            </div>
+          </div>
+          <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;margin:-6px 4px 18px;">Quantidade e custo
+            só mudam por movimentações — registre uma entrada ou saída pra ajustá-los.</div>
+        </div>
+
+        <div class="pressed field">
+          <div class="label">mínimo desejado (opcional)</div>
+          <div class="row">
+            <input type="text" id="insumoFormMinimo" placeholder="0" style="flex:1;" />
+            <div style="font-size:14.5px;font-weight:600;color:var(--text-faint);" id="insumoFormMinUnit">kg</div>
+          </div>
+        </div>
+
+        <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;margin:2px 4px 22px;" id="insumoFormHint">
+          O custo por unidade começa como a estimativa acima e passa a ser o <strong
+            style="color:var(--text-dim);">custo médio ponderado</strong> assim que a primeira compra for registrada.
+        </div>
+
+        <button class="btn btn-primary" data-action="insumo-form-save" style="width:100%;margin-bottom:12px;">Salvar
+          insumo</button>
+        <div style="text-align:center;" id="insumoFormRemoveWrap" hidden>
+          <button class="btn btn-text" data-action="insumo-form-remove">Remover insumo</button>
+        </div>
+      </div>
+      <div class="dock" id="insumoFormDock" role="navigation" aria-label="Navegação principal"></div>
+    </div>
+
+    <div class="screen" data-screen="insumoDetalhe" hidden>
+      <div class="backrow between">
+        <div class="row">
+          <div class="iconbtn" role="button" tabindex="0" data-goto="estoqueInsumos" aria-label="Voltar aos insumos">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path d="m15 6-6 6 6 6" />
+            </svg>
+          </div>
+          <div>
+            <div class="crumb">estoque de insumos</div>
+            <div class="pagetitle" style="font-size:19px;" id="insumoDetalheNome">—</div>
+          </div>
+        </div>
+        <div class="row" style="gap:8px;">
+          <div class="tapicon" role="button" tabindex="0" aria-label="Editar insumo" data-action="insumo-detalhe-edit"
+            style="width:40px;height:40px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 20h9" />
+              <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z" />
+            </svg></div>
+          <div class="iconbtn" role="button" tabindex="0" aria-label="Nova movimentação" data-action="mov-add">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+              <path d="M12 5v14M5 12h14" />
+            </svg>
+          </div>
+        </div>
+      </div>
+      <div class="content">
+        <div class="skel-overlay" aria-hidden="true" hidden>
+          <div class="skel-block" style="height:130px;"></div>
+          <div class="skel-block" style="height:46px;border-radius:16px;"></div>
+          <div class="skel-block" style="height:96px;"></div>
+        </div>
+
+        <div class="raised card">
+          <div class="between" style="margin-bottom:10px;">
+            <div class="label" style="margin:0;">em estoque</div>
+            <div class="badge warn" id="insumoDetalheBadge" hidden>abaixo do mínimo</div>
+          </div>
+          <div style="font-size:26px;font-weight:700;margin-bottom:14px;" id="insumoDetalheQtd">—</div>
+          <div class="between" style="padding:11px 0;border-top:1px solid var(--line);">
+            <span style="font-size:13px;color:var(--text-faint);">custo médio ponderado</span>
+            <span style="font-size:13.5px;font-weight:700;" id="insumoDetalheCusto">—</span>
+          </div>
+          <div class="between" style="padding:11px 0 0;">
+            <span style="font-size:13px;color:var(--text-faint);">mínimo desejado</span>
+            <span style="font-size:13.5px;font-weight:600;color:var(--text-dim);" id="insumoDetalheMinimo">—</span>
+          </div>
+        </div>
+
+        <div class="row" style="gap:10px;margin-bottom:22px;">
+          <button class="btn btn-ghost" data-action="mov-entrada" style="flex:1;">Registrar entrada</button>
+          <button class="btn btn-ghost" data-action="mov-saida" style="flex:1;">Registrar saída</button>
+        </div>
+
+        <div class="between" style="margin-bottom:10px;">
+          <div class="label" style="margin:0;">histórico de movimentações</div>
+          <div style="font-size:11px;color:var(--text-faint);" id="insumoDetalheHistCount">0 registros</div>
+        </div>
+
+        <div id="insumoDetalheHistEmpty"
+          style="font-size:12.5px;color:var(--text-faint);text-align:center;padding:18px 0;" hidden>Nenhuma
+          movimentação ainda.</div>
+        <div class="raised card" id="insumoDetalheHistCard">
+          <div id="insumoDetalheHistList"></div>
+        </div>
+
+        <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;margin-top:6px;text-align:center;">Cada
+          entrada e saída fica registrada aqui, com data, quantidade e valor, para auditoria.</div>
+
+        <div class="reveal-footer" aria-hidden="true">
+          <span class="reveal-footer-mark">.parágrafo</span>
+        </div>
+      </div>
+      <div class="dock" id="insumoDetalheDock" role="navigation" aria-label="Navegação principal"></div>
+    </div>
+
+    <div class="screen" data-screen="insumoMovimentar" hidden>
+      <div class="backrow">
+        <div class="iconbtn" role="button" tabindex="0" data-goto="insumoDetalhe" aria-label="Voltar ao insumo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"
+            stroke-linejoin="round">
+            <path d="m15 6-6 6 6 6" />
+          </svg>
+        </div>
+        <div>
+          <div class="crumb" id="movCrumb">—</div>
+          <div class="pagetitle" style="font-size:19px;">nova movimentação</div>
+        </div>
+      </div>
+      <div class="content">
+        <div class="skel-overlay" aria-hidden="true" hidden>
+          <div class="skel-block" style="height:46px;border-radius:16px;"></div>
+          <div class="skel-block" style="height:110px;"></div>
+          <div class="skel-block" style="height:96px;"></div>
+        </div>
+
+        <div class="row" style="gap:9px;margin-bottom:18px;">
+          <div class="pressed-pill pill active" data-tipo="entrada" style="padding:11px 16px;flex:1;text-align:center;">
+            Entrada · compra</div>
+          <div class="pressed-pill pill" data-tipo="saida" style="padding:11px 16px;flex:1;text-align:center;">Saída ·
+            uso</div>
+        </div>
+
+        <div id="movEntradaFields">
+          <div class="pressed field">
+            <div class="label">quantidade comprada</div>
+            <div class="row">
+              <input type="text" id="movQtdEntrada" placeholder="0" style="flex:1;" />
+              <div style="font-size:14.5px;font-weight:600;color:var(--text-faint);" id="movUnitEntrada">kg</div>
+            </div>
+          </div>
+          <div class="pressed field">
+            <div class="label">preço pago</div>
+            <div class="row">
+              <div style="font-size:14.5px;font-weight:600;color:var(--text-faint);">R$</div>
+              <input type="text" id="movPreco" placeholder="0,00" style="flex:1;" />
+            </div>
+          </div>
+        </div>
+
+        <div id="movSaidaFields" hidden>
+          <div class="pressed field">
+            <div class="label">quantidade usada</div>
+            <div class="row">
+              <input type="text" id="movQtdSaida" placeholder="0" style="flex:1;" />
+              <div style="font-size:14.5px;font-weight:600;color:var(--text-faint);" id="movUnitSaida">kg</div>
+            </div>
+          </div>
+          <div class="label" style="margin:2px 4px 8px;">motivo</div>
+          <div class="row" id="movMotivoPills" style="gap:9px;margin-bottom:14px;">
+            <div class="pressed-pill pill active" data-motivo="Produção" style="padding:9px 14px;">Produção</div>
+            <div class="pressed-pill pill" data-motivo="Perda" style="padding:9px 14px;">Perda</div>
+            <div class="pressed-pill pill" data-motivo="Ajuste" style="padding:9px 14px;">Ajuste</div>
+          </div>
+        </div>
+
+        <div class="pressed field">
+          <div class="label">data</div>
+          <div class="val" style="font-size:14.5px;font-weight:600;" id="movData">—</div>
+        </div>
+
+        <div class="raised card">
+          <div class="label" id="movPreviewLabel">depois desta entrada</div>
+          <div class="between" style="padding:10px 0;border-bottom:1px solid var(--line);">
+            <span style="font-size:13px;color:var(--text-faint);">estoque</span>
+            <span style="font-size:13.5px;font-weight:700;" id="movPreviewQtd">—</span>
+          </div>
+          <div class="between" style="padding:10px 0 0;" id="movPreviewCustoRow">
+            <span style="font-size:13px;color:var(--text-faint);">custo médio ponderado</span>
+            <span style="font-size:13.5px;font-weight:700;color:var(--good);" id="movPreviewCusto">—</span>
+          </div>
+        </div>
+        <div style="font-size:12px;color:var(--warn);font-weight:600;margin:-8px 4px 14px;text-align:center;"
+          id="movWarning" hidden></div>
+
+        <button class="btn btn-primary" data-action="mov-submit" style="width:100%;margin-bottom:14px;"
+          id="movSubmitBtn">Registrar entrada</button>
+        <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;text-align:center;">O custo médio
+          ponderado é recalculado automaticamente a cada compra registrada.</div>
+      </div>
+      <div class="dock" id="insumoMovimentarDock" role="navigation" aria-label="Navegação principal"></div>
+    </div>
+
+    <!-- ---------- Estoque de Produção — módulo 2/3 ---------- -->
+    <div class="screen" data-screen="estoqueProducao" hidden>
+      <div class="backrow">
+        <div class="iconbtn" role="button" tabindex="0" data-goto="estoque" aria-label="Voltar ao estoque">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"
+            stroke-linejoin="round">
+            <path d="m15 6-6 6 6 6" />
+          </svg>
+        </div>
+        <div>
+          <div class="crumb">estoque</div>
+          <div class="pagetitle" style="font-size:19px;">produção</div>
+        </div>
+      </div>
+      <div class="content">
+        <div class="skel-overlay" aria-hidden="true" hidden>
+          <div class="skel-block" style="height:64px;"></div>
+          <div class="skel-block" style="height:64px;"></div>
+        </div>
+
+        <div class="label" id="producaoCount">variações</div>
+
+        <div id="producaoList"></div>
+
+        <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;margin-top:10px;text-align:center;">
+          Velas prontas, por variação do catálogo. Pra renomear uma variação, use o Catálogo de Produtos.</div>
+
+        <div class="reveal-footer" aria-hidden="true">
+          <span class="reveal-footer-mark">.parágrafo</span>
+        </div>
+      </div>
+      <div class="dock" id="estoqueProducaoDock" role="navigation" aria-label="Navegação principal"></div>
+    </div>
+
+    <!-- ---------- Calculadora de Velas ---------- -->
+    <div class="screen" data-screen="estoqueCalculadora" hidden>
+      <div class="backrow">
+        <div class="iconbtn" role="button" tabindex="0" data-goto="estoque" aria-label="Voltar ao estoque">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"
+            stroke-linejoin="round">
+            <path d="m15 6-6 6 6 6" />
+          </svg>
+        </div>
+        <div>
+          <div class="crumb">estoque</div>
+          <div class="pagetitle" style="font-size:19px;">calculadora de velas</div>
+        </div>
+      </div>
+      <div class="content">
+        <div class="skel-overlay" aria-hidden="true" hidden>
+          <div class="skel-block" style="height:40px;border-radius:999px;"></div>
+          <div class="skel-block" style="height:96px;"></div>
+          <div class="skel-block" style="height:170px;"></div>
+        </div>
+
+        <div class="label">variação do catálogo</div>
+        <div style="display:flex;gap:9px;overflow-x:auto;margin-bottom:18px;padding-bottom:2px;" id="calcVarPills">
+        </div>
+
+        <div class="raised card">
+          <div class="label">quantidade do lote</div>
+          <div class="row" style="justify-content:center;gap:26px;">
+            <div class="pressed" role="button" tabindex="0" aria-label="Diminuir quantidade do lote"
+              data-action="calc-qtd-dec"
+              style="width:44px;height:44px;border-radius:15px;display:flex;align-items:center;justify-content:center;color:var(--text);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+                <path d="M5 12h14" />
+              </svg></div>
+            <div style="font-size:28px;font-weight:700;min-width:44px;text-align:center;" id="calcQtdOut">24</div>
+            <div class="raised-sm" role="button" tabindex="0" aria-label="Aumentar quantidade do lote"
+              data-action="calc-qtd-inc"
+              style="width:44px;height:44px;border-radius:15px;display:flex;align-items:center;justify-content:center;color:var(--primary);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+                <path d="M12 5v14M5 12h14" />
+              </svg></div>
+          </div>
+        </div>
+
+        <div class="raised card">
+          <div class="between" style="margin-bottom:4px;">
+            <div class="label" style="margin:0;">insumos que serão usados</div>
+            <div style="font-size:10.5px;color:var(--text-faint);" id="calcPerdaNote">perda 4% inclusa</div>
+          </div>
+          <div id="calcInsumosList"></div>
+        </div>
+
+        <div class="raised card">
+          <div class="between">
+            <div>
+              <div class="label" style="margin:0 0 4px;">jarras necessárias</div>
+              <div style="font-size:20px;font-weight:700;" id="calcJarrasOut">24 un</div>
+            </div>
+            <div style="text-align:right;">
+              <div class="label" style="margin:0 0 4px;">capacidade da jarra</div>
+              <div style="font-size:13.5px;font-weight:600;color:var(--text-dim);" id="calcJarraCap">180 ml</div>
+            </div>
+          </div>
+        </div>
+
+        <div id="calcSaveWrap" hidden style="margin-bottom:6px;">
+          <button class="btn btn-ghost" style="width:100%;" data-action="calc-save-padrao">Salvar ajustes como novo
+            padrão</button>
+          <div style="font-size:11px;color:var(--text-faint);line-height:1.5;text-align:center;margin-top:8px;">Sem
+            isso, os ajustes valem só para este lote.</div>
+        </div>
+
+        <div class="reveal-footer" aria-hidden="true">
+          <span class="reveal-footer-mark">.parágrafo</span>
+        </div>
+      </div>
+      <div class="dock" id="estoqueCalculadoraDock" role="navigation" aria-label="Navegação principal"></div>
     </div>
 
     <div class="screen" data-screen="mais" hidden>

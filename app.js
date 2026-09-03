@@ -59,6 +59,8 @@
     target.style.zIndex = "2";
     if (current) current.style.zIndex = "1";
     playScreenSkeleton(target);
+    var folderStackEl = target.querySelector(".folder-stack");
+    if (folderStackEl) playStackReveal(folderStackEl, ".folder-card");
 
     target.classList.add("screen-enter");
     void target.offsetWidth;
@@ -440,6 +442,40 @@
   }
 
   // ================================================================
+  // Configurações de produção — receita padrão por vela, jarra e perda de derretimento.
+  // Ainda não tem tela própria (módulo 8, não construído) — os valores abaixo são a
+  // estimativa inicial que a Calculadora de Velas usa, com os mesmos papéis fixos do seed
+  // de insumos (i1 cera, i4 jarra, i5 pavio); a essência muda por variação (ver
+  // catalogoState[].essenciaInsumoId). Quando o módulo 8 existir, ele edita este estado.
+  // ================================================================
+  var CONFIG_KEY = "pp_config_v1";
+  var DEFAULT_CONFIG_STATE = {
+    ceraInsumoId: "i1", jarraInsumoId: "i4", pavioInsumoId: "i5",
+    ceraPorVela: 0.15, essenciaPorVela: 7, jarraPorVela: 1, pavioPorVela: 1,
+    jarraCapacidadeMl: 180, perdaDerretimento: 4
+  };
+  function loadConfigState(){
+    try {
+      var raw = localStorage.getItem(CONFIG_KEY);
+      if (raw) { var parsed = JSON.parse(raw); if (parsed) return parsed; }
+    } catch (e) {}
+    return JSON.parse(JSON.stringify(DEFAULT_CONFIG_STATE));
+  }
+  function saveConfigState(){
+    try { localStorage.setItem(CONFIG_KEY, JSON.stringify(configState)); } catch (e) {}
+  }
+  var configState = loadConfigState();
+  // Receita padrão de uma variação: 3 papéis fixos (cera/jarra/pavio) + a essência dela.
+  function receitaPadraoVariacao(v){
+    return [
+      { insumoId: configState.ceraInsumoId, qtd: configState.ceraPorVela, perde: true },
+      { insumoId: v.essenciaInsumoId, qtd: configState.essenciaPorVela, perde: true },
+      { insumoId: configState.jarraInsumoId, qtd: configState.jarraPorVela, perde: false },
+      { insumoId: configState.pavioInsumoId, qtd: configState.pavioPorVela, perde: false }
+    ];
+  }
+
+  // ================================================================
   // Registro de produção (lotes) — módulo 6
   // ================================================================
   var LOTES_KEY = "pp_lotes_v1";
@@ -660,6 +696,447 @@
   }
 
   // ================================================================
+  // Estoque — hub das 3 pastas (insumos / produção / calculadora)
+  // A tela "estoque" é só o hub — cada pasta abre uma tela própria por baixo dela. A
+  // transição "descer" já vem de graça do showScreen() genérico (screen-enter/exit em
+  // style.css), então nenhuma pasta precisa de animação própria.
+  // ================================================================
+  function renderEstoqueHub(){
+    var totalInsumos = estoqueState.insumos.length;
+    var abaixoInsumos = estoqueState.insumos.filter(function(i){ return i.minimo > 0 && i.quantidade < i.minimo; }).length;
+    setText("folderInsumosSub", totalInsumos + (totalInsumos === 1 ? " insumo" : " insumos") + (abaixoInsumos ? " · " + abaixoInsumos + " abaixo do mínimo" : ""));
+
+    var totalVelas = 0;
+    producaoEstoqueState.estoques.forEach(function(e){ totalVelas += e.quantidade; });
+    var nVariacoes = catalogoState.variacoes.length;
+    setText("folderProducaoSub", totalVelas + (totalVelas === 1 ? " vela pronta" : " velas prontas") + " · " + nVariacoes + (nVariacoes === 1 ? " variação" : " variações"));
+  }
+
+  // ================================================================
+  // Estoque de Insumos — módulo 1
+  // Custo do insumo = custo médio ponderado das compras registradas, recalculado a cada
+  // entrada — a mesma conta de custoInsumoPorVela() acima, só que por insumo em vez de
+  // por lote. O valor cadastrado na hora de criar o insumo é só a estimativa inicial,
+  // até a primeira entrada de compra chegar.
+  // ================================================================
+  var currentInsumoId = null;
+  var currentMovTipo = "entrada";
+  var insumoFormMode = "novo";
+  var insumoFormEditingId = null;
+
+  function insumoRowHTML(insumo){
+    var abaixo = insumo.minimo > 0 && insumo.quantidade < insumo.minimo;
+    var menuBtn = '<div class="tapicon" role="button" tabindex="0" aria-label="Mais ações · ' + escapeHtml(insumo.nome) + '" data-action="insumo-edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="12" r="1.3" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.3" fill="currentColor" stroke="none"/><circle cx="18" cy="12" r="1.3" fill="currentColor" stroke="none"/></svg></div>';
+    var rightTop = abaixo
+      ? '<div class="row" style="gap:6px;"><div class="badge warn">abaixo do mínimo</div>' + menuBtn + '</div>'
+      : menuBtn;
+    var minTxt = insumo.minimo > 0 ? (" · mín " + fmtQty(insumo.minimo, insumo.unidade)) : "";
+    return '' +
+      '<div class="raised-sm" role="button" tabindex="0" aria-label="Ver histórico · ' + escapeHtml(insumo.nome) + '" data-insumo-id="' + insumo.id + '" style="padding:15px 16px;margin-bottom:11px;">' +
+        '<div class="between" style="margin-bottom:6px;">' +
+          '<div style="font-size:14px;font-weight:600;">' + escapeHtml(insumo.nome) + '</div>' +
+          rightTop +
+        '</div>' +
+        '<div class="between">' +
+          '<div style="font-size:18px;font-weight:700;">' + fmtQty(insumo.quantidade, insumo.unidade) + '</div>' +
+          '<div style="font-size:11.5px;color:var(--text-faint);">' + fmtMoney(insumo.custoMedio) + '/' + insumo.unidade + minTxt + '</div>' +
+        '</div>' +
+      '</div>';
+  }
+
+  function renderEstoqueInsumosList(){
+    var searchEl = document.getElementById("estoqueSearchInput");
+    var q = searchEl ? searchEl.value.trim().toLowerCase() : "";
+    var list = estoqueState.insumos.filter(function(i){ return i.nome.toLowerCase().indexOf(q) !== -1; });
+    var listEl = document.getElementById("estoqueInsumosList");
+    if (listEl) {
+      listEl.innerHTML = list.length ? list.map(insumoRowHTML).join("") : emptyStateHTML({
+        icon: ICON_INSUMOS,
+        title: q ? "nenhum insumo encontrado" : "nenhum insumo cadastrado",
+        sub: q ? "tenta buscar por outro nome." : "toque no + pra cadastrar o primeiro."
+      });
+    }
+    var n = estoqueState.insumos.length;
+    setText("estoqueInsumosCount", n + (n === 1 ? " insumo" : " insumos"));
+  }
+
+  function openInsumoDetalhe(id){
+    currentInsumoId = id;
+    renderInsumoDetalhe();
+    showScreen("insumoDetalhe");
+  }
+
+  function renderInsumoDetalhe(){
+    var insumo = findInsumo(currentInsumoId);
+    if (!insumo) return;
+    setText("insumoDetalheNome", insumo.nome);
+    setText("insumoDetalheQtd", fmtQty(insumo.quantidade, insumo.unidade));
+    setText("insumoDetalheCusto", fmtMoney(insumo.custoMedio) + "/" + insumo.unidade);
+    setText("insumoDetalheMinimo", insumo.minimo > 0 ? fmtQty(insumo.minimo, insumo.unidade) : "—");
+    var badgeEl = document.getElementById("insumoDetalheBadge");
+    if (badgeEl) badgeEl.hidden = !(insumo.minimo > 0 && insumo.quantidade < insumo.minimo);
+
+    var movs = estoqueState.movimentacoes.filter(function(m){ return m.insumoId === currentInsumoId; });
+    movs.sort(function(a, b){
+      if (a.data !== b.data) return a.data < b.data ? 1 : -1;
+      return a.id < b.id ? 1 : -1;
+    });
+
+    var n = movs.length;
+    setText("insumoDetalheHistCount", n + (n === 1 ? " registro" : " registros"));
+    var histCard = document.getElementById("insumoDetalheHistCard");
+    var emptyEl = document.getElementById("insumoDetalheHistEmpty");
+    if (!n) {
+      if (histCard) histCard.hidden = true;
+      if (emptyEl) emptyEl.hidden = false;
+    } else {
+      if (histCard) histCard.hidden = false;
+      if (emptyEl) emptyEl.hidden = true;
+      var listEl = document.getElementById("insumoDetalheHistList");
+      if (listEl) listEl.innerHTML = movs.map(function(m, idx){
+        var isEntrada = m.tipo === "entrada";
+        var label = isEntrada ? "Entrada · compra" : "Saída · " + (m.motivo || "uso");
+        var qtdTxt = (isEntrada ? "+" : "–") + numToStr(m.quantidade) + " " + insumo.unidade;
+        var qtdColor = isEntrada ? "var(--good)" : "var(--text)";
+        var borderStyle = idx === movs.length - 1 ? "" : "border-bottom:1px solid var(--line);";
+        return '<div class="between" style="padding:12px 0;' + borderStyle + '">' +
+          '<div><div style="font-size:13.5px;font-weight:600;">' + label + '</div><div style="font-size:11px;color:var(--text-faint);margin-top:2px;">' + formatDateBR(m.data) + '</div></div>' +
+          '<div style="text-align:right;"><div style="font-size:13.5px;font-weight:700;color:' + qtdColor + ';">' + qtdTxt + '</div><div style="font-size:11px;color:var(--text-faint);margin-top:2px;">' + fmtMoney(m.valor) + '</div></div>' +
+        '</div>';
+      }).join("");
+    }
+  }
+
+  function setMovTipo(tipo){
+    currentMovTipo = tipo;
+    document.querySelectorAll('#insumoMovimentar [data-tipo]').forEach(function(p){ p.classList.toggle("active", p.dataset.tipo === tipo); });
+    setHidden("movEntradaFields", tipo !== "entrada");
+    setHidden("movSaidaFields", tipo !== "saida");
+    setText("movPreviewLabel", tipo === "entrada" ? "depois desta entrada" : "depois desta saída");
+    setHidden("movPreviewCustoRow", tipo !== "entrada");
+    setText("movSubmitBtn", tipo === "entrada" ? "Registrar entrada" : "Registrar saída");
+    updateMovPreview();
+  }
+  function setHidden(id, hidden){ var el = document.getElementById(id); if (el) el.hidden = hidden; }
+
+  function setMotivoPill(motivo){
+    document.querySelectorAll('#movMotivoPills [data-motivo]').forEach(function(p){ p.classList.toggle("active", p.dataset.motivo === motivo); });
+  }
+  function getMotivoPill(){
+    var active = document.querySelector('#movMotivoPills .pill.active');
+    return active ? active.dataset.motivo : "Produção";
+  }
+
+  function openMovimentar(id, tipo){
+    var insumo = findInsumo(id);
+    if (!insumo) return;
+    currentInsumoId = id;
+    setText("movCrumb", insumo.nome);
+    setText("movUnitEntrada", insumo.unidade);
+    setText("movUnitSaida", insumo.unidade);
+    document.getElementById("movQtdEntrada").value = "";
+    document.getElementById("movPreco").value = "";
+    document.getElementById("movQtdSaida").value = "";
+    setText("movData", formatDateBR(todayISO()));
+    setMotivoPill("Produção");
+    setMovTipo(tipo || "entrada");
+    showScreen("insumoMovimentar");
+  }
+
+  function updateMovPreview(){
+    var insumo = findInsumo(currentInsumoId);
+    if (!insumo) return;
+    var warnEl = document.getElementById("movWarning");
+    var submitBtn = document.getElementById("movSubmitBtn");
+    if (!warnEl || !submitBtn) return;
+    warnEl.hidden = true;
+    submitBtn.removeAttribute("disabled");
+
+    if (currentMovTipo === "entrada") {
+      var qtd = strToNum(document.getElementById("movQtdEntrada").value);
+      var preco = strToNum(document.getElementById("movPreco").value);
+      var novaQtd = insumo.quantidade + (qtd > 0 ? qtd : 0);
+      var novoCusto = insumo.custoMedio;
+      if (qtd > 0 && novaQtd > 0) {
+        var custoUnit = preco / qtd;
+        novoCusto = ((insumo.quantidade * insumo.custoMedio) + (qtd * custoUnit)) / novaQtd;
+      }
+      setText("movPreviewQtd", fmtQty(insumo.quantidade, insumo.unidade) + " → " + fmtQty(novaQtd, insumo.unidade));
+      setText("movPreviewCusto", fmtMoney(insumo.custoMedio) + " → " + fmtMoney(novoCusto) + "/" + insumo.unidade);
+    } else {
+      var qtdS = strToNum(document.getElementById("movQtdSaida").value);
+      var novaQtdS = insumo.quantidade - (qtdS > 0 ? qtdS : 0);
+      if (qtdS > insumo.quantidade) {
+        warnEl.textContent = "quantidade maior que o estoque disponível (" + fmtQty(insumo.quantidade, insumo.unidade) + ")";
+        warnEl.hidden = false;
+        submitBtn.setAttribute("disabled", "disabled");
+      }
+      setText("movPreviewQtd", fmtQty(insumo.quantidade, insumo.unidade) + " → " + fmtQty(Math.max(novaQtdS, 0), insumo.unidade));
+    }
+  }
+
+  function submitMovimentacao(){
+    var insumo = findInsumo(currentInsumoId);
+    if (!insumo) return;
+    var today = todayISO();
+    if (currentMovTipo === "entrada") {
+      var qtd = strToNum(document.getElementById("movQtdEntrada").value);
+      var preco = strToNum(document.getElementById("movPreco").value);
+      if (qtd <= 0) return;
+      var custoUnit = preco / qtd;
+      var novaQtd = insumo.quantidade + qtd;
+      insumo.custoMedio = ((insumo.quantidade * insumo.custoMedio) + (qtd * custoUnit)) / novaQtd;
+      insumo.quantidade = round2(novaQtd);
+      estoqueState.movimentacoes.push({ id: uid("m"), insumoId: insumo.id, tipo: "entrada", quantidade: round2(qtd), valor: round2(preco), data: today });
+    } else {
+      var qtdS = strToNum(document.getElementById("movQtdSaida").value);
+      if (qtdS <= 0 || qtdS > insumo.quantidade) return;
+      var valor = round2(qtdS * insumo.custoMedio);
+      insumo.quantidade = round2(Math.max(0, insumo.quantidade - qtdS));
+      estoqueState.movimentacoes.push({ id: uid("m"), insumoId: insumo.id, tipo: "saida", quantidade: round2(qtdS), valor: valor, motivo: getMotivoPill(), data: today });
+    }
+    saveEstoqueState();
+    renderInsumoDetalhe();
+    renderEstoqueInsumosList();
+    renderEstoqueHub();
+    renderCalc();
+    showScreen("insumoDetalhe");
+  }
+
+  function setInsumoFormUnit(unit){
+    document.querySelectorAll('#insumoFormUnitPills [data-unit]').forEach(function(p){ p.classList.toggle("active", p.dataset.unit === unit); });
+    setText("insumoFormQtdUnit", unit);
+    setText("insumoFormMinUnit", unit);
+  }
+  function getInsumoFormUnit(){
+    var active = document.querySelector('#insumoFormUnitPills .pill.active');
+    return active ? active.dataset.unit : "kg";
+  }
+
+  function openInsumoForm(mode, id){
+    insumoFormMode = mode;
+    insumoFormEditingId = id || null;
+    var isEdit = mode === "editar";
+    setText("insumoFormTitle", isEdit ? "Editar insumo" : "Novo insumo");
+    setHidden("insumoFormNewFields", isEdit);
+    setHidden("insumoFormEditInfo", !isEdit);
+    setHidden("insumoFormRemoveWrap", !isEdit);
+    setHidden("insumoFormHint", isEdit);
+
+    var unit = "kg";
+    if (isEdit) {
+      var insumo = findInsumo(id);
+      if (!insumo) return;
+      document.getElementById("insumoFormNome").value = insumo.nome;
+      unit = insumo.unidade;
+      document.getElementById("insumoFormMinimo").value = insumo.minimo > 0 ? numToStr(insumo.minimo) : "";
+      setText("insumoFormInfoQtd", fmtQty(insumo.quantidade, insumo.unidade));
+      setText("insumoFormInfoCusto", fmtMoney(insumo.custoMedio) + "/" + insumo.unidade);
+    } else {
+      document.getElementById("insumoFormNome").value = "";
+      document.getElementById("insumoFormQtd").value = "";
+      document.getElementById("insumoFormCusto").value = "";
+      document.getElementById("insumoFormMinimo").value = "";
+    }
+    setInsumoFormUnit(unit);
+    showScreen("insumoForm");
+  }
+
+  function submitInsumoForm(){
+    var nomeEl = document.getElementById("insumoFormNome");
+    var nome = nomeEl.value.trim();
+    if (!nome) { nomeEl.focus(); return; }
+    var unidade = getInsumoFormUnit();
+    var minimo = strToNum(document.getElementById("insumoFormMinimo").value);
+
+    if (insumoFormMode === "editar") {
+      var insumo = findInsumo(insumoFormEditingId);
+      if (!insumo) return;
+      insumo.nome = nome;
+      insumo.unidade = unidade;
+      insumo.minimo = round2(minimo);
+    } else {
+      var qtd = strToNum(document.getElementById("insumoFormQtd").value);
+      var custo = strToNum(document.getElementById("insumoFormCusto").value);
+      estoqueState.insumos.push({ id: uid("i"), nome: nome, unidade: unidade, quantidade: round2(qtd), custoMedio: custo, minimo: round2(minimo) });
+    }
+    saveEstoqueState();
+    renderEstoqueInsumosList();
+    renderEstoqueHub();
+    showScreen("estoqueInsumos");
+  }
+
+  function removeInsumo(){
+    if (!insumoFormEditingId) return;
+    var insumo = findInsumo(insumoFormEditingId);
+    if (!insumo) return;
+    if (!window.confirm('Remover "' + insumo.nome + '" e todo o histórico dele?')) return;
+    estoqueState.insumos = estoqueState.insumos.filter(function(i){ return i.id !== insumoFormEditingId; });
+    estoqueState.movimentacoes = estoqueState.movimentacoes.filter(function(m){ return m.insumoId !== insumoFormEditingId; });
+    saveEstoqueState();
+    renderEstoqueInsumosList();
+    renderEstoqueHub();
+    showScreen("estoqueInsumos");
+  }
+
+  // ================================================================
+  // Estoque de Produção (velas prontas, por variação) — módulo 2/3
+  // Reaproveita producaoEstoqueState (já existia, usado hoje só pelo aviso de reposição) —
+  // ajustar aqui grava uma movimentação nele, igual ao padrão de auditoria do Estoque de
+  // Insumos. Renomear uma variação é lá no Catálogo de Produtos, não aqui.
+  // ================================================================
+  function producaoRowHTML(v){
+    var estoqueVela = findEstoqueVela(v.id) || { quantidade: 0 };
+    var nome = variacaoLabel(v);
+    var qtd = estoqueVela.quantidade;
+    return '' +
+      '<div class="raised-sm between" style="padding:15px 16px;margin-bottom:11px;">' +
+        '<div><div style="font-size:14px;font-weight:600;">' + escapeHtml(nome) + '</div><div style="font-size:11.5px;color:var(--text-faint);margin-top:2px;">velas prontas</div></div>' +
+        '<div class="row" style="gap:10px;">' +
+          '<div class="pressed" role="button" tabindex="0" aria-label="Remover uma vela · ' + escapeHtml(nome) + '" data-action="prod-dec" data-var-id="' + v.id + '" style="width:34px;height:34px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--text);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M5 12h14"/></svg></div>' +
+          '<div style="font-size:18px;font-weight:700;min-width:30px;text-align:center;">' + qtd + '</div>' +
+          '<div class="raised-sm" role="button" tabindex="0" aria-label="Adicionar uma vela · ' + escapeHtml(nome) + '" data-action="prod-inc" data-var-id="' + v.id + '" style="width:34px;height:34px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--primary);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></div>' +
+        '</div>' +
+      '</div>';
+  }
+
+  function renderProducaoList(){
+    var listEl = document.getElementById("producaoList");
+    if (listEl) {
+      listEl.innerHTML = catalogoState.variacoes.length ? catalogoState.variacoes.map(producaoRowHTML).join("") : emptyStateHTML({
+        icon: ICON_PRODUCAO,
+        title: "nenhuma variação no catálogo",
+        sub: "cadastre uma variação no Catálogo de Produtos primeiro."
+      });
+    }
+    var n = catalogoState.variacoes.length;
+    setText("producaoCount", n + (n === 1 ? " variação" : " variações"));
+  }
+
+  function adjustProducaoVela(variacaoId, delta){
+    var estoqueVela = findEstoqueVela(variacaoId);
+    if (!estoqueVela) {
+      estoqueVela = { variacaoId: variacaoId, quantidade: 0, minimo: 0 };
+      producaoEstoqueState.estoques.push(estoqueVela);
+    }
+    estoqueVela.quantidade = Math.max(0, estoqueVela.quantidade + delta);
+    producaoEstoqueState.movimentacoes.push({ id: uid("pm"), variacaoId: variacaoId, tipo: delta > 0 ? "entrada" : "saida", quantidade: 1, data: todayISO(), motivo: "Ajuste manual" });
+    saveProducaoEstoqueState();
+    renderProducaoList();
+    renderEstoqueHub();
+  }
+
+  // ================================================================
+  // Calculadora de Velas — planeja um lote antes de registrá-lo (o registro em si, que
+  // debita insumo e credita vela pronta, é o módulo 6/"Produção", ainda não construído).
+  // Ajustes por lote (chips +5%/−5%) valem só pra esta simulação; "salvar como novo
+  // padrão" é o único jeito de torná-los permanentes em configState.
+  // ================================================================
+  var calcState = { variacaoId: null, quantidade: 24, ajustes: {} };
+
+  function calcVarPillHTML(v){
+    var active = v.id === calcState.variacaoId ? " active" : "";
+    return '<div class="pill' + active + '" style="flex:none;" data-var-id="' + v.id + '">' + escapeHtml(variacaoLabel(v)) + '</div>';
+  }
+
+  function computeCalcQtd(item){
+    var base = item.qtd * calcState.quantidade;
+    var comPerda = item.perde ? base * (1 + configState.perdaDerretimento / 100) : base;
+    var ajustePct = calcState.ajustes[item.insumoId] || 0;
+    return comPerda * (1 + ajustePct / 100);
+  }
+
+  function calcInsumoRowHTML(insumo, precisa, ajustePct){
+    var falta = round2(precisa - insumo.quantidade);
+    var statusHTML = falta > 0
+      ? '<div style="font-size:10.5px;color:var(--warn);">falta ' + numToStr(falta) + '</div>'
+      : '<div style="font-size:10.5px;color:var(--text-faint);">tem ' + numToStr(insumo.quantidade) + '</div>';
+    var ajusteTxt = (ajustePct > 0 ? "+" : "") + ajustePct + "%";
+    return '' +
+      '<div class="between" style="padding:12px 0;border-bottom:1px solid var(--line);">' +
+        '<div style="flex:1;min-width:0;">' +
+          '<div style="font-size:13.5px;font-weight:500;">' + escapeHtml(insumo.nome) + '</div>' +
+          '<div class="row" style="gap:4px;margin-top:4px;">' +
+            '<div class="pressed" role="button" tabindex="0" aria-label="Diminuir 5% · ' + escapeHtml(insumo.nome) + '" data-action="calc-adj-dec" data-calc-insumo-id="' + insumo.id + '" style="width:22px;height:22px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--text-faint);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14"/></svg></div>' +
+            '<div style="font-size:10.5px;color:var(--text-faint);min-width:30px;text-align:center;">' + ajusteTxt + '</div>' +
+            '<div class="pressed" role="button" tabindex="0" aria-label="Aumentar 5% · ' + escapeHtml(insumo.nome) + '" data-action="calc-adj-inc" data-calc-insumo-id="' + insumo.id + '" style="width:22px;height:22px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--text-faint);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></div>' +
+          '</div>' +
+        '</div>' +
+        '<div style="text-align:right;">' +
+          '<div style="font-size:13.5px;font-weight:700;">' + fmtQty(precisa, insumo.unidade) + '</div>' +
+          statusHTML +
+        '</div>' +
+      '</div>';
+  }
+
+  function renderCalc(){
+    if (!calcState.variacaoId || !findVariacao(calcState.variacaoId)) {
+      calcState.variacaoId = catalogoState.variacoes.length ? catalogoState.variacoes[0].id : null;
+    }
+    var v = findVariacao(calcState.variacaoId);
+
+    var pillsEl = document.getElementById("calcVarPills");
+    if (pillsEl) pillsEl.innerHTML = catalogoState.variacoes.map(calcVarPillHTML).join("");
+
+    if (!v) {
+      ["calcInsumosList"].forEach(function(id){ var el = document.getElementById(id); if (el) el.innerHTML = emptyStateHTML({
+        icon: ICON_PRODUCAO, title: "nenhuma variação no catálogo", sub: "cadastre uma variação no Catálogo de Produtos primeiro."
+      }); });
+      setHidden("calcSaveWrap", true);
+      return;
+    }
+
+    setText("calcQtdOut", calcState.quantidade);
+    setText("calcPerdaNote", "perda " + numToStr(configState.perdaDerretimento) + "% inclusa");
+
+    var receita = receitaPadraoVariacao(v);
+    var hasAjuste = false;
+    var listEl = document.getElementById("calcInsumosList");
+    if (listEl) {
+      listEl.innerHTML = receita.map(function(item){
+        var insumo = findInsumo(item.insumoId);
+        if (!insumo) return "";
+        var precisa = round2(computeCalcQtd(item));
+        var ajustePct = calcState.ajustes[item.insumoId] || 0;
+        if (ajustePct) hasAjuste = true;
+        return calcInsumoRowHTML(insumo, precisa, ajustePct);
+      }).join("");
+    }
+
+    setText("calcJarrasOut", calcState.quantidade + " un");
+    setText("calcJarraCap", numToStr(configState.jarraCapacidadeMl) + " ml");
+    setHidden("calcSaveWrap", !hasAjuste);
+  }
+
+  function bumpCalcAjuste(insumoId, delta){
+    var cur = calcState.ajustes[insumoId] || 0;
+    var next = cur + delta;
+    if (next === 0) delete calcState.ajustes[insumoId];
+    else calcState.ajustes[insumoId] = next;
+    renderCalc();
+  }
+
+  // Torna os ajustes deste lote permanentes em configState — só mexe nas quantidades cujo
+  // papel (cera/jarra/pavio) ou essência da variação atual receberam ajuste.
+  function saveCalcAjustesComoPadrao(){
+    var v = findVariacao(calcState.variacaoId);
+    if (!v) return;
+    if (!window.confirm('Tornar estes ajustes a receita padrão de todas as variações?')) return;
+    var receita = receitaPadraoVariacao(v);
+    receita.forEach(function(item){
+      var ajustePct = calcState.ajustes[item.insumoId] || 0;
+      if (!ajustePct) return;
+      if (item.insumoId === configState.ceraInsumoId) configState.ceraPorVela *= (1 + ajustePct / 100);
+      else if (item.insumoId === configState.jarraInsumoId) configState.jarraPorVela *= (1 + ajustePct / 100);
+      else if (item.insumoId === configState.pavioInsumoId) configState.pavioPorVela *= (1 + ajustePct / 100);
+      else configState.essenciaPorVela *= (1 + ajustePct / 100); // essência (varia por variação, quantidade é comum)
+    });
+    calcState.ajustes = {};
+    saveConfigState();
+    renderCalc();
+  }
+
+  // ================================================================
   // Aviso de reposição (insumos + velas prontas abaixo do mínimo) — módulo 7
   // ================================================================
   function computeReposicaoItems(){
@@ -694,28 +1171,49 @@
       '</div>';
   }
 
-  // Animação de entrada da lista de avisos ao clicar no sino (dashAvisosBtn → go-reposicao):
-  // referência: componente <ListNotificationsStack> do motion.dev/ui/lists — os cards entram
-  // empilhados uns sob os outros (escala e opacidade menores por profundidade, mesmos passos
-  // do preview original: scaleStep .10, dimStep .40) e se abrem em cascata até a posição real
-  // da lista. Puro efeito de entrada, sem dado novo — por isso pula com prefers-reduced-motion.
-  function playAvisosStackReveal(listEl){
+  // Animação de "baralho que se abre em cascata" — referência: componente
+  // <ListNotificationsStack> do motion.dev/ui/lists. Os itens entram empilhados uns sob os
+  // outros (escala e opacidade menores por profundidade, mesmos passos do preview original:
+  // scaleStep .10, dimStep .40) e se abrem em cascata até a posição real da lista/grade.
+  // Reaproveitada em dois lugares: avisos de reposição (ao clicar no sino) e as 3 pastas do
+  // Estoque (toda vez que a tela "estoque" é mostrada, ver showScreen()). A classe
+  // "stack-revealing" troca a transição de transform pra essa curva mais lenta/elástica só
+  // durante o efeito — sem ela, o :active de toque em itens tocáveis (as pastas) ficaria
+  // "mole" o tempo todo. Puro efeito de entrada, sem dado novo — pula com prefers-reduced-motion.
+  function playStackReveal(containerEl, itemSelector){
     if (prefersReducedMotion) return;
-    var rows = listEl.querySelectorAll(".avisos-row");
+    var rows = containerEl.querySelectorAll(itemSelector);
     if (rows.length < 2) return;
     var topOffset = rows[0].offsetTop;
+    // O salto pro estado "empilhado" tem que ser instantâneo — `transition:none` inline
+    // vence qualquer transição de transform já ativa no item (a de :active de toque, p.ex.,
+    // que ao contrário dos avisos — que nascem prontos via innerHTML, sem nenhuma transição
+    // rodando ainda — as pastas já têm desde antes de aparecer na tela). Sem isso o
+    // navegador tentava animar o próprio salto inicial (identidade → empilhado) ao mesmo
+    // tempo que a "chegada" (empilhado → identidade), e as duas praticamente se cancelavam.
     rows.forEach(function(row, i){
-      row.style.transitionDelay = (i * 45) + "ms";
+      row.style.transition = "none";
       row.style.transform = "translateY(" + (topOffset - row.offsetTop) + "px) scale(" + Math.max(1 - i * 0.10, 0.6) + ")";
       row.style.opacity = String(Math.max(1 - i * 0.40, 0.15));
     });
-    void listEl.offsetWidth;
+    void containerEl.offsetWidth; // commita o salto instantâneo antes de religar a transição
+    rows.forEach(function(row, i){
+      row.style.transition = "";
+      row.style.transitionDelay = (i * 45) + "ms";
+      row.classList.add("stack-revealing");
+    });
     requestAnimationFrame(function(){
       rows.forEach(function(row){
         row.style.transform = "";
         row.style.opacity = "";
       });
     });
+    window.setTimeout(function(){
+      rows.forEach(function(row){
+        row.style.transitionDelay = "";
+        row.classList.remove("stack-revealing");
+      });
+    }, (rows.length - 1) * 45 + 600);
   }
 
   function renderReposicaoPanel(){
@@ -727,7 +1225,7 @@
         title: "tudo certo por aqui",
         sub: "nenhum insumo ou vela pronta abaixo do mínimo cadastrado."
       });
-      playAvisosStackReveal(listEl);
+      playStackReveal(listEl, ".avisos-row");
     }
     var countEl = document.getElementById("reposicaoCount");
     if (countEl) countEl.textContent = items.length + (items.length === 1 ? " item abaixo do mínimo, em ordem de prioridade" : " itens abaixo do mínimo, em ordem de prioridade");
@@ -771,7 +1269,7 @@
   var ICON_VENDAS = '<path d="M6 8h12l1 12H5L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/>';
 
   function resumoRowHTML(iconPath, titulo, detalhe, isLast){
-    return '<div class="resumo-row' + (isLast ? " resumo-row-last" : "") + '">' +
+    return '<div class="resumo-row dash-tap' + (isLast ? " resumo-row-last" : "") + '">' +
         '<div class="raised-sm resumo-row-icon">' +
           '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">' + iconPath + '</svg>' +
         '</div>' +
@@ -934,7 +1432,7 @@
   var DOCK_ITEMS = [
     { key: "inicio", big: true, bg: "#442D1C", fg: "#E8D1A7", enabled: true, screen: "dashboard",
       icon: '<path d="M4 11.5 12 4l8 7.5"/><path d="M6 10v9a1 1 0 0 0 1 1h3v-6h4v6h3a1 1 0 0 0 1-1v-9"/>', label: "Início" },
-    { key: "estoque", bg: "#84592B", fg: "#F3E6CE", enabled: false,
+    { key: "estoque", bg: "#84592B", fg: "#F3E6CE", enabled: true, screen: "estoque",
       icon: '<rect x="4" y="4" width="16" height="5" rx="1.2"/><rect x="4" y="11" width="16" height="9" rx="1.2"/><path d="M9 15h6"/>', label: "Estoque" },
     { key: "producao", bg: "#9D9167", fg: "#2B1B10", enabled: false,
       icon: ICON_PRODUCAO, label: "Produção" },
@@ -954,9 +1452,22 @@
   function dockHTML(activeKey){
     return DOCK_ITEMS.map(function(it){ return dockItemHTML(it, activeKey); }).join("");
   }
+  // Telas que vivem sob a pasta "Estoque" — refreshAllDocks acende o item certo do dock
+  // em qualquer uma delas, não só na tela-hub.
+  var ESTOQUE_SCREENS = {
+    estoque: true, estoqueInsumos: true, insumoForm: true, insumoDetalhe: true,
+    insumoMovimentar: true, estoqueProducao: true, estoqueCalculadora: true
+  };
+  var ALL_DOCK_IDS = [
+    "dashDock", "reposicaoDock", "maisDock",
+    "estoqueDock", "estoqueInsumosDock", "insumoFormDock", "insumoDetalheDock",
+    "insumoMovimentarDock", "estoqueProducaoDock", "estoqueCalculadoraDock"
+  ];
   function refreshAllDocks(activeScreenName){
-    var key = activeScreenName === "mais" ? "mais" : "inicio";
-    ["dashDock", "reposicaoDock", "maisDock"].forEach(function(id){
+    var key = "inicio";
+    if (activeScreenName === "mais") key = "mais";
+    else if (ESTOQUE_SCREENS[activeScreenName]) key = "estoque";
+    ALL_DOCK_IDS.forEach(function(id){
       var el = document.getElementById(id);
       if (el) el.innerHTML = dockHTML(key);
     });
@@ -966,6 +1477,13 @@
   // Delegação de eventos
   // ================================================================
   document.addEventListener("touchstart", function(){}, { passive: true });
+
+  // Limpa a classe do bounce de toque assim que o keyframe termina, senão ela fica presa
+  // no elemento (inofensivo, mas suja o DOM e evita reiniciar limpo numa próxima interação
+  // via teclado/foco).
+  document.addEventListener("animationend", function(e){
+    if (e.animationName === "dashTapBounce") e.target.classList.remove("tap-bounce");
+  });
 
   document.addEventListener("keydown", function(e){
     if (e.key !== "Enter" && e.key !== " " && e.key !== "Spacebar") return;
@@ -981,6 +1499,17 @@
   });
 
   document.addEventListener("click", function(e){
+    // Bounce de toque do Dashboard (.dash-tap, ver style.css) — roda antes/independente de
+    // qualquer ação real do elemento, pra dar retorno visual mesmo nos cartões que ainda não
+    // levam a lugar nenhum. Reinicia a animação a cada clique (remove → força reflow → põe
+    // de volta), senão cliques rápidos em sequência não reiniciariam o keyframe.
+    var tapEl = e.target.closest(".dash-tap");
+    if (tapEl) {
+      tapEl.classList.remove("tap-bounce");
+      void tapEl.offsetWidth;
+      tapEl.classList.add("tap-bounce");
+    }
+
     var previewBtn = e.target.closest("[data-preview-set]");
     if (previewBtn) { setPreview(previewBtn.dataset.previewSet); return; }
 
@@ -1053,12 +1582,81 @@
 
     var periodoPill = e.target.closest("[data-periodo]");
     if (periodoPill) { setPeriodoModo(periodoPill.dataset.periodo); return; }
+
+    // ---- Estoque de Insumos ----
+    var insumoAdd = e.target.closest('[data-action="insumo-add"]');
+    if (insumoAdd) { openInsumoForm("novo"); return; }
+
+    var insumoEdit = e.target.closest('[data-action="insumo-edit"], [data-action="insumo-detalhe-edit"]');
+    if (insumoEdit) {
+      var editId = insumoEdit.dataset.action === "insumo-detalhe-edit" ? currentInsumoId : insumoEdit.closest("[data-insumo-id]").dataset.insumoId;
+      openInsumoForm("editar", editId);
+      return;
+    }
+
+    var insumoRow = e.target.closest("[data-insumo-id]");
+    if (insumoRow) { openInsumoDetalhe(insumoRow.dataset.insumoId); return; }
+
+    var movAdd = e.target.closest('[data-action="mov-add"]');
+    if (movAdd) { openMovimentar(currentInsumoId, "entrada"); return; }
+
+    var movEntradaBtn = e.target.closest('[data-action="mov-entrada"]');
+    if (movEntradaBtn) { openMovimentar(currentInsumoId, "entrada"); return; }
+
+    var movSaidaBtn = e.target.closest('[data-action="mov-saida"]');
+    if (movSaidaBtn) { openMovimentar(currentInsumoId, "saida"); return; }
+
+    var tipoPill = e.target.closest("#insumoMovimentar [data-tipo]");
+    if (tipoPill) { setMovTipo(tipoPill.dataset.tipo); return; }
+
+    var motivoPill = e.target.closest("#movMotivoPills [data-motivo]");
+    if (motivoPill) { setMotivoPill(motivoPill.dataset.motivo); return; }
+
+    var insumoUnitPill = e.target.closest("#insumoFormUnitPills [data-unit]");
+    if (insumoUnitPill) { setInsumoFormUnit(insumoUnitPill.dataset.unit); return; }
+
+    var movSubmit = e.target.closest('[data-action="mov-submit"]');
+    if (movSubmit) { if (!movSubmit.hasAttribute("disabled")) submitMovimentacao(); return; }
+
+    var insumoFormSave = e.target.closest('[data-action="insumo-form-save"]');
+    if (insumoFormSave) { submitInsumoForm(); return; }
+
+    var insumoFormRemove = e.target.closest('[data-action="insumo-form-remove"]');
+    if (insumoFormRemove) { removeInsumo(); return; }
+
+    // ---- Estoque de Produção ----
+    var prodInc = e.target.closest('[data-action="prod-inc"]');
+    if (prodInc) { adjustProducaoVela(prodInc.dataset.varId, 1); return; }
+
+    var prodDec = e.target.closest('[data-action="prod-dec"]');
+    if (prodDec) { adjustProducaoVela(prodDec.dataset.varId, -1); return; }
+
+    // ---- Calculadora de Velas ----
+    var calcVarPill = e.target.closest("#calcVarPills [data-var-id]");
+    if (calcVarPill) { calcState.variacaoId = calcVarPill.dataset.varId; calcState.ajustes = {}; renderCalc(); return; }
+
+    var calcQtdInc = e.target.closest('[data-action="calc-qtd-inc"]');
+    if (calcQtdInc) { calcState.quantidade += 1; renderCalc(); return; }
+
+    var calcQtdDec = e.target.closest('[data-action="calc-qtd-dec"]');
+    if (calcQtdDec) { calcState.quantidade = Math.max(1, calcState.quantidade - 1); renderCalc(); return; }
+
+    var calcAdjInc = e.target.closest('[data-action="calc-adj-inc"]');
+    if (calcAdjInc) { bumpCalcAjuste(calcAdjInc.dataset.calcInsumoId, 5); return; }
+
+    var calcAdjDec = e.target.closest('[data-action="calc-adj-dec"]');
+    if (calcAdjDec) { bumpCalcAjuste(calcAdjDec.dataset.calcInsumoId, -5); return; }
+
+    var calcSavePadrao = e.target.closest('[data-action="calc-save-padrao"]');
+    if (calcSavePadrao) { saveCalcAjustesComoPadrao(); return; }
   });
 
   document.addEventListener("input", function(e){
     if (e.target.id === "dashPeriodoInicio" || e.target.id === "dashPeriodoFim") {
       setPeriodoModo("custom");
     }
+    if (e.target.id === "estoqueSearchInput") { renderEstoqueInsumosList(); return; }
+    if (e.target.id === "movQtdEntrada" || e.target.id === "movPreco" || e.target.id === "movQtdSaida") { updateMovPreview(); return; }
   });
 
   // ================================================================
@@ -1089,6 +1687,11 @@
     });
   }
   initRevealFooters();
+
+  renderEstoqueHub();
+  renderEstoqueInsumosList();
+  renderProducaoList();
+  renderCalc();
 
   // ================================================================
   checkAuthAndInit();
