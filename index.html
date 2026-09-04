@@ -341,10 +341,25 @@
       <div class="content">
         <div class="skel-overlay" aria-hidden="true" hidden>
           <div class="skel-block" style="height:14px;width:120px;border-radius:7px;"></div>
+          <div class="skel-block" style="height:120px;"></div>
           <div class="skel-block" style="height:64px;"></div>
           <div class="skel-block" style="height:64px;"></div>
           <div class="skel-block" style="height:64px;"></div>
         </div>
+
+        <div class="raised card">
+          <div class="between" style="margin-bottom:10px;">
+            <div class="label" style="margin:0;">notificar por</div>
+            <div style="font-size:10.5px;color:var(--text-faint);" id="notifStatusNote">—</div>
+          </div>
+          <div class="row" id="notifCanalPills" style="gap:9px;flex-wrap:wrap;margin-bottom:14px;">
+            <div class="pressed-pill pill active" data-canal="push" style="padding:9px 15px;">Push no app</div>
+            <div class="pressed-pill pill" data-canal="email" style="padding:9px 15px;">E-mail</div>
+            <div class="pressed-pill pill" data-canal="whatsapp" style="padding:9px 15px;">WhatsApp</div>
+          </div>
+          <button class="btn btn-ghost" style="width:100%;" data-action="notif-testar">Mandar aviso agora</button>
+        </div>
+
         <div style="font-size:12.5px;color:var(--text-faint);margin-bottom:16px;" id="reposicaoCount">—</div>
         <div id="reposicaoList"></div>
         <div class="reveal-footer" aria-hidden="true">
@@ -406,6 +421,42 @@
             <div style="flex:1;min-width:0;">
               <div class="folder-card-title">Calculadora de Velas</div>
               <div class="folder-card-sub">monte um lote e veja o que falta</div>
+            </div>
+            <svg class="folder-card-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="m9 6 6 6-6 6" />
+            </svg>
+          </div>
+
+          <div class="folder-card" role="button" tabindex="0" data-goto="estoqueCalculadoraLucro"
+            aria-label="Abrir Calculadora de Lucro" style="background:#442D1C;color:#E8D1A7;">
+            <div style="flex:1;min-width:0;">
+              <div class="folder-card-title">Calculadora de Lucro</div>
+              <div class="folder-card-sub">custo do lote e margem antes de produzir</div>
+            </div>
+            <svg class="folder-card-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="m9 6 6 6-6 6" />
+            </svg>
+          </div>
+
+          <div class="folder-card" role="button" tabindex="0" data-goto="registroProducao"
+            aria-label="Abrir Registro de Produção" style="background:#E8D1A7;color:#442D1C;">
+            <div style="flex:1;min-width:0;">
+              <div class="folder-card-title">Registro de Produção</div>
+              <div class="folder-card-sub" id="folderLotesSub">—</div>
+            </div>
+            <svg class="folder-card-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="m9 6 6 6-6 6" />
+            </svg>
+          </div>
+
+          <div class="folder-card" role="button" tabindex="0" data-goto="configuracoes"
+            aria-label="Abrir Configurações" style="background:#9D9167;color:#2B1B10;">
+            <div style="flex:1;min-width:0;">
+              <div class="folder-card-title">Configurações</div>
+              <div class="folder-card-sub">receita padrão, jarra e preços de venda</div>
             </div>
             <svg class="folder-card-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
               stroke-linecap="round" stroke-linejoin="round">
@@ -839,6 +890,582 @@
         </div>
       </div>
       <div class="dock" id="estoqueCalculadoraDock" role="navigation" aria-label="Navegação principal"></div>
+    </div>
+
+    <!-- ---------- Calculadora de Lucro — módulo 5 ---------- -->
+    <div class="screen" data-screen="estoqueCalculadoraLucro" hidden>
+      <div class="backrow">
+        <div class="iconbtn" role="button" tabindex="0" data-goto="estoque" aria-label="Voltar ao estoque">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"
+            stroke-linejoin="round">
+            <path d="m15 6-6 6 6 6" />
+          </svg>
+        </div>
+        <div>
+          <div class="crumb">estoque</div>
+          <div class="pagetitle" style="font-size:19px;">calculadora de lucro</div>
+        </div>
+      </div>
+      <div class="content">
+        <div class="skel-overlay" aria-hidden="true" hidden>
+          <div class="skel-block" style="height:40px;border-radius:999px;"></div>
+          <div class="skel-block" style="height:96px;"></div>
+          <div class="skel-block" style="height:120px;"></div>
+          <div class="skel-block" style="height:150px;"></div>
+        </div>
+
+        <div class="label">variação do catálogo</div>
+        <div style="display:flex;gap:9px;overflow-x:auto;margin-bottom:18px;padding-bottom:2px;" id="lucroVarPills">
+        </div>
+
+        <div class="raised card">
+          <div class="label">quantidade do lote</div>
+          <div class="row" style="justify-content:center;gap:26px;">
+            <div class="pressed" role="button" tabindex="0" aria-label="Diminuir quantidade do lote"
+              data-action="lucro-qtd-dec"
+              style="width:44px;height:44px;border-radius:15px;display:flex;align-items:center;justify-content:center;color:var(--text);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+                <path d="M5 12h14" />
+              </svg></div>
+            <div style="font-size:28px;font-weight:700;min-width:44px;text-align:center;" id="lucroQtdOut">24</div>
+            <div class="raised-sm" role="button" tabindex="0" aria-label="Aumentar quantidade do lote"
+              data-action="lucro-qtd-inc"
+              style="width:44px;height:44px;border-radius:15px;display:flex;align-items:center;justify-content:center;color:var(--primary);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+                <path d="M12 5v14M5 12h14" />
+              </svg></div>
+          </div>
+        </div>
+
+        <div class="raised card">
+          <div class="between" style="margin-bottom:4px;">
+            <div class="label" style="margin:0;">insumos que serão debitados</div>
+            <div style="font-size:10.5px;color:var(--text-faint);" id="lucroPerdaNote">perda 4% inclusa</div>
+          </div>
+          <div id="lucroInsumosList"></div>
+        </div>
+
+        <div class="raised card" style="background:var(--primary);">
+          <div class="between" style="padding:10px 0;border-bottom:1px solid rgba(255,255,255,.16);">
+            <span style="font-size:12.5px;color:var(--on-primary);opacity:.75;">custo estimado do lote</span>
+            <span style="font-size:14px;font-weight:700;color:var(--on-primary);" id="lucroCustoOut">—</span>
+          </div>
+          <div class="between" style="padding:10px 0;border-bottom:1px solid rgba(255,255,255,.16);">
+            <span style="font-size:12.5px;color:var(--on-primary);opacity:.75;">receita da venda</span>
+            <span style="font-size:14px;font-weight:700;color:var(--on-primary);" id="lucroReceitaOut">—</span>
+          </div>
+          <div class="between" style="padding:12px 0 0;">
+            <span style="font-size:12.5px;color:var(--on-primary);opacity:.75;">margem bruta</span>
+            <span style="font-size:20px;font-weight:800;color:var(--on-primary);" id="lucroMargemOut">—</span>
+          </div>
+        </div>
+        <div style="font-size:11px;color:var(--text-faint);line-height:1.5;text-align:center;margin:-8px 4px 18px;">
+          margem bruta = preço de venda − custo de insumo, sem custos fixos. o lucro líquido real, já com os custos
+          fixos rateados, fica no Dashboard.</div>
+
+        <div style="font-size:12px;color:var(--warn);font-weight:600;margin:-6px 4px 14px;text-align:center;"
+          id="lucroWarning" hidden></div>
+
+        <button class="btn btn-primary" data-action="lucro-registrar" style="width:100%;margin-bottom:14px;"
+          id="lucroRegistrarBtn">Registrar produção</button>
+        <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;text-align:center;">Registrar debita os
+          insumos, credita as velas prontas no Estoque de Produção e cria a entrada correspondente no Registro de
+          Produção.</div>
+
+        <div class="reveal-footer" aria-hidden="true">
+          <span class="reveal-footer-mark">.parágrafo</span>
+        </div>
+      </div>
+      <div class="dock" id="estoqueCalculadoraLucroDock" role="navigation" aria-label="Navegação principal"></div>
+    </div>
+
+    <!-- ---------- Registro de Produção — módulo 6 ---------- -->
+    <div class="screen" data-screen="registroProducao" hidden>
+      <div class="backrow between">
+        <div class="row">
+          <div class="iconbtn" role="button" tabindex="0" data-goto="estoque" aria-label="Voltar ao estoque">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path d="m15 6-6 6 6 6" />
+            </svg>
+          </div>
+          <div>
+            <div class="crumb">estoque</div>
+            <div class="pagetitle" style="font-size:19px;">registro de produção</div>
+          </div>
+        </div>
+        <div class="row" style="gap:8px;">
+          <div class="tapicon" role="button" tabindex="0" aria-label="Exportar para o Google Planilhas (CSV)"
+            data-action="lotes-export-csv" style="width:40px;height:40px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"
+              stroke-linejoin="round">
+              <rect x="4" y="5" width="16" height="14" rx="1.5" />
+              <path d="M4 10.5h16M9.5 10.5V19" />
+            </svg></div>
+          <div class="tapicon" role="button" tabindex="0" aria-label="Exportar em PDF" data-action="lotes-export-pdf"
+            style="width:40px;height:40px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path d="M7 3h7l4 4v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z" />
+              <path d="M14 3v4h4" />
+            </svg></div>
+        </div>
+      </div>
+      <div class="content">
+        <div class="skel-overlay" aria-hidden="true" hidden>
+          <div class="skel-block" style="height:64px;"></div>
+          <div class="skel-block" style="height:64px;"></div>
+          <div class="skel-block" style="height:64px;"></div>
+        </div>
+
+        <div class="label" id="lotesCount">lotes</div>
+
+        <div id="lotesList"></div>
+
+        <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;margin-top:10px;text-align:center;">
+          Cada lote é criado pela Calculadora de Lucro, ao registrar uma produção. Toque num lote pra ver os insumos
+          usados ou excluir o registro.</div>
+
+        <div class="reveal-footer" aria-hidden="true">
+          <span class="reveal-footer-mark">.parágrafo</span>
+        </div>
+      </div>
+      <div class="dock" id="registroProducaoDock" role="navigation" aria-label="Navegação principal"></div>
+    </div>
+
+    <div class="screen" data-screen="loteDetalhe" hidden>
+      <div class="backrow">
+        <div class="iconbtn" role="button" tabindex="0" data-goto="registroProducao"
+          aria-label="Voltar ao registro de produção">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"
+            stroke-linejoin="round">
+            <path d="m15 6-6 6 6 6" />
+          </svg>
+        </div>
+        <div>
+          <div class="crumb">registro de produção</div>
+          <div class="pagetitle" style="font-size:19px;" id="loteDetalheTitulo">—</div>
+        </div>
+      </div>
+      <div class="content">
+        <div class="skel-overlay" aria-hidden="true" hidden>
+          <div class="skel-block" style="height:150px;"></div>
+          <div class="skel-block" style="height:96px;"></div>
+        </div>
+
+        <div class="raised card">
+          <div class="between" style="padding:10px 0;border-bottom:1px solid var(--line);">
+            <span style="font-size:13px;color:var(--text-faint);">data</span>
+            <span style="font-size:13.5px;font-weight:700;" id="loteDetalheData">—</span>
+          </div>
+          <div class="between" style="padding:10px 0;border-bottom:1px solid var(--line);">
+            <span style="font-size:13px;color:var(--text-faint);">quantidade produzida</span>
+            <span style="font-size:13.5px;font-weight:700;" id="loteDetalheQtd">—</span>
+          </div>
+          <div class="between" style="padding:10px 0;border-bottom:1px solid var(--line);">
+            <span style="font-size:13px;color:var(--text-faint);">custo do lote</span>
+            <span style="font-size:13.5px;font-weight:700;" id="loteDetalheCusto">—</span>
+          </div>
+          <div class="between" style="padding:10px 0;border-bottom:1px solid var(--line);">
+            <span style="font-size:13px;color:var(--text-faint);">receita da venda</span>
+            <span style="font-size:13.5px;font-weight:700;" id="loteDetalheReceita">—</span>
+          </div>
+          <div class="between" style="padding:10px 0 0;">
+            <span style="font-size:13px;color:var(--text-faint);">margem bruta</span>
+            <span style="font-size:13.5px;font-weight:700;color:var(--good);" id="loteDetalheMargem">—</span>
+          </div>
+        </div>
+
+        <div class="label" style="margin-top:4px;">insumos usados neste lote</div>
+        <div class="raised card" id="loteDetalheInsumosCard">
+          <div id="loteDetalheInsumosList"></div>
+        </div>
+
+        <button class="btn btn-text" data-action="lote-excluir"
+          style="width:100%;margin-top:10px;color:var(--warn);">Excluir registro</button>
+        <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;text-align:center;margin-top:4px;">
+          Excluir reverte automaticamente o débito de insumos e o crédito de velas prontas deste lote, pra não deixar
+          o estoque desalinhado.</div>
+
+        <div class="reveal-footer" aria-hidden="true">
+          <span class="reveal-footer-mark">.parágrafo</span>
+        </div>
+      </div>
+      <div class="dock" id="loteDetalheDock" role="navigation" aria-label="Navegação principal"></div>
+    </div>
+
+    <!-- ---------- Configurações — módulo 8 ---------- -->
+    <div class="screen" data-screen="configuracoes" hidden>
+      <div class="backrow">
+        <div class="iconbtn" role="button" tabindex="0" data-goto="estoque" aria-label="Voltar ao estoque">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"
+            stroke-linejoin="round">
+            <path d="m15 6-6 6 6 6" />
+          </svg>
+        </div>
+        <div>
+          <div class="crumb">estoque</div>
+          <div class="pagetitle" style="font-size:19px;">configurações</div>
+        </div>
+      </div>
+      <div class="content">
+        <div class="skel-overlay" aria-hidden="true" hidden>
+          <div class="skel-block" style="height:220px;"></div>
+          <div class="skel-block" style="height:96px;"></div>
+          <div class="skel-block" style="height:140px;"></div>
+        </div>
+
+        <div class="label">receita padrão por vela</div>
+        <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;margin:-6px 4px 14px;">Quanto de cada
+          insumo entra numa vela — usado pela Calculadora de Velas, pela Calculadora de Lucro e pelo Registro de
+          Produção.</div>
+        <div class="raised card">
+          <div class="pressed field" style="margin-bottom:12px;">
+            <div class="label" id="cfgCeraLabel">cera por vela</div>
+            <div class="row"><input type="text" id="cfgCeraPorVela" placeholder="0" style="flex:1;" />
+              <div style="font-size:14.5px;font-weight:600;color:var(--text-faint);" id="cfgCeraUnit">kg</div>
+            </div>
+          </div>
+          <div class="pressed field" style="margin-bottom:12px;">
+            <div class="label">essência por vela</div>
+            <div class="row"><input type="text" id="cfgEssenciaPorVela" placeholder="0" style="flex:1;" />
+              <div style="font-size:14.5px;font-weight:600;color:var(--text-faint);" id="cfgEssenciaUnit">ml</div>
+            </div>
+          </div>
+          <div class="pressed field" style="margin-bottom:12px;">
+            <div class="label" id="cfgJarraLabel">jarra por vela</div>
+            <div class="row"><input type="text" id="cfgJarraPorVela" placeholder="0" style="flex:1;" />
+              <div style="font-size:14.5px;font-weight:600;color:var(--text-faint);" id="cfgJarraUnit">un</div>
+            </div>
+          </div>
+          <div class="pressed field">
+            <div class="label" id="cfgPavioLabel">pavio por vela</div>
+            <div class="row"><input type="text" id="cfgPavioPorVela" placeholder="0" style="flex:1;" />
+              <div style="font-size:14.5px;font-weight:600;color:var(--text-faint);" id="cfgPavioUnit">un</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="label" style="margin-top:20px;">jarra e perda de derretimento</div>
+        <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;margin:-6px 4px 14px;">Usadas pela
+          Calculadora de Velas pra saber quantas jarras um lote precisa e quanto de cera/essência realmente sai da
+          panela.</div>
+        <div class="raised card">
+          <div class="pressed field" style="margin-bottom:12px;">
+            <div class="label">capacidade da jarra</div>
+            <div class="row"><input type="text" id="cfgJarraCapacidade" placeholder="0" style="flex:1;" />
+              <div style="font-size:14.5px;font-weight:600;color:var(--text-faint);">ml</div>
+            </div>
+          </div>
+          <div class="pressed field">
+            <div class="label">perda de derretimento</div>
+            <div class="row"><input type="text" id="cfgPerdaDerretimento" placeholder="0" style="flex:1;" />
+              <div style="font-size:14.5px;font-weight:600;color:var(--text-faint);">%</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="label" style="margin-top:20px;">preço de venda por variação</div>
+        <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;margin:-6px 4px 14px;">Usado pela
+          Calculadora de Lucro pra estimar a margem de cada lote antes de produzir.</div>
+        <div class="raised card" id="cfgPrecosCard">
+          <div id="cfgPrecosList"></div>
+        </div>
+
+        <button class="btn btn-primary" data-action="config-save" style="width:100%;margin:20px 0 12px;">Salvar
+          configurações</button>
+        <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;text-align:center;">As mudanças valem a
+          partir de agora — lotes já registrados não são recalculados.</div>
+
+        <div class="reveal-footer" aria-hidden="true">
+          <span class="reveal-footer-mark">.parágrafo</span>
+        </div>
+      </div>
+      <div class="dock" id="configuracoesDock" role="navigation" aria-label="Navegação principal"></div>
+    </div>
+
+    <!-- ---------- Vendas — tela-hub ---------- -->
+    <div class="screen" data-screen="vendas" hidden>
+      <div class="backrow">
+        <div class="iconbtn" role="button" tabindex="0" data-goto="dashboard" aria-label="Voltar ao início">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"
+            stroke-linejoin="round">
+            <path d="m15 6-6 6 6 6" />
+          </svg>
+        </div>
+        <div>
+          <div class="crumb">início</div>
+          <div class="pagetitle" style="font-size:19px;">vendas</div>
+        </div>
+      </div>
+      <div class="content">
+        <!-- Mesmo esquema de cascata de cores da marca do hub Estoque — as sub-telas ainda
+             não existem, então cada cartão dispara o toast "em breve" (data-action
+             toast-em-breve + data-msg) em vez de navegar (data-goto). -->
+        <div class="folder-stack">
+          <div class="folder-card" role="button" tabindex="0" data-action="toast-em-breve"
+            data-msg="em breve — registrar venda ainda está sendo construído."
+            aria-label="Abrir Registrar Venda" style="background:#9D9167;color:#2B1B10;">
+            <div style="flex:1;min-width:0;">
+              <div class="folder-card-title">Registrar Venda</div>
+              <div class="folder-card-sub">cliente, variações, forma de pagamento — debita do estoque na hora</div>
+            </div>
+            <svg class="folder-card-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="m9 6 6 6-6 6" />
+            </svg>
+          </div>
+
+          <div class="folder-card" role="button" tabindex="0" data-action="toast-em-breve"
+            data-msg="em breve — encomendas ainda está sendo construído."
+            aria-label="Abrir Encomendas" style="background:#84592B;color:#F3E6CE;">
+            <div style="flex:1;min-width:0;">
+              <div class="folder-card-title">Encomendas</div>
+              <div class="folder-card-sub">pendente → em produção → entregue, vinculada a um lote</div>
+            </div>
+            <svg class="folder-card-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="m9 6 6 6-6 6" />
+            </svg>
+          </div>
+
+          <div class="folder-card" role="button" tabindex="0" data-action="toast-em-breve"
+            data-msg="em breve — histórico de vendas ainda está sendo construído."
+            aria-label="Abrir Histórico de Vendas" style="background:#743014;color:#F3E6CE;">
+            <div style="flex:1;min-width:0;">
+              <div class="folder-card-title">Histórico de Vendas</div>
+              <div class="folder-card-sub">filtro por período, cliente ou variação</div>
+            </div>
+            <svg class="folder-card-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="m9 6 6 6-6 6" />
+            </svg>
+          </div>
+
+          <div class="folder-card" role="button" tabindex="0" data-action="toast-em-breve"
+            data-msg="em breve — controle de custos ainda está sendo construído."
+            aria-label="Abrir Controle de Custos" style="background:#442D1C;color:#E8D1A7;">
+            <div style="flex:1;min-width:0;">
+              <div class="folder-card-title">Controle de Custos</div>
+              <div class="folder-card-sub">custo real por vela, margem e lucro líquido</div>
+            </div>
+            <svg class="folder-card-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="m9 6 6 6-6 6" />
+            </svg>
+          </div>
+
+          <div class="folder-card" role="button" tabindex="0" data-action="toast-em-breve"
+            data-msg="em breve — cupons ainda está sendo construído."
+            aria-label="Abrir Cupons" style="background:#E8D1A7;color:#442D1C;">
+            <div style="flex:1;min-width:0;">
+              <div class="folder-card-title">Cupons</div>
+              <div class="folder-card-sub">código, desconto, validade e limite de uso</div>
+            </div>
+            <svg class="folder-card-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="m9 6 6 6-6 6" />
+            </svg>
+          </div>
+        </div>
+
+        <div class="reveal-footer" aria-hidden="true">
+          <span class="reveal-footer-mark">.parágrafo</span>
+        </div>
+      </div>
+      <div class="dock" id="vendasDock" role="navigation" aria-label="Navegação principal"></div>
+    </div>
+
+    <!-- ---------- Controle de Clientes — módulo 13 ---------- -->
+    <div class="screen" data-screen="clientes" hidden>
+      <div class="backrow between">
+        <div class="row">
+          <div class="iconbtn" role="button" tabindex="0" data-goto="dashboard" aria-label="Voltar ao início">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path d="m15 6-6 6 6 6" />
+            </svg>
+          </div>
+          <div>
+            <div class="crumb">início</div>
+            <div class="pagetitle" style="font-size:19px;">Clientes</div>
+          </div>
+        </div>
+        <div class="iconbtn" role="button" tabindex="0" data-action="cliente-add" aria-label="Cadastrar cliente">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+            <path d="M12 5v14M5 12h14" />
+          </svg>
+        </div>
+      </div>
+      <div class="content">
+        <div class="skel-overlay" aria-hidden="true" hidden>
+          <div class="skel-block" style="height:46px;border-radius:16px;"></div>
+          <div class="skel-block" style="height:130px;"></div>
+          <div class="skel-block" style="height:64px;"></div>
+          <div class="skel-block" style="height:64px;"></div>
+        </div>
+
+        <div class="pressed field row" style="padding:12px 16px;margin-bottom:18px;">
+          <div style="color:var(--text-faint);width:17px;height:17px;"><svg viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="10.5" cy="10.5" r="6" />
+              <path d="m20 20-4.8-4.8" />
+            </svg></div>
+          <input type="text" id="clientesSearchInput" placeholder="buscar por nome ou telefone" />
+        </div>
+
+        <div class="raised card" style="margin-bottom:20px;">
+          <div class="label" style="margin-bottom:12px;">ranking de clientes</div>
+          <div class="row" style="gap:9px;margin-bottom:14px;" id="clientesRankingPills">
+            <div class="pressed-pill pill active" data-criterio="gasto" style="padding:9px 12px;flex:1;text-align:center;">
+              quem mais gasta</div>
+            <div class="pressed-pill pill" data-criterio="compras" style="padding:9px 12px;flex:1;text-align:center;">
+              quem mais compra</div>
+          </div>
+          <div id="clientesRankingList"></div>
+        </div>
+
+        <div class="label" id="clientesCount">clientes</div>
+
+        <div id="clientesList"></div>
+
+        <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;margin-top:10px;text-align:center;">o ID
+          de cada cliente é gerado automaticamente pelo sistema ao cadastrar.</div>
+
+        <div class="reveal-footer" aria-hidden="true">
+          <span class="reveal-footer-mark">.parágrafo</span>
+        </div>
+      </div>
+      <div class="dock" id="clientesDock" role="navigation" aria-label="Navegação principal"></div>
+    </div>
+
+    <div class="screen" data-screen="clienteForm" hidden>
+      <div class="backrow">
+        <div class="iconbtn" role="button" tabindex="0" data-goto="clientes" aria-label="Voltar aos clientes">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"
+            stroke-linejoin="round">
+            <path d="m15 6-6 6 6 6" />
+          </svg>
+        </div>
+        <div>
+          <div class="crumb">clientes</div>
+          <div class="pagetitle" style="font-size:19px;" id="clienteFormTitle">Novo cliente</div>
+        </div>
+      </div>
+      <div class="content">
+        <div class="skel-overlay" aria-hidden="true" hidden>
+          <div class="skel-block" style="height:56px;"></div>
+          <div class="skel-block" style="height:56px;"></div>
+          <div class="skel-block" style="height:56px;"></div>
+        </div>
+
+        <div class="pressed field">
+          <div class="label">nome</div>
+          <input type="text" id="clienteFormNome" placeholder="ex.: Marina Duarte" />
+        </div>
+
+        <div class="pressed field">
+          <div class="label">telefone</div>
+          <input type="text" id="clienteFormTelefone" placeholder="(11) 98888-1234" />
+        </div>
+
+        <div class="pressed field">
+          <div class="label">e-mail (opcional)</div>
+          <input type="email" id="clienteFormEmail" placeholder="nome@email.com" />
+        </div>
+
+        <div class="pressed field">
+          <div class="label">endereço (opcional)</div>
+          <input type="text" id="clienteFormEndereco" placeholder="rua, número, bairro" />
+        </div>
+
+        <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;margin:2px 4px 22px;">O ID do cliente é
+          gerado automaticamente pelo sistema — não precisa definir.</div>
+
+        <button class="btn btn-primary" data-action="cliente-form-save" style="width:100%;margin-bottom:12px;">Salvar
+          cliente</button>
+        <div style="text-align:center;" id="clienteFormRemoveWrap" hidden>
+          <button class="btn btn-text" data-action="cliente-form-remove">Remover cliente</button>
+        </div>
+      </div>
+      <div class="dock" id="clienteFormDock" role="navigation" aria-label="Navegação principal"></div>
+    </div>
+
+    <div class="screen" data-screen="clienteDetalhe" hidden>
+      <div class="backrow between">
+        <div class="row">
+          <div class="iconbtn" role="button" tabindex="0" data-goto="clientes" aria-label="Voltar aos clientes">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path d="m15 6-6 6 6 6" />
+            </svg>
+          </div>
+          <div>
+            <div class="crumb">clientes</div>
+            <div class="pagetitle" style="font-size:19px;" id="clienteDetalheNome">—</div>
+          </div>
+        </div>
+        <div class="tapicon" role="button" tabindex="0" aria-label="Editar cliente" data-action="cliente-detalhe-edit"
+          style="width:40px;height:40px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 20h9" />
+            <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z" />
+          </svg></div>
+      </div>
+      <div class="content">
+        <div class="skel-overlay" aria-hidden="true" hidden>
+          <div class="skel-block" style="height:130px;"></div>
+          <div class="skel-block" style="height:64px;"></div>
+          <div class="skel-block" style="height:96px;"></div>
+        </div>
+
+        <div class="raised card">
+          <div class="between" style="padding:0 0 11px;border-bottom:1px solid var(--line);">
+            <span style="font-size:13px;color:var(--text-faint);">telefone</span>
+            <span style="font-size:13.5px;font-weight:700;" id="clienteDetalheTelefone">—</span>
+          </div>
+          <div class="between" style="padding:11px 0;border-bottom:1px solid var(--line);">
+            <span style="font-size:13px;color:var(--text-faint);">e-mail</span>
+            <span style="font-size:13.5px;font-weight:600;color:var(--text-dim);" id="clienteDetalheEmail">—</span>
+          </div>
+          <div class="between" style="padding:11px 0 0;" id="clienteDetalheEnderecoRow" hidden>
+            <span style="font-size:13px;color:var(--text-faint);">endereço</span>
+            <span style="font-size:13.5px;font-weight:600;color:var(--text-dim);text-align:right;max-width:60%;"
+              id="clienteDetalheEndereco">—</span>
+          </div>
+        </div>
+
+        <div class="row" style="gap:12px;margin:16px 0 20px;">
+          <div class="raised-sm" style="padding:14px 16px;flex:1;">
+            <div class="label" style="margin-bottom:6px;">compras</div>
+            <div style="font-size:18px;font-weight:700;" id="clienteDetalheCompras">0</div>
+          </div>
+          <div class="raised-sm" style="padding:14px 16px;flex:1;">
+            <div class="label" style="margin-bottom:6px;">total gasto</div>
+            <div style="font-size:18px;font-weight:700;" id="clienteDetalheGasto">R$ 0,00</div>
+          </div>
+        </div>
+
+        <div class="between" style="margin-bottom:10px;">
+          <div class="label" style="margin:0;">histórico de compras</div>
+          <div style="font-size:11px;color:var(--text-faint);" id="clienteDetalheHistCount">0 compras</div>
+        </div>
+
+        <div id="clienteDetalheHistEmpty"
+          style="font-size:12.5px;color:var(--text-faint);text-align:center;padding:18px 0;" hidden>Nenhuma compra
+          registrada ainda.</div>
+        <div class="raised card" id="clienteDetalheHistCard">
+          <div id="clienteDetalheHistList"></div>
+        </div>
+
+        <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;margin-top:6px;text-align:center;">O
+          histórico soma automaticamente as vendas confirmadas ligadas a este cliente.</div>
+
+        <div class="reveal-footer" aria-hidden="true">
+          <span class="reveal-footer-mark">.parágrafo</span>
+        </div>
+      </div>
+      <div class="dock" id="clienteDetalheDock" role="navigation" aria-label="Navegação principal"></div>
     </div>
 
     <div class="screen" data-screen="mais" hidden>
