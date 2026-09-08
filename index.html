@@ -1219,8 +1219,7 @@
              não existem, então cada cartão dispara o toast "em breve" (data-action
              toast-em-breve + data-msg) em vez de navegar (data-goto). -->
         <div class="folder-stack">
-          <div class="folder-card" role="button" tabindex="0" data-action="toast-em-breve"
-            data-msg="em breve — registrar venda ainda está sendo construído."
+          <div class="folder-card" role="button" tabindex="0" data-goto="registrarVenda"
             aria-label="Abrir Registrar Venda" style="background:#9D9167;color:#2B1B10;">
             <div style="flex:1;min-width:0;">
               <div class="folder-card-title">Registrar Venda</div>
@@ -1290,6 +1289,126 @@
         </div>
       </div>
       <div class="dock" id="vendasDock" role="navigation" aria-label="Navegação principal"></div>
+    </div>
+
+    <!-- ---------- Registrar Venda — módulo 14 ---------- -->
+    <div class="screen" data-screen="registrarVenda" hidden>
+      <div class="backrow">
+        <div class="iconbtn" role="button" tabindex="0" data-goto="vendas" aria-label="Voltar a vendas">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"
+            stroke-linejoin="round">
+            <path d="m15 6-6 6 6 6" />
+          </svg>
+        </div>
+        <div>
+          <div class="crumb">vendas</div>
+          <div class="pagetitle" style="font-size:19px;">registrar venda</div>
+        </div>
+      </div>
+      <div class="content">
+        <div class="skel-overlay" aria-hidden="true" hidden>
+          <div class="skel-block" style="height:56px;"></div>
+          <div class="skel-block" style="height:140px;"></div>
+          <div class="skel-block" style="height:90px;"></div>
+        </div>
+
+        <div class="label" style="margin: 2px 4px 8px;">cliente</div>
+        <div class="raised-sm between" role="button" tabindex="0" data-action="venda-cliente-toggle"
+          aria-label="Trocar cliente" style="padding:14px 16px;margin-bottom:16px;">
+          <div style="font-size:14.5px;font-weight:600;" id="vendaClienteLabel">Cliente avulso</div>
+          <svg class="folder-card-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="m9 6 6 6-6 6" />
+          </svg>
+        </div>
+
+        <div id="vendaClientePicker" hidden style="margin-bottom:16px;">
+          <div class="pressed field">
+            <div class="label">buscar cliente</div>
+            <input type="text" id="vendaClienteSearchInput" placeholder="nome ou telefone" />
+          </div>
+          <div id="vendaClienteList"></div>
+        </div>
+
+        <div class="label" style="margin: 2px 4px 8px;">variação</div>
+        <div style="display:flex;gap:9px;overflow-x:auto;margin-bottom:14px;padding-bottom:2px;" id="vendaVarPills">
+        </div>
+
+        <div class="raised-sm between" style="padding:14px 16px;margin-bottom:14px;">
+          <div class="label" style="margin:0;">quantidade</div>
+          <div class="row" style="gap:12px;">
+            <div class="pressed" role="button" tabindex="0" aria-label="Diminuir quantidade" data-action="venda-qtd-dec"
+              style="width:34px;height:34px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--text);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+                <path d="M5 12h14" />
+              </svg>
+            </div>
+            <div style="font-size:18px;font-weight:700;min-width:26px;text-align:center;" id="vendaQtdValue">1</div>
+            <div class="raised-sm" role="button" tabindex="0" aria-label="Aumentar quantidade" data-action="venda-qtd-inc"
+              style="width:34px;height:34px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--card-text);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+                <path d="M12 5v14M5 12h14" />
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn btn-ghost" data-action="venda-item-add" style="width:100%;margin-bottom:22px;">adicionar
+          à venda</button>
+
+        <div class="label" style="margin: 2px 4px 8px;">itens da venda</div>
+        <div id="vendaItensList"></div>
+        <div class="emptystate" id="vendaItensEmpty">
+          <div class="emptystate-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 8h12l1 12H5L6 8z" />
+              <path d="M9 8V6a3 3 0 0 1 6 0v2" />
+            </svg></div>
+          <div class="emptystate-title">nenhum item ainda</div>
+          <div class="emptystate-sub">escolha uma variação e a quantidade acima, depois toque em "adicionar à
+            venda".</div>
+        </div>
+
+        <div class="pressed field" style="margin-top:22px;">
+          <div class="label">cupom (opcional)</div>
+          <input type="text" id="vendaCupomInput" placeholder="ex.: PAUSA10" style="text-transform:uppercase;" />
+        </div>
+        <div class="row between" id="vendaCupomAplicadoRow" hidden style="margin-bottom:12px;">
+          <div class="badge good" style="flex:none;">cupom <span id="vendaCupomCodigoTxt"></span> aplicado</div>
+          <button class="btn btn-text" data-action="venda-cupom-remover">remover</button>
+        </div>
+        <button class="btn btn-ghost" data-action="venda-cupom-aplicar" style="width:100%;margin-bottom:22px;">aplicar
+          cupom</button>
+
+        <div class="label" style="margin: 2px 4px 8px;">forma de pagamento</div>
+        <div class="row" style="gap:9px;margin-bottom:22px;" id="vendaFormaPills">
+          <div class="pill active" style="flex:1;text-align:center;" data-forma="pix" role="button" tabindex="0"
+            aria-pressed="true">Pix</div>
+          <div class="pill" style="flex:1;text-align:center;" data-forma="cartao" role="button" tabindex="0"
+            aria-pressed="false">Cartão</div>
+          <div class="pill" style="flex:1;text-align:center;" data-forma="dinheiro" role="button" tabindex="0"
+            aria-pressed="false">Dinheiro</div>
+        </div>
+
+        <div class="raised-sm" style="padding:16px;margin-bottom:16px;">
+          <div class="between" style="margin-bottom:8px;">
+            <div style="font-size:12.5px;color:var(--text-faint);">subtotal</div>
+            <div style="font-size:13.5px;font-weight:600;" id="vendaResumoSubtotal">R$ 0,00</div>
+          </div>
+          <div class="between" id="vendaResumoDescontoRow" hidden style="margin-bottom:8px;">
+            <div style="font-size:12.5px;color:var(--text-faint);">desconto</div>
+            <div style="font-size:13.5px;font-weight:600;color:var(--good);" id="vendaResumoDesconto">− R$ 0,00</div>
+          </div>
+          <div class="between">
+            <div style="font-size:14px;font-weight:700;">total</div>
+            <div style="font-size:20px;font-weight:800;" id="vendaResumoTotal">R$ 0,00</div>
+          </div>
+        </div>
+
+        <button class="btn btn-primary" id="vendaSubmitBtn" data-action="venda-submit" style="width:100%;"
+          disabled>confirmar venda</button>
+      </div>
+      <div class="dock" id="registrarVendaDock" role="navigation" aria-label="Navegação principal"></div>
     </div>
 
     <!-- ---------- Controle de Clientes — módulo 13 ---------- -->
