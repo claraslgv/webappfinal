@@ -280,6 +280,31 @@ ESTRUTURA GERAL DO APP — pendências importantes
   #dashSemanaStrip; app.js: abrirCalendario/renderCalendarioGrid/renderCalendarioRecap/
   computeResumoDia; style.css: .cal-monthname/.cal-grid/.cal-day.
 
+- [RESOLVIDO em 08/09/2026] Modo claro removido do app inteiro — decisão
+  da usuária, não uma correção de bug: o app vai ser só escuro daqui pra
+  frente, não só "escuro por padrão" com um claro ainda alternável.
+  Removidos: o switch visual na tela "mais" (index.html), o script
+  inline no <head> que aplicava o tema salvo antes do 1º paint, e toda a
+  lógica em app.js (TEMA_KEY/loadTema/applyTema/temaState/setTema + o
+  listener de [data-action="toggle-tema"]). Em style.css, os valores que
+  viviam em html[data-theme="dark"] viraram os únicos valores do :root
+  (bloco de tema claro removido); os poucos seletores
+  html[data-theme="dark"] que só ajustavam a sombra do .app-frame em
+  preview mobile/desktop viraram regras incondicionais. Dashboard,
+  Estoque de Insumos/Produção, #authView, dash-hero, dash-resumo, pastas
+  do estoque e o dock continuam com paleta de marca fixa, como já era —
+  não dependiam do toggle, não foram tocados. ATENÇÃO pra quem for mexer
+  em comentários de style.css: um comentário que descrevia
+  "--shadow-raised-*/--shadow-pressed-*" chegou a fechar o bloco CSS de
+  comentário cedo demais (a sequência "*/" no meio do texto conta como
+  fechamento) e quebrou o :root inteiro sem erro visível no console —
+  vale sempre conferir `getComputedStyle(document.documentElement).
+  getPropertyValue('--bg')` no console do navegador depois de editar
+  comentários perto do topo do arquivo. Verificado com Playwright
+  headless (script descartável, não ficou no repo): dashboard, "mais"
+  (sem buraco onde era o switch), estoque, preview desktop e #authView,
+  sem erros de console e sem atributo data-theme sobrando.
+
 ===========================================
 FEEDBACK NOVO (04/09/2026) — cores brancas/creme, quer marrom
 ===========================================
@@ -288,23 +313,34 @@ FEEDBACK NOVO (04/09/2026) — cores brancas/creme, quer marrom
   aparecendo brancos/creme — quer marrom. Achado no código: esses três
   elementos (seta de voltar = .iconbtn, barra de busca = .pressed.field,
   e botões tipo "Salvar ajustes como novo padrão" = .btn-ghost) usam
-  background:var(--bg) de propósito — é o token neumórfico de base
-  (#FBF6EC no modo claro, quase branco; já é marrom #442D1C no modo
-  escuro). As sombras raised/pressed desses elementos (--shadow-d/
-  --shadow-l) foram calibradas pra combinar exatamente com esse tom de
-  --bg — trocar só o background pra marrom sem recalcular a sombra pode
-  fazer o efeito neumórfico (relevo/pressed) sumir ou ficar estranho.
-  Antes de mexer, decidir com a usuária: (1) qual marrom (ex.: --primary
-  #442D1C, ou um novo tom), (2) se é modo claro que ela está vendo (no
-  escuro esses elementos já saem marrom) — [CORRIGIDO em 08/09/2026:
-  quando essa nota foi escrita o padrão do app era escuro, mas em algum
-  commit depois disso o padrão de quem abre o app pela 1ª vez mudou pra
-  claro (ver app.js: loadTema(), comentário "Padrão agora é claro"); a
-  maioria de quem relatar esse problema provavelmente está no claro por
-  padrão, não por ter trocado manualmente], e (3) o escopo — só seta de
-  voltar + busca, ou todo elemento que hoje usa var(--bg) como
-  superfície (isso inclui vários .iconbtn de "+" espalhados pelo app,
-  não só o de voltar).
+  background:var(--bg) de propósito — é o token neumórfico de base. As
+  sombras raised/pressed desses elementos (--shadow-d/--shadow-l) foram
+  calibradas pra combinar exatamente com esse tom de --bg — trocar só o
+  background pra marrom sem recalcular a sombra pode fazer o efeito
+  neumórfico (relevo/pressed) sumir ou ficar estranho.
+
+  [RESOLVIDO/DECIDIDO em 08/09/2026] As 3 perguntas em aberto (qual
+  marrom, se era modo claro ou escuro, e o escopo) ficaram mais simples
+  porque o modo claro foi removido do app inteiro nessa mesma sessão —
+  decisão da usuária, não só desta pendência (ver seção própria mais
+  abaixo). Respostas confirmadas com a usuária:
+    (1) qual marrom: hex fixo #442D1C (mesma cor nos dois casos — como
+        não há mais toggle, é sempre esse tom, não var(--primary), que
+        seria outra cor se algum dia voltar a existir mais de um tema).
+    (2) qual tema: deixou de fazer sentido — só existe um agora.
+    (3) escopo: só seta de voltar + busca — não os .iconbtn de "+" nem
+        os .pressed.field de formulário comuns. Selectors identificados
+        que isolam exatamente isso sem pegar outros botões: seta de
+        voltar = todo .iconbtn[data-goto] (os "+" usam [data-action],
+        ficam de fora); busca = só .pressed.field.row (só os 2 campos
+        de busca reais — estoqueSearchInput, clientesSearchInput — têm
+        essa combinação de classes; os outros .pressed.field comuns não
+        têm .row).
+  Ainda falta implementar a mudança de cor em si (a remoção do modo
+  claro que aconteceu no meio do caminho foi só o que destravou a
+  decisão) — próxima sessão: aplicar background:#442D1C fixo nesses
+  dois seletores e recalcular --shadow-d/--shadow-l pra não quebrar o
+  relevo neumórfico contra essa cor sólida (ver aviso acima sobre isso).
 
 - Percentual "perda X% inclusa" na calculadora de velas (e na
   calculadora de lucro): usuária não entendeu o objetivo — já
@@ -341,5 +377,3 @@ REFERÊNCIAS NO CÓDIGO
   por "perdaDerretimento"
 - app.js: fluxo de Encomendas (criar/editar, avançar status, conversão
   em venda ao entregar) — buscar por "Encomendas — módulo 15"
-- app.js: tema padrão do app (claro, não mais escuro) — buscar por
-  "loadTema"
