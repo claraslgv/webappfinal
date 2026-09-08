@@ -158,11 +158,34 @@ ESTRUTURA GERAL DO APP — pendências importantes
   conta, backup/exportação de dados ou ajuda — vale pensar no que entra
   ali antes de qualquer implementação.
 
-- As pastas "Controle de Custos" e "Cupons" e o card "relatório completo"
-  do dashboard ainda são só atalhos que abrem um toast "em breve"
-  (procure "em breve" no index.html pra ver a lista completa) — nenhuma
-  dessas telas tem desenho ainda. "Registrar Venda", "Encomendas" e
-  "Histórico de Vendas" já saíram desse grupo, ver módulos 14, 15 e 16.
+- O card "relatório completo" do dashboard ainda é só um atalho que abre
+  um toast "em breve" (procure "em breve" no index.html) — é a única
+  pasta/atalho de Vendas que falta desenhar. Todo o resto (Registrar
+  Venda, Encomendas, Histórico de Vendas, Controle de Custos, Cupons)
+  já navega de verdade, ver módulos 14 a 18.
+
+- [RESOLVIDO em 08/09/2026] Controle de Custos: pasta "Vendas →
+  Controle de Custos" deixou de ser um toast "em breve" e virou uma
+  tela de verdade. Card "custo real por vela" (custo de insumo médio
+  dos lotes + custo fixo rateado) com o par de indicadores detalhando
+  cada metade; "lucro líquido real" no mesmo período do Dashboard
+  (periodoState compartilhado — a tela não duplica o seletor de
+  período, só mostra o valor e diz "ajuste no Dashboard"); "margem por
+  variação" (preço de venda cadastrado − custo real por vela, com aviso
+  em --warn quando dá prejuízo); "custos fixos mensais" — primeira tela
+  que expõe custosState.fixos e rateioBase pra edição (até então só
+  existiam como dado de seed no código, sem UI nenhuma) — lista
+  editável (nome + valor, adicionar/remover linha) + produção mensal
+  estimada pro rateio, salvos em lote com um botão só (mesmo padrão de
+  Configurações de produção: inputs soltos enquanto digita, sem
+  recálculo ao vivo). Reaproveita os mesmos padrões visuais do
+  Dashboard/Encomendas (raised card destacado, par de raised-sm) —
+  nenhum CSS novo. Ver app.js: "Controle de Custos — tela — módulo 18";
+  index.html: data-screen="controleCustos". NÃO testado no app real
+  rodando nem com harness de screenshot (node/npx ausentes nesta
+  sessão) — vale abrir Vendas → Controle de Custos na próxima vez,
+  conferir os números batendo com o Dashboard e testar adicionar/
+  remover/salvar um custo fixo com dados de verdade.
 
 - [RESOLVIDO em 08/09/2026] Histórico de Vendas: pasta "Vendas →
   Histórico de Vendas" deixou de ser um toast "em breve" e virou uma
@@ -412,8 +435,8 @@ REFERÊNCIAS NO CÓDIGO
 - index.html: card "notificar por" — buscar por "notificar por"
 - Supabase: projeto ponto-paragrafo (id vmqpvlcckcfixsryvfdn),
   Edge Function "enviar-aviso", tabela "estado" (ainda não usada pelo app)
-- index.html: pastas "em breve" de Vendas (Controle de Custos, Cupons) —
-  buscar por data-action="toast-em-breve"
+- index.html: único atalho "em breve" restante é o card "relatório
+  completo" do dashboard — buscar por data-action="toast-em-breve"
 - index.html: tela "mais" — buscar por data-screen="mais"
 - app.js: leitura/cálculo de vendas sem tela de cadastro — buscar por
   "defaultVendasState"
@@ -428,3 +451,6 @@ REFERÊNCIAS NO CÓDIGO
   em venda ao entregar) — buscar por "Encomendas — módulo 15"
 - app.js: lista de Histórico de Vendas (busca, filtro de período,
   indicadores) — buscar por "Histórico de Vendas — módulo 16"
+- app.js: Controle de Custos (custo real por vela, margem por
+  variação, lista editável de custos fixos) — buscar por "Controle de
+  Custos — tela — módulo 18"
