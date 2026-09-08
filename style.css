@@ -387,7 +387,15 @@ input.auth-input:-webkit-autofill{-webkit-text-fill-color:#F3E6CE;transition:bac
 .btn{border:none;font-family:'Montserrat',sans-serif;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:box-shadow .15s ease,transform .1s ease,opacity .15s ease;}
 .btn-primary{background:var(--primary);color:var(--on-primary);border-radius:16px;padding:16px;font-size:15px;box-shadow:0 10px 22px -8px rgba(0,0,0,.4);}
 .btn-primary:active{box-shadow:0 5px 12px -6px rgba(0,0,0,.4);transform:scale(.98) translateY(1px);}
-.btn-ghost{background:var(--bg);color:var(--text);border-radius:16px;padding:14px;font-size:13.5px;box-shadow:var(--shadow-raised-sm);}
+/* Decisão da usuária (08/09/2026): TODOS os .btn-ghost do app em marrom fixo #442D1C,
+   mesmo padrão do .iconbtn[data-goto]/.pressed.field.row acima — em vez de escopar só os
+   que caem hoje dentro de Dashboard/Estoque de Insumos/Produção (nenhum .btn-ghost estático
+   mora nessas 3 telas no momento, então essa opção não mudaria nada visível agora). Hex fixo
+   em vez de var(--bg)/var(--text) pelo mesmo motivo de sempre: blinda qualquer tela de
+   paleta fixa atual ou futura sem precisar decidir de novo caso a caso. box-shadow não muda
+   (var(--shadow-raised-sm)/var(--shadow-pressed-sm) já são um drop-shadow fixo, não dependem
+   de --bg pra combinar). */
+.btn-ghost{background:#442D1C;color:#F3E7D6;border-radius:16px;padding:14px;font-size:13.5px;box-shadow:var(--shadow-raised-sm);}
 .btn-ghost:active{box-shadow:var(--shadow-pressed-sm);transform:scale(.98);}
 .btn-text{background:none;color:var(--warn);font-size:13.5px;font-weight:600;padding:6px 0;}
 .btn-text:active{opacity:.6;}

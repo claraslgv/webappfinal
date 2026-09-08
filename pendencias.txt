@@ -436,12 +436,19 @@ FEEDBACK NOVO (04/09/2026) — cores brancas/creme, quer marrom
   em estoqueInsumos (onde o bug aparecia, tela de paleta fixa) e em
   clientes (tela normal) — sem regressão, sem erros de console.
 
-  NÃO coberto por este fix (fora do escopo que a usuária pediu): os
-  botões .btn-ghost ("Salvar ajustes como novo padrão" e outros do
-  mesmo tipo) continuam usando var(--bg) puro, então ainda aparecem
-  creme/branco. Se a usuária quiser esses também marrom, é o mesmo
-  padrão — só falta decidir se TODOS os .btn-ghost do app entram ou só
-  alguns específicos.
+  [RESOLVIDO em 08/09/2026] .btn-ghost ("Salvar ajustes como novo
+  padrão" e outros do mesmo tipo): decisão da usuária foi TODOS os
+  .btn-ghost do app, não só alguns — mesmo padrão do .iconbtn[data-goto]
+  acima. Implementado em style.css (buscar por ".btn-ghost{"):
+  background/color trocaram de var(--bg)/var(--text) pra hex fixo
+  #442D1C/#F3E7D6. Nota pra próxima sessão: na conferência do código
+  antes desse fix, nenhum .btn-ghost estático do index.html caía de
+  fato dentro de Dashboard/Estoque de Insumos/Produção (as 3 telas de
+  paleta fixa) — ou seja, a mudança não alterou nada visível nessas
+  telas agora, é blindagem pra qualquer tela de paleta fixa atual ou
+  futura. Se algum .btn-ghost aparecer errado depois disso, o bug está
+  em outro lugar (provavelmente algo gerado por JS fora do escopo desta
+  varredura), não neste CSS.
 
 - Percentual "perda X% inclusa" na calculadora de velas (e na
   calculadora de lucro): usuária não entendeu o objetivo — já
@@ -473,9 +480,10 @@ REFERÊNCIAS NO CÓDIGO
   "defaultVendasState"
 - style.css: token de fundo branco/creme usado por seta de voltar, busca
   e botão ghost — buscar por ".iconbtn{", ".pressed{" e ".btn-ghost{"
-  (todos usam background:var(--bg)). Seta de voltar e busca já têm
-  override pra marrom fixo — buscar por ".iconbtn[data-goto]"; .btn-ghost
-  ainda não (ver pendência "cores brancas/creme, quer marrom").
+  (base ainda é background:var(--bg)). Seta de voltar, busca e TODOS os
+  .btn-ghost já têm override pra marrom fixo #442D1C — buscar por
+  ".iconbtn[data-goto]", ".pressed.field.row" e ".btn-ghost{" (ver
+  pendência "cores brancas/creme, quer marrom", já resolvida).
 - app.js: perda de derretimento (o "% inclusa" da calculadora) — buscar
   por "perdaDerretimento"
 - app.js: fluxo de Encomendas (criar/editar, avançar status, conversão
