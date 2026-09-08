@@ -1260,9 +1260,10 @@
         </div>
       </div>
       <div class="content">
-        <!-- Mesmo esquema de cascata de cores da marca do hub Estoque — as sub-telas ainda
-             não existem, então cada cartão dispara o toast "em breve" (data-action
-             toast-em-breve + data-msg) em vez de navegar (data-goto). -->
+        <!-- Mesmo esquema de cascata de cores da marca do hub Estoque. Custos e Cupons ainda
+             não têm tela — disparam o toast "em breve" (data-action toast-em-breve +
+             data-msg) em vez de navegar (data-goto); Registrar Venda, Encomendas e
+             Histórico de Vendas já navegam de verdade. -->
         <div class="folder-stack">
           <div class="folder-card" role="button" tabindex="0" data-goto="registrarVenda"
             aria-label="Abrir Registrar Venda" style="background:#9D9167;color:#2B1B10;">
@@ -1288,8 +1289,7 @@
             </svg>
           </div>
 
-          <div class="folder-card" role="button" tabindex="0" data-action="toast-em-breve"
-            data-msg="em breve — histórico de vendas ainda está sendo construído."
+          <div class="folder-card" role="button" tabindex="0" data-goto="historicoVendas"
             aria-label="Abrir Histórico de Vendas" style="background:#743014;color:#F3E6CE;">
             <div style="flex:1;min-width:0;">
               <div class="folder-card-title">Histórico de Vendas</div>
@@ -1698,6 +1698,70 @@
         </div>
       </div>
       <div class="dock" id="encomendaDetalheDock" role="navigation" aria-label="Navegação principal"></div>
+    </div>
+
+    <!-- ---------- Histórico de Vendas — módulo 16 ---------- -->
+    <div class="screen" data-screen="historicoVendas" hidden>
+      <div class="backrow">
+        <div class="iconbtn" role="button" tabindex="0" data-goto="vendas" aria-label="Voltar a vendas">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"
+            stroke-linejoin="round">
+            <path d="m15 6-6 6 6 6" />
+          </svg>
+        </div>
+        <div>
+          <div class="crumb">vendas</div>
+          <div class="pagetitle" style="font-size:19px;">histórico de vendas</div>
+        </div>
+      </div>
+      <div class="content">
+        <div class="skel-overlay" aria-hidden="true" hidden>
+          <div class="skel-block" style="height:46px;border-radius:16px;"></div>
+          <div class="skel-block" style="height:40px;"></div>
+          <div class="skel-block" style="height:74px;"></div>
+          <div class="skel-block" style="height:80px;"></div>
+          <div class="skel-block" style="height:80px;"></div>
+        </div>
+
+        <div class="pressed field row" style="padding:12px 16px;margin-bottom:16px;">
+          <div style="width:17px;height:17px;"><svg viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="10.5" cy="10.5" r="6" />
+              <path d="m20 20-4.8-4.8" />
+            </svg></div>
+          <input type="text" id="historicoVendasSearchInput" placeholder="buscar por cliente ou variação" />
+        </div>
+
+        <div class="row" style="gap:9px;overflow-x:auto;margin-bottom:16px;padding-bottom:2px;"
+          id="historicoVendasPeriodoPills">
+          <div class="pill" style="flex:none;" data-hist-periodo="7" role="button" tabindex="0"
+            aria-pressed="false">7 dias</div>
+          <div class="pill" style="flex:none;" data-hist-periodo="30" role="button" tabindex="0"
+            aria-pressed="false">30 dias</div>
+          <div class="pill active" style="flex:none;" data-hist-periodo="tudo" role="button" tabindex="0"
+            aria-pressed="true">tudo</div>
+        </div>
+
+        <div style="display:flex;gap:12px;margin-bottom:20px;">
+          <div class="raised-sm" style="padding:14px 16px;flex:1;">
+            <div class="label" style="margin-bottom:8px;">vendido</div>
+            <div style="font-size:18px;font-weight:700;letter-spacing:-.01em;" id="historicoVendasTotal">R$ 0,00</div>
+          </div>
+          <div class="raised-sm" style="padding:14px 16px;flex:1;">
+            <div class="label" style="margin-bottom:8px;">confirmadas</div>
+            <div style="font-size:18px;font-weight:700;letter-spacing:-.01em;" id="historicoVendasQtd">0</div>
+          </div>
+        </div>
+
+        <div class="label" id="historicoVendasCount">vendas</div>
+
+        <div id="historicoVendasList"></div>
+
+        <div class="reveal-footer" aria-hidden="true">
+          <span class="reveal-footer-mark">.parágrafo</span>
+        </div>
+      </div>
+      <div class="dock" id="historicoVendasDock" role="navigation" aria-label="Navegação principal"></div>
     </div>
 
     <!-- ---------- Controle de Clientes — módulo 13 ---------- -->

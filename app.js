@@ -1621,6 +1621,84 @@
   }
 
   // ================================================================
+  // Histórico de Vendas — módulo 16. Lista somente-leitura de toda venda já registrada
+  // (tanto pelas telas Registrar Venda quanto pelas Encomendas entregues) — não tem tela
+  // de detalhe própria, é só o registro pra consulta. Busca por cliente/variação e filtro
+  // por período são locais a esta tela, não mexem no seletor de período do Dashboard
+  // (periodoState, logo abaixo) — são conceitos parecidos mas independentes de propósito:
+  // um serve pro relatório do dia a dia, o outro pra vasculhar o histórico inteiro.
+  // ================================================================
+  var historicoVendasState = { periodo: "tudo", busca: "" };
+
+  function formaPagamentoLabel(forma){
+    if (forma === "cartao") return "Cartão";
+    if (forma === "dinheiro") return "Dinheiro";
+    return "Pix";
+  }
+  function vendaItensResumo(itens){
+    return itens.map(function(it){ return it.quantidade + "× " + variacaoLabel(findVariacao(it.variacaoId)); }).join(", ");
+  }
+  function vendaStatusLabel(status){ return status === "cancelada" ? "cancelada" : "confirmada"; }
+  function vendaStatusBadgeClass(status){ return status === "cancelada" ? "warn" : "good"; }
+
+  function historicoVendasDentroPeriodo(v){
+    if (historicoVendasState.periodo === "tudo") return true;
+    var dias = historicoVendasState.periodo === "30" ? 30 : 7;
+    return v.data >= offsetISO(-(dias - 1));
+  }
+  function historicoVendasBate(v){
+    var termo = historicoVendasState.busca.trim().toLowerCase();
+    if (!termo) return true;
+    var alvo = (v.clienteNome + " " + v.itens.map(function(it){ return variacaoLabel(findVariacao(it.variacaoId)); }).join(" ")).toLowerCase();
+    return alvo.indexOf(termo) !== -1;
+  }
+  function historicoVendasFiltradas(){
+    return vendasState.vendas.slice()
+      .filter(historicoVendasDentroPeriodo)
+      .filter(historicoVendasBate)
+      .sort(function(a, b){ return a.data < b.data ? 1 : a.data > b.data ? -1 : 0; });
+  }
+  function vendaRowHTML(v){
+    var meta = formatDateBR(v.data) + " · " + formaPagamentoLabel(v.formaPagamento);
+    if (v.cupomCodigo) meta += " · cupom " + v.cupomCodigo;
+    if (v.origemEncomendaId) meta += " · via encomenda";
+    return '' +
+      '<div class="raised-sm" style="padding:14px 16px;margin-bottom:11px;">' +
+        '<div class="between" style="margin-bottom:6px;">' +
+          '<div style="font-size:14px;font-weight:600;">' + escapeHtml(v.clienteNome) + '</div>' +
+          '<span class="badge ' + vendaStatusBadgeClass(v.status) + '">' + vendaStatusLabel(v.status) + '</span>' +
+        '</div>' +
+        '<div style="font-size:12px;color:var(--text-faint);margin-bottom:4px;">' + escapeHtml(vendaItensResumo(v.itens)) + '</div>' +
+        '<div class="between">' +
+          '<div style="font-size:11px;color:var(--text-faint);">' + escapeHtml(meta) + '</div>' +
+          '<div style="font-size:13px;font-weight:700;">' + fmtMoney(v.total) + '</div>' +
+        '</div>' +
+      '</div>';
+  }
+  function renderHistoricoVendas(){
+    var itens = historicoVendasFiltradas();
+    var listEl = document.getElementById("historicoVendasList");
+    if (listEl) {
+      listEl.innerHTML = itens.length ? itens.map(vendaRowHTML).join("") : emptyStateHTML({
+        icon: ICON_VENDAS,
+        title: historicoVendasState.busca.trim() ? "nenhuma venda encontrada" : "nenhuma venda ainda",
+        sub: historicoVendasState.busca.trim() ? "tente outro nome ou variação." : "toda venda registrada aparece aqui."
+      });
+    }
+    setText("historicoVendasCount", itens.length + (itens.length === 1 ? " venda" : " vendas"));
+    var confirmadas = itens.filter(function(v){ return v.status === "confirmada"; });
+    setText("historicoVendasTotal", fmtMoney(round2(confirmadas.reduce(function(s, v){ return s + v.total; }, 0))));
+    setText("historicoVendasQtd", String(confirmadas.length));
+    document.querySelectorAll('#historicoVendasPeriodoPills [data-hist-periodo]').forEach(function(p){
+      var active = p.dataset.histPeriodo === historicoVendasState.periodo;
+      p.classList.toggle("active", active);
+      p.setAttribute("aria-pressed", active ? "true" : "false");
+    });
+  }
+  function setHistoricoVendasPeriodo(periodo){ historicoVendasState.periodo = periodo; renderHistoricoVendas(); }
+  function setHistoricoVendasBusca(termo){ historicoVendasState.busca = termo || ""; renderHistoricoVendas(); }
+
+  // ================================================================
   // Seletor único de período — 7 dias / 30 dias / personalizado
   // Alimenta ao mesmo tempo total de vendas, receita real e lucro líquido real (sem
   // telas duplicadas por métrica). Datas app inteiro são strings "YYYY-MM-DD", então dá
@@ -2998,10 +3076,11 @@
   var MAIS_SCREENS = {
     mais: true, configuracoes: true, conta: true, ajuda: true
   };
-  // Telas que vivem sob a pasta "Vendas" — histórico, custos e cupons entram aqui conforme
-  // forem construídas, no mesmo esquema do ESTOQUE_SCREENS acima.
+  // Telas que vivem sob a pasta "Vendas" — custos e cupons entram aqui conforme forem
+  // construídas, no mesmo esquema do ESTOQUE_SCREENS acima.
   var VENDAS_SCREENS = {
-    vendas: true, registrarVenda: true, encomendas: true, encomendaForm: true, encomendaDetalhe: true
+    vendas: true, registrarVenda: true, encomendas: true, encomendaForm: true, encomendaDetalhe: true,
+    historicoVendas: true
   };
   // Telas do módulo 13 (Controle de Clientes) — cadastro/lista, formulário e detalhe.
   var CLIENTES_SCREENS = {
@@ -3013,7 +3092,7 @@
     "insumoMovimentarDock", "estoqueProducaoDock", "estoqueCalculadoraDock",
     "registroProducaoDock", "loteDetalheDock",
     "configuracoesDock", "vendasDock", "registrarVendaDock",
-    "encomendasDock", "encomendaFormDock", "encomendaDetalheDock",
+    "encomendasDock", "encomendaFormDock", "encomendaDetalheDock", "historicoVendasDock",
     "clientesDock", "clienteFormDock", "clienteDetalheDock",
     "contaDock", "ajudaDock"
   ];
@@ -3197,6 +3276,9 @@
 
     var gotoEncomendas = e.target.closest('[data-goto="encomendas"]');
     if (gotoEncomendas) { renderEncomendas(); showScreen("encomendas"); return; }
+
+    var gotoHistoricoVendas = e.target.closest('[data-goto="historicoVendas"]');
+    if (gotoHistoricoVendas) { renderHistoricoVendas(); showScreen("historicoVendas"); return; }
 
     var gotoEl = e.target.closest("[data-goto]");
     if (gotoEl) { showScreen(gotoEl.dataset.goto); return; }
@@ -3430,6 +3512,10 @@
     var encomendaExcluirBtn = e.target.closest('[data-action="encomenda-excluir"]');
     if (encomendaExcluirBtn) { excluirEncomenda(); return; }
 
+    // ---- Histórico de Vendas ----
+    var historicoPeriodoPill = e.target.closest('#historicoVendasPeriodoPills [data-hist-periodo]');
+    if (historicoPeriodoPill) { setHistoricoVendasPeriodo(historicoPeriodoPill.dataset.histPeriodo); return; }
+
     // ---- Backup dos dados ----
     var backupExportarBtn = e.target.closest('[data-action="backup-exportar"]');
     if (backupExportarBtn) { exportarBackup(); return; }
@@ -3445,6 +3531,7 @@
     if (e.target.id === "estoqueSearchInput") { renderEstoqueInsumosList(); return; }
     if (e.target.id === "movQtdEntrada" || e.target.id === "movPreco" || e.target.id === "movQtdSaida") { updateMovPreview(); return; }
     if (e.target.id === "clientesSearchInput") { renderClientesList(); return; }
+    if (e.target.id === "historicoVendasSearchInput") { setHistoricoVendasBusca(e.target.value); return; }
     if (e.target.id === "notifEmailInput") { setNotifContato("email", e.target.value.trim()); return; }
     if (e.target.id === "notifWhatsappInput") { setNotifContato("whatsapp", e.target.value.trim()); return; }
     if (e.target.id === "vendaClienteSearchInput") { renderVendaClienteList(e.target.value); return; }
@@ -3495,6 +3582,7 @@
   renderClientesList();
   renderClientesRanking();
   renderEncomendas();
+  renderHistoricoVendas();
 
   // ================================================================
   checkAuthAndInit();

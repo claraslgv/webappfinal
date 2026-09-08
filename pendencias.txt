@@ -158,11 +158,31 @@ ESTRUTURA GERAL DO APP — pendências importantes
   conta, backup/exportação de dados ou ajuda — vale pensar no que entra
   ali antes de qualquer implementação.
 
-- As pastas "Vendas" (histórico, controle de custos, cupons) e o card
-  "relatório completo" do dashboard ainda são só atalhos que abrem um
-  toast "em breve" (procure "em breve" no index.html pra ver a lista
-  completa) — nenhuma dessas telas tem desenho ainda. "Registrar Venda"
-  e "Encomendas" já saíram desse grupo, ver módulos 14 e 15 abaixo.
+- As pastas "Controle de Custos" e "Cupons" e o card "relatório completo"
+  do dashboard ainda são só atalhos que abrem um toast "em breve"
+  (procure "em breve" no index.html pra ver a lista completa) — nenhuma
+  dessas telas tem desenho ainda. "Registrar Venda", "Encomendas" e
+  "Histórico de Vendas" já saíram desse grupo, ver módulos 14, 15 e 16.
+
+- [RESOLVIDO em 08/09/2026] Histórico de Vendas: pasta "Vendas →
+  Histórico de Vendas" deixou de ser um toast "em breve" e virou uma
+  tela de verdade — lista somente-leitura de toda venda já registrada
+  (tanto pelas de Registrar Venda quanto pelas Encomendas entregues),
+  sem tela de detalhe própria (não fazia parte do pedido). Busca por
+  cliente ou variação (um só campo, comparando os dois) + pills de
+  período (7 dias / 30 dias / tudo, default "tudo" — local a esta tela,
+  não mexe no seletor de período do Dashboard) + par de indicadores
+  "vendido" / "confirmadas" que recalcula pro filtro ativo. Cada linha
+  mostra cliente, itens, data, forma de pagamento, cupom aplicado (se
+  teve) e "via encomenda" (se veio de uma entrega), com badge
+  confirmada/cancelada. Reaproveita os mesmos padrões visuais de
+  Encomendas/Clientes (raised-sm, pressed.field.row de busca, pills,
+  badge good/warn) — nenhum CSS novo. Ver app.js: "Histórico de Vendas
+  — módulo 16"; index.html: data-screen="historicoVendas". NÃO testado
+  no app real rodando nem com harness de screenshot (node/npx ausentes
+  nesta sessão) — vale abrir Vendas → Histórico de Vendas na próxima
+  vez pra conferir visualmente e testar a busca/filtro de período com
+  dados de verdade.
 
 - [RESOLVIDO em 08/09/2026] Ícones do card "resumo de hoje" no dashboard
   sem contraste: usuária gostou dos ícones (produção/insumos/vendas) mas
@@ -392,8 +412,8 @@ REFERÊNCIAS NO CÓDIGO
 - index.html: card "notificar por" — buscar por "notificar por"
 - Supabase: projeto ponto-paragrafo (id vmqpvlcckcfixsryvfdn),
   Edge Function "enviar-aviso", tabela "estado" (ainda não usada pelo app)
-- index.html: pastas "em breve" de Vendas — buscar por
-  data-action="toast-em-breve"
+- index.html: pastas "em breve" de Vendas (Controle de Custos, Cupons) —
+  buscar por data-action="toast-em-breve"
 - index.html: tela "mais" — buscar por data-screen="mais"
 - app.js: leitura/cálculo de vendas sem tela de cadastro — buscar por
   "defaultVendasState"
@@ -406,3 +426,5 @@ REFERÊNCIAS NO CÓDIGO
   por "perdaDerretimento"
 - app.js: fluxo de Encomendas (criar/editar, avançar status, conversão
   em venda ao entregar) — buscar por "Encomendas — módulo 15"
+- app.js: lista de Histórico de Vendas (busca, filtro de período,
+  indicadores) — buscar por "Histórico de Vendas — módulo 16"
