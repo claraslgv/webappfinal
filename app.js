@@ -866,6 +866,133 @@
   }
 
   // ================================================================
+  // Relatório completo — módulo 19. Único atalho de Vendas que ainda faltava desenhar
+  // (era um toast "em breve" no Dashboard). Escopo combinado com a usuária: só
+  // detalhamento de vendas do MESMO período do Dashboard (periodoState/isInPeriodo, sem
+  // seletor de período próprio) — vendido por variação, por forma de pagamento e cupons
+  // usados. Não duplica dado nenhum: os 3 agrupamentos leem vendasState.vendas na hora,
+  // igual ao resto do app faz com o período. As mesmas vendas confirmadas do período que
+  // alimentam "total de vendas"/"receita real" do Dashboard.
+  // ================================================================
+  function relatorioVendasConfirmadasPeriodo(){
+    return vendasState.vendas.filter(function(v){ return v.status === "confirmada" && isInPeriodo(v.data); });
+  }
+  // Agrupado bruto (quantidade × preço de tabela do item), mesma base "antes de cupons"
+  // que computeTotalVendasBruto já usa pro card do Dashboard — cupom é desconto no pedido
+  // inteiro, não em item específico, então não dá pra ratear por variação com precisão.
+  function computeRelatorioPorVariacao(){
+    var map = {};
+    relatorioVendasConfirmadasPeriodo().forEach(function(v){
+      v.itens.forEach(function(it){
+        if (!map[it.variacaoId]) map[it.variacaoId] = { variacaoId: it.variacaoId, quantidade: 0, valor: 0 };
+        map[it.variacaoId].quantidade += it.quantidade;
+        map[it.variacaoId].valor += it.quantidade * it.precoUnit;
+      });
+    });
+    return Object.keys(map).map(function(k){ return map[k]; }).sort(function(a, b){ return b.valor - a.valor; });
+  }
+  function computeRelatorioPorFormaPagamento(){
+    var map = {};
+    relatorioVendasConfirmadasPeriodo().forEach(function(v){
+      var key = v.formaPagamento || "pix";
+      if (!map[key]) map[key] = { forma: key, qtd: 0, valor: 0 };
+      map[key].qtd += 1;
+      map[key].valor += v.total;
+    });
+    return Object.keys(map).map(function(k){ return map[k]; }).sort(function(a, b){ return b.valor - a.valor; });
+  }
+  function computeRelatorioCupons(){
+    var map = {};
+    relatorioVendasConfirmadasPeriodo().forEach(function(v){
+      if (!v.cupomCodigo) return;
+      if (!map[v.cupomCodigo]) map[v.cupomCodigo] = { codigo: v.cupomCodigo, usos: 0, desconto: 0 };
+      map[v.cupomCodigo].usos += 1;
+      map[v.cupomCodigo].desconto += (v.cupomDesconto || 0);
+    });
+    return Object.keys(map).map(function(k){ return map[k]; }).sort(function(a, b){ return b.desconto - a.desconto; });
+  }
+  // Barra de proporção reaproveita só tokens existentes (--line/--primary), sem CSS novo —
+  // mesmo espírito das outras telas de Vendas. pct já vem pronto (0-100).
+  function relatorioBarraHTML(pct){
+    return '<div style="height:5px;border-radius:3px;background:var(--line);margin-top:7px;overflow:hidden;">' +
+      '<div style="height:100%;border-radius:3px;background:var(--primary);width:' + Math.max(0, Math.min(100, pct)) + '%;"></div>' +
+    '</div>';
+  }
+  function relatorioVariacaoRowHTML(item, totalValor, last){
+    var pct = totalValor > 0 ? Math.round((item.valor / totalValor) * 100) : 0;
+    return '' +
+      '<div style="padding:11px 0;' + (last ? "" : "border-bottom:1px solid var(--line);") + '">' +
+        '<div class="between">' +
+          '<div style="font-size:13.5px;font-weight:500;">' + escapeHtml(variacaoLabel(findVariacao(item.variacaoId))) + '</div>' +
+          '<div style="text-align:right;">' +
+            '<div style="font-size:13.5px;font-weight:700;">' + fmtMoney(item.valor) + '</div>' +
+            '<div style="font-size:11px;color:var(--text-faint);margin-top:2px;">' + item.quantidade + (item.quantidade === 1 ? " vela" : " velas") + '</div>' +
+          '</div>' +
+        '</div>' +
+        relatorioBarraHTML(pct) +
+      '</div>';
+  }
+  function relatorioFormaPagamentoRowHTML(item, totalValor, last){
+    var pct = totalValor > 0 ? Math.round((item.valor / totalValor) * 100) : 0;
+    return '' +
+      '<div style="padding:11px 0;' + (last ? "" : "border-bottom:1px solid var(--line);") + '">' +
+        '<div class="between">' +
+          '<div style="font-size:13.5px;font-weight:500;">' + formaPagamentoLabel(item.forma) + '</div>' +
+          '<div style="text-align:right;">' +
+            '<div style="font-size:13.5px;font-weight:700;">' + fmtMoney(item.valor) + '</div>' +
+            '<div style="font-size:11px;color:var(--text-faint);margin-top:2px;">' + item.qtd + (item.qtd === 1 ? " venda" : " vendas") + '</div>' +
+          '</div>' +
+        '</div>' +
+        relatorioBarraHTML(pct) +
+      '</div>';
+  }
+  function relatorioCupomRowHTML(item, last){
+    return '' +
+      '<div class="between" style="padding:11px 0;' + (last ? "" : "border-bottom:1px solid var(--line);") + '">' +
+        '<div>' +
+          '<div style="font-size:13.5px;font-weight:600;">' + escapeHtml(item.codigo) + '</div>' +
+          '<div style="font-size:11px;color:var(--text-faint);margin-top:2px;">' + item.usos + (item.usos === 1 ? " uso" : " usos") + '</div>' +
+        '</div>' +
+        '<div style="font-size:13.5px;font-weight:700;color:var(--warn);">− ' + fmtMoney(item.desconto) + '</div>' +
+      '</div>';
+  }
+  function renderRelatorioCompleto(){
+    setText("relatorioPeriodoLabel", periodoLabelText());
+
+    var porVariacao = computeRelatorioPorVariacao();
+    var totalVariacaoValor = porVariacao.reduce(function(s, x){ return s + x.valor; }, 0);
+    var variacaoListEl = document.getElementById("relatorioVariacaoList");
+    if (variacaoListEl) {
+      variacaoListEl.innerHTML = porVariacao.length ? porVariacao.map(function(item, i){
+        return relatorioVariacaoRowHTML(item, totalVariacaoValor, i === porVariacao.length - 1);
+      }).join("") : emptyStateHTML({
+        icon: ICON_VENDAS, title: "nenhuma venda no período", sub: "ajuste o período no Dashboard ou registre uma venda."
+      });
+    }
+
+    var porForma = computeRelatorioPorFormaPagamento();
+    var totalFormaValor = porForma.reduce(function(s, x){ return s + x.valor; }, 0);
+    var formaListEl = document.getElementById("relatorioFormaPagamentoList");
+    if (formaListEl) {
+      formaListEl.innerHTML = porForma.length ? porForma.map(function(item, i){
+        return relatorioFormaPagamentoRowHTML(item, totalFormaValor, i === porForma.length - 1);
+      }).join("") : emptyStateHTML({
+        icon: ICON_VENDAS, title: "nenhuma venda no período", sub: "ajuste o período no Dashboard ou registre uma venda."
+      });
+    }
+
+    var cupons = computeRelatorioCupons();
+    var cuponsListEl = document.getElementById("relatorioCuponsList");
+    if (cuponsListEl) {
+      cuponsListEl.innerHTML = cupons.length ? cupons.map(function(item, i){
+        return relatorioCupomRowHTML(item, i === cupons.length - 1);
+      }).join("") : emptyStateHTML({
+        icon: ICON_VENDAS, title: "nenhum cupom usado", sub: "vendas com cupom aplicado no período aparecem aqui."
+      });
+    }
+  }
+
+  // ================================================================
   // Controle de clientes — módulo 13
   // Cadastro simples (nome, telefone, e-mail e endereço opcionais) com ID gerado sozinho
   // (uid("cl"), igual ao resto do app — nunca é a pessoa quem define). Histórico de
@@ -3356,7 +3483,7 @@
     "registroProducaoDock", "loteDetalheDock",
     "configuracoesDock", "vendasDock", "registrarVendaDock",
     "encomendasDock", "encomendaFormDock", "encomendaDetalheDock", "historicoVendasDock",
-    "cuponsDock", "cupomFormDock", "controleCustosDock",
+    "cuponsDock", "cupomFormDock", "controleCustosDock", "relatorioCompletoDock",
     "clientesDock", "clienteFormDock", "clienteDetalheDock",
     "contaDock", "ajudaDock"
   ];
@@ -3549,6 +3676,9 @@
 
     var gotoCupons = e.target.closest('[data-goto="cupons"]');
     if (gotoCupons) { renderCupons(); showScreen("cupons"); return; }
+
+    var gotoRelatorioCompleto = e.target.closest('[data-goto="relatorioCompleto"]');
+    if (gotoRelatorioCompleto) { renderRelatorioCompleto(); showScreen("relatorioCompleto"); return; }
 
     var gotoEl = e.target.closest("[data-goto]");
     if (gotoEl) { showScreen(gotoEl.dataset.goto); return; }
