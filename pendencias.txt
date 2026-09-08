@@ -230,7 +230,22 @@ ESTRUTURA GERAL DO APP — pendências importantes
   celular e funcionar offline — hoje é só uma página comum aberta no
   navegador.
 
-- Adicionar calendário no dashboard.
+- [RESOLVIDO em 08/09/2026] Adicionar calendário no dashboard: tira dos 7 dias no hero
+  (#dashSemanaStrip) agora é tocável e abre a tela "calendário" (novo data-screen), com
+  mês completo (grade dom-sáb, setas pra mês anterior/próximo), dia de hoje contornado,
+  dia selecionado preenchido sólido (mesmo princípio do .pill.active — cor sólida = estado
+  ativo) e uma bolinha embaixo dos dias que têm venda confirmada. Ao tocar em qualquer dia,
+  aparece embaixo o "recap do dia" (produção/insumos/vendas), mesma conta do card "resumo
+  de hoje" do dashboard, só que pra qualquer data — a linha de vendas ali soma quantas
+  velas foram vendidas naquele dia, não só quantas vendas. Abre sempre no mês corrente com
+  hoje pré-selecionado, então já mostra um recap antes de qualquer toque. Testado com
+  harness estático usando o style.css real (Chrome headless, screenshots, setembro 2026)
+  em claro e escuro — grade, dia de hoje, dia selecionado e bolinhas de venda todos
+  legíveis nos dois temas; NÃO testado dentro do app real rodando (fluxo de login local
+  ficou de fora desta sessão) — vale confirmar clicando em "ver calendário" a partir do
+  hero na próxima vez que abrir. Ver index.html: data-screen="calendario",
+  #dashSemanaStrip; app.js: abrirCalendario/renderCalendarioGrid/renderCalendarioRecap/
+  computeResumoDia; style.css: .cal-monthname/.cal-grid/.cal-day.
 
 ===========================================
 FEEDBACK NOVO (04/09/2026) — cores brancas/creme, quer marrom

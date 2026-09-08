@@ -208,7 +208,8 @@
             <div id="dashAvisosBadge" class="avisos-badge" hidden>0</div>
           </div>
         </div>
-        <div class="dash-hero-week" id="dashSemanaStrip"></div>
+        <div class="dash-hero-week dash-tap" id="dashSemanaStrip" role="button" tabindex="0"
+          data-action="go-calendario" aria-label="Ver calendário do mês e o recap de qualquer dia"></div>
       </div>
       <div class="content">
 
@@ -383,6 +384,63 @@
         </div>
       </div>
       <div class="dock" id="reposicaoDock" role="navigation" aria-label="Navegação principal"></div>
+    </div>
+
+    <!-- ---------- Calendário: aberto tocando a tira de dias do hero do dashboard. Mês
+         completo, navegação entre meses, toque num dia mostra o recap daquele dia (mesma
+         conta do card "resumo de hoje", pra qualquer data). ---------- -->
+    <div class="screen" data-screen="calendario" hidden>
+      <div class="backrow">
+        <div class="iconbtn" role="button" tabindex="0" data-goto="dashboard" aria-label="Voltar ao início">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"
+            stroke-linejoin="round">
+            <path d="m15 6-6 6 6 6" />
+          </svg>
+        </div>
+        <div>
+          <div class="crumb">início</div>
+          <div class="pagetitle" style="font-size:19px;">calendário</div>
+        </div>
+      </div>
+      <div class="content">
+        <div class="skel-overlay" aria-hidden="true" hidden>
+          <div class="skel-block" style="height:38px;width:180px;border-radius:10px;margin:0 auto 22px;"></div>
+          <div class="skel-block" style="height:280px;"></div>
+          <div class="skel-block" style="height:140px;"></div>
+        </div>
+
+        <div class="cal-monthrow">
+          <div class="iconbtn" role="button" tabindex="0" data-action="calendario-prev" aria-label="Mês anterior">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m15 6-6 6 6 6" />
+            </svg>
+          </div>
+          <div class="cal-monthname" id="calendarioMesAno">—</div>
+          <div class="iconbtn" role="button" tabindex="0" data-action="calendario-next" aria-label="Próximo mês">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m9 6 6 6-6 6" />
+            </svg>
+          </div>
+        </div>
+
+        <div class="cal-weekdays">
+          <span>D</span><span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span>
+        </div>
+        <div class="cal-grid" id="calendarioGrid"></div>
+
+        <div class="raised card" style="margin-top:20px;">
+          <div class="between" style="margin-bottom:12px;">
+            <div class="label" style="margin:0;">recap do dia</div>
+            <div style="font-size:10.5px;color:var(--text-faint);" id="calendarioRecapData">—</div>
+          </div>
+          <div id="calendarioRecapList"></div>
+        </div>
+
+        <div class="reveal-footer" aria-hidden="true">
+          <span class="reveal-footer-mark">.parágrafo</span>
+        </div>
+      </div>
+      <div class="dock" id="calendarioDock" role="navigation" aria-label="Navegação principal"></div>
     </div>
 
     <!-- ---------- Estoque: hub com as 3 pastas (insumos / produção / calculadora) ---------- -->

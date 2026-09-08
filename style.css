@@ -694,13 +694,33 @@ a{color:var(--primary);}
 .dash-hero-greetrow{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:10px 20px 0;}
 .dash-hero-greet{font-style:italic;font-size:27px;color:#F3E6CE;}
 .dash-hero-date{font-size:12.5px;color:rgba(243,230,206,.68);margin-top:4px;}
-.dash-hero-week{display:flex;justify-content:space-between;gap:5px;padding:22px 20px 2px;}
+/* Tappable: abre o calendário do mês (data-action="go-calendario" no HTML). */
+.dash-hero-week{display:flex;justify-content:space-between;gap:5px;padding:22px 20px 2px;cursor:pointer;}
 .dash-hero-day{flex:1;display:flex;flex-direction:column;align-items:center;gap:7px;padding:9px 2px;border-radius:16px;}
 .dash-hero-day-label{font-size:10px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;color:rgba(243,230,206,.5);}
 .dash-hero-day-num{font-size:14px;font-weight:700;color:#F3E6CE;}
 .dash-hero-day.is-today{background:#F3E6CE;}
 .dash-hero-day.is-today .dash-hero-day-label{color:rgba(116,48,20,.62);}
 .dash-hero-day.is-today .dash-hero-day-num{color:#743014;}
+
+/* Tela "calendário" (data-screen="calendario") — mês completo, aberto a partir da tira de
+   dias do hero. Nome do mês grande/em maiúsculas em --primary, eco discreto do estilo do
+   calendário de papel de parede usado como referência visual (mês em destaque + grade),
+   mas com o vocabulário de cor/sombra do resto do app em vez de vermelho/creme fixos. */
+.cal-monthrow{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.cal-monthname{font-size:25px;font-weight:800;letter-spacing:-.01em;text-transform:uppercase;color:var(--primary);}
+.cal-weekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:8px;}
+.cal-weekdays span{display:block;text-align:center;font-size:10.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text-faint);}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+.cal-day-empty{aspect-ratio:1;}
+.cal-day{aspect-ratio:1;border-radius:14px;border:1px solid transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:13.5px;font-weight:600;color:var(--text);cursor:pointer;transition:background-color .15s ease,color .15s ease,border-color .15s ease,transform .1s ease;}
+.cal-day:active{transform:scale(.92);}
+/* Dia de hoje (sem ser o selecionado): só o contorno, pra não competir com o preenchimento
+   sólido do dia selecionado — mesmo princípio do .pill.active (cor sólida = estado ativo). */
+.cal-day.is-today{border-color:var(--primary);color:var(--primary);}
+.cal-day.is-selected{background:var(--primary);color:var(--on-primary);border-color:var(--primary);box-shadow:var(--shadow-raised-xxs);}
+.cal-day-dot{width:4px;height:4px;border-radius:50%;background:var(--primary);}
+.cal-day.is-selected .cal-day-dot{background:var(--on-primary);}
 
 /* Card "resumo de hoje" — segundo bloco colorido (Toasted Caramel), mesmo tratamento do
    hero: fundo sólido + texto creme. */

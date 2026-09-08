@@ -2357,6 +2357,126 @@
     }
   }
 
+  // ================================================================
+  // Calendário do dashboard — aberto tocando a tira de dias do hero (pendência "adicionar
+  // calendário no dashboard"). Mês completo, navegação entre meses, toque num dia mostra o
+  // recap daquele dia. computeResumoDia() é a mesma conta de renderResumoHoje() acima, só
+  // que pra uma data qualquer em vez de travada em "hoje" — por isso a linha de vendas aqui
+  // também soma quantas velas (não só quantas vendas) saíram naquele dia.
+  // ================================================================
+  var calendarioState = { ano: 0, mes: 0, selecionadoISO: null };
+
+  function computeResumoDia(iso){
+    var lotesDia = lotesState.lotes.filter(function(l){ return l.data === iso; });
+    var qtdVelasProduzidas = lotesDia.reduce(function(s, l){ return s + l.quantidade; }, 0);
+    var producaoDetalhe = lotesDia.length
+      ? (lotesDia.length + (lotesDia.length === 1 ? " lote · " : " lotes · ") + qtdVelasProduzidas + " velas de " + variacaoLabel(findVariacao(lotesDia[0].variacaoId)))
+      : "nenhuma produção registrada";
+
+    var movsDia = estoqueState.movimentacoes.filter(function(m){ return m.data === iso; });
+    var insumosDetalhe = "nenhuma movimentação de insumo";
+    if (movsDia.length) {
+      var m0 = movsDia[0];
+      var insumo0 = findInsumo(m0.insumoId);
+      insumosDetalhe = (m0.tipo === "entrada" ? "entrada: " : "saída: ") + (insumo0 ? insumo0.nome : "insumo") + " " + (m0.tipo === "entrada" ? "+" : "-") + numToStr(m0.quantidade) + (insumo0 ? (" " + insumo0.unidade) : "");
+      if (movsDia.length > 1) insumosDetalhe += " · +" + (movsDia.length - 1);
+    }
+
+    var vendasDia = vendasState.vendas.filter(function(v){ return v.status === "confirmada" && v.data === iso; });
+    var totalVendasDia = vendasDia.reduce(function(s, v){ return s + v.total; }, 0);
+    var qtdVelasVendidas = vendasDia.reduce(function(s, v){
+      return s + v.itens.reduce(function(ss, it){ return ss + it.quantidade; }, 0);
+    }, 0);
+    var vendasDetalhe = vendasDia.length
+      ? (vendasDia.length + (vendasDia.length === 1 ? " venda · " : " vendas · ") + qtdVelasVendidas + (qtdVelasVendidas === 1 ? " vela · " : " velas · ") + fmtMoney(totalVendasDia))
+      : "nenhuma venda";
+
+    return { producaoDetalhe: producaoDetalhe, insumosDetalhe: insumosDetalhe, vendasDetalhe: vendasDetalhe };
+  }
+
+  function mesChaveISO(ano, mes){ return ano + "-" + String(mes + 1).padStart(2, "0"); }
+
+  function renderCalendarioGrid(){
+    var gridEl = document.getElementById("calendarioGrid");
+    if (!gridEl) return;
+    var ano = calendarioState.ano, mes = calendarioState.mes;
+    setText("calendarioMesAno", MESES_LONGOS[mes] + " " + ano);
+
+    var chaveMs = mesChaveISO(ano, mes);
+    var diasComVenda = {};
+    vendasState.vendas.forEach(function(v){
+      if (v.status === "confirmada" && v.data && v.data.slice(0, 7) === chaveMs) diasComVenda[v.data] = true;
+    });
+
+    var hojeISO = todayISO();
+    var primeiroDiaSemana = new Date(ano, mes, 1).getDay();
+    var totalDias = new Date(ano, mes + 1, 0).getDate();
+    var html = "";
+    for (var i = 0; i < primeiroDiaSemana; i++) html += '<div class="cal-day-empty" aria-hidden="true"></div>';
+    for (var d = 1; d <= totalDias; d++) {
+      var iso = chaveMs + "-" + String(d).padStart(2, "0");
+      var cls = "cal-day" + (iso === hojeISO ? " is-today" : "") + (iso === calendarioState.selecionadoISO ? " is-selected" : "");
+      html += '<div class="' + cls + '" role="button" tabindex="0" data-dia="' + iso + '" aria-label="' + d + ' de ' + MESES_LONGOS[mes] + ', ' + (diasComVenda[iso] ? "com venda registrada" : "sem venda registrada") + '">' +
+          '<span>' + d + '</span>' +
+          (diasComVenda[iso] ? '<span class="cal-day-dot" aria-hidden="true"></span>' : '') +
+        '</div>';
+    }
+    gridEl.innerHTML = html;
+  }
+
+  function renderCalendarioRecap(){
+    var listEl = document.getElementById("calendarioRecapList");
+    if (!listEl) return;
+    var iso = calendarioState.selecionadoISO;
+    if (!iso) {
+      setText("calendarioRecapData", "—");
+      listEl.innerHTML = emptyStateHTML({
+        icon: ICON_VENDAS,
+        title: "toque num dia",
+        sub: "escolha uma data no calendário acima pra ver o recap dela."
+      });
+      return;
+    }
+    var diaSemana = DIAS_SEMANA[new Date(iso + "T00:00:00").getDay()].slice(0, 3);
+    setText("calendarioRecapData", diaSemana + ", " + formatDateBR(iso).replace(/ \d{4}$/, ""));
+    var r = computeResumoDia(iso);
+    listEl.innerHTML = [
+      resumoRowHTML(ICON_PRODUCAO, "produção", r.producaoDetalhe, false),
+      resumoRowHTML(ICON_INSUMOS, "insumos", r.insumosDetalhe, false),
+      resumoRowHTML(ICON_VENDAS, "vendas", r.vendasDetalhe, true)
+    ].join("");
+  }
+
+  function selecionarDiaCalendario(iso){
+    calendarioState.selecionadoISO = iso;
+    renderCalendarioGrid();
+    renderCalendarioRecap();
+  }
+
+  function mudarMesCalendario(delta){
+    var d = new Date(calendarioState.ano, calendarioState.mes + delta, 1);
+    calendarioState.ano = d.getFullYear();
+    calendarioState.mes = d.getMonth();
+    // Se o dia selecionado não pertence mais ao mês visível, some com a seleção (e o recap
+    // volta ao estado vazio) em vez de mostrar o recap de um dia que não está mais na tela.
+    if (calendarioState.selecionadoISO && calendarioState.selecionadoISO.slice(0, 7) !== mesChaveISO(calendarioState.ano, calendarioState.mes)) {
+      calendarioState.selecionadoISO = null;
+    }
+    renderCalendarioGrid();
+    renderCalendarioRecap();
+  }
+
+  // Abre sempre no mês corrente com hoje pré-selecionado, pra já entrar mostrando o mesmo
+  // recap do card "resumo de hoje" do dashboard antes de qualquer toque.
+  function abrirCalendario(){
+    var hoje = new Date();
+    calendarioState.ano = hoje.getFullYear();
+    calendarioState.mes = hoje.getMonth();
+    calendarioState.selecionadoISO = todayISO();
+    renderCalendarioGrid();
+    renderCalendarioRecap();
+  }
+
   function renderPeriodoResumo(){
     setText("dashTotalVendas", fmtMoney(computeTotalVendasBruto()));
     setText("dashReceitaReal", fmtMoney(computeReceitaReal()));
@@ -2518,7 +2638,7 @@
     clientes: true, clienteForm: true, clienteDetalhe: true
   };
   var ALL_DOCK_IDS = [
-    "dashDock", "reposicaoDock", "maisDock",
+    "dashDock", "reposicaoDock", "calendarioDock", "maisDock",
     "estoqueDock", "estoqueInsumosDock", "insumoFormDock", "insumoDetalheDock",
     "insumoMovimentarDock", "estoqueProducaoDock", "estoqueCalculadoraDock",
     "registroProducaoDock", "loteDetalheDock",
@@ -2709,6 +2829,18 @@
 
     var goReposicao = e.target.closest('[data-action="go-reposicao"]');
     if (goReposicao) { renderReposicaoPanel(); showScreen("reposicao"); return; }
+
+    var goCalendario = e.target.closest('[data-action="go-calendario"]');
+    if (goCalendario) { abrirCalendario(); showScreen("calendario"); return; }
+
+    var calPrev = e.target.closest('[data-action="calendario-prev"]');
+    if (calPrev) { mudarMesCalendario(-1); return; }
+
+    var calNext = e.target.closest('[data-action="calendario-next"]');
+    if (calNext) { mudarMesCalendario(1); return; }
+
+    var calDia = e.target.closest('#calendarioGrid [data-dia]');
+    if (calDia) { selecionarDiaCalendario(calDia.dataset.dia); return; }
 
     var notifCanalPill = e.target.closest("#notifCanalPills [data-canal]");
     if (notifCanalPill) { toggleNotifCanal(notifCanalPill.dataset.canal); return; }
