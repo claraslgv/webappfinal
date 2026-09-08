@@ -713,10 +713,16 @@ a{color:var(--primary);}
 .cal-weekdays span{display:block;text-align:center;font-size:10.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text-faint);}
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
 .cal-day-empty{aspect-ratio:1;}
-.cal-day{aspect-ratio:1;border-radius:14px;border:1px solid transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:13.5px;font-weight:600;color:var(--text);cursor:pointer;transition:background-color .15s ease,color .15s ease,border-color .15s ease,transform .1s ease;}
+/* Borda de cada dia: var(--line), o mesmo contorno sutil que .raised/.pressed/.pill/.field
+   já usam no resto do app — no tema escuro (padrão da marca) ele já É um creme translúcido
+   (--primary vira E8D1A7 no escuro, --line é esse tom em baixa opacidade), então cada dia
+   ganha um chip arredondado creme sem precisar de uma cor nova só pra isto. Pedido: dar mais
+   definição à grade (antes só hoje/selecionado tinham contorno, o resto eram números soltos). */
+.cal-day{aspect-ratio:1;border-radius:14px;border:1px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:13.5px;font-weight:600;color:var(--text);cursor:pointer;transition:background-color .15s ease,color .15s ease,border-color .15s ease,transform .1s ease;}
 .cal-day:active{transform:scale(.92);}
-/* Dia de hoje (sem ser o selecionado): só o contorno, pra não competir com o preenchimento
-   sólido do dia selecionado — mesmo princípio do .pill.active (cor sólida = estado ativo). */
+/* Dia de hoje (sem ser o selecionado): contorno cheio em --primary (mais forte que o --line
+   dos demais dias), pra não competir com o preenchimento sólido do dia selecionado — mesmo
+   princípio do .pill.active (cor sólida = estado ativo). */
 .cal-day.is-today{border-color:var(--primary);color:var(--primary);}
 .cal-day.is-selected{background:var(--primary);color:var(--on-primary);border-color:var(--primary);box-shadow:var(--shadow-raised-xxs);}
 .cal-day-dot{width:4px;height:4px;border-radius:50%;background:var(--primary);}
