@@ -41,6 +41,10 @@
     // DOM) toda vez que a tela muda, então nunca fica com o item ativo desatualizado.
     refreshAllDocks(name);
 
+    // Sincroniza com a Nuvemshop sempre que a tela de Clientes é aberta (dock, setas de
+    // voltar, qualquer chamada a showScreen("clientes")) — ver módulo 13.
+    if (name === "clientes") syncClientesFromNuvemshop();
+
     var target = document.querySelector('.screen[data-screen="' + name + '"]');
     if (!target) return;
     var current = document.querySelector(".screen:not([hidden])");
@@ -488,6 +492,9 @@
     if (frame) frame.hidden = false;
     showScreen("dashboard");
     renderDashboard();
+    // Boot cai em "dashboard", não em "clientes" — sincroniza aqui pra já entrar
+    // atualizada mesmo sem a usuária abrir a tela de Clientes nessa sessão.
+    syncClientesFromNuvemshop();
   }
 
   // Gradiente de boas-vindas (mesh de blobs, ver #welcomeGradient em index.html/style.css) —
@@ -1191,6 +1198,53 @@
   function findCliente(id){
     for (var i = 0; i < clientesState.clientes.length; i++) if (clientesState.clientes[i].id === id) return clientesState.clientes[i];
     return null;
+  }
+
+  // ================================================================
+  // Sincronização com a Nuvemshop — cliente que se cadastra na loja online entra sozinho
+  // aqui via webhook (customer/created), sem passo manual. O webhook grava do lado do
+  // servidor (Supabase); esta função só puxa o que é novo desde a última vez, usando um
+  // cursor ISO (pp_clientes_sync_v1) — igual a ideia de ultimoAvisoData no módulo de
+  // notificações, só que aqui o cursor é "o que já vi" em vez de "o que já mandei".
+  // Dedup por nuvemshopId (undefined pra clientes cadastrados manualmente aqui no app).
+  // Best-effort e silenciosa, mesmo estilo de enviarAvisoServidor: sem retry, sem
+  // timeout, falha de rede não aparece pra usuária — só tenta de novo na próxima vez que
+  // a tela de Clientes abrir.
+  // ================================================================
+  var CLIENTES_SYNC_KEY = "pp_clientes_sync_v1";
+  var NUVEMSHOP_LISTAR_URL = SUPABASE_URL + "/functions/v1/listar-clientes-nuvemshop";
+  function loadClientesSyncCursor(){
+    try { return localStorage.getItem(CLIENTES_SYNC_KEY) || "1970-01-01T00:00:00Z"; } catch (e) { return "1970-01-01T00:00:00Z"; }
+  }
+  function saveClientesSyncCursor(iso){
+    try { localStorage.setItem(CLIENTES_SYNC_KEY, iso); } catch (e) {}
+  }
+  function syncClientesFromNuvemshop(){
+    if (!sessaoState.logado || !sessaoState.accessToken) return;
+    var since = loadClientesSyncCursor();
+    fetch(NUVEMSHOP_LISTAR_URL + "?since=" + encodeURIComponent(since), { headers: supaHeaders(true) })
+      .then(function(resp){ return resp.ok ? resp.json() : []; })
+      .then(function(rows){
+        if (!Array.isArray(rows) || !rows.length) return;
+        var vistos = {};
+        clientesState.clientes.forEach(function(c){ if (c.nuvemshopId) vistos[c.nuvemshopId] = true; });
+        var cursor = since, mudou = false;
+        rows.forEach(function(r){
+          if (!vistos[r.nuvemshop_customer_id]) {
+            clientesState.clientes.push({
+              id: uid("cl"), nome: r.nome || "(sem nome)", telefone: r.telefone || "",
+              email: r.email || "", endereco: r.endereco || "", criadoEm: todayISO(),
+              nuvemshopId: r.nuvemshop_customer_id
+            });
+            vistos[r.nuvemshop_customer_id] = true;
+            mudou = true;
+          }
+          if (r.recebido_em > cursor) cursor = r.recebido_em;
+        });
+        if (mudou) { saveClientesState(); renderClientesList(); renderClientesRanking(); }
+        saveClientesSyncCursor(cursor);
+      })
+      .catch(function(){});
   }
 
   // Liga as vendas de exemplo (seed de vendasState, ver módulo 11 acima) aos clientes de

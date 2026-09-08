@@ -476,26 +476,61 @@ ESTRUTURA GERAL DO APP — pendências importantes
   módulo 9", "Sincronização entre aparelhos — módulo 20"; index.html:
   data-screen="conta" (bloco "sincronização entre aparelhos").
 
-- Integração com a Nuvemshop (site oficial da loja): pergunta em aberto
-  da usuária — quando um cliente se cadastra no site (Nuvemshop), dá pra
-  isso cair automaticamente no webapp? Hoje NÃO existe nenhuma
-  integração com a Nuvemshop no código (conferido: nenhuma menção a
-  "nuvemshop" em app.js/index.html). Falta decidir qual dos dois
-  cenários é o que a usuária quer, porque mudam bastante o tamanho do
-  trabalho:
-    1. O cliente da loja aparece sozinho na lista de Clientes do webapp
-       (módulo 13) — via webhook da Nuvemshop (customer/created ou
-       order/created) chamando um endpoint que grava o cliente.
-    2. Login automático: o cliente se cadastra na Nuvemshop e já entra
-       logado no webapp (SSO/magic link).
-  Nos dois casos existe o mesmo bloqueio: o webapp ainda não tem contas
-  nem dados em servidor — hoje é tudo local por navegador (ver
-  "Sincronização entre dispositivos" acima e a "Conta local" no módulo 9
-  de app.js); o único uso de backend real hoje é o Supabase pra disparar
-  os avisos de reposição, sem relação com cadastro de cliente ou login.
-  Uma integração de verdade com a Nuvemshop precisa vir junto com essa
-  migração pra backend (ex.: Supabase Auth + tabela de clientes), que
-  ainda não foi implementada.
+- [EM ANDAMENTO desde 08/09/2026] Integração com a Nuvemshop (site oficial
+  da loja): decidido o Cenário 1 — cliente que se cadastra na loja online
+  cai sozinho na lista de Clientes do webapp (módulo 13), via webhook
+  (customer/created). Cenário 2 (login automático/SSO) fica como projeto
+  futuro separado, porque exigiria reformular toda a autenticação do app.
+  Isso deixou de esbarrar no bloqueio antigo ("webapp não tem contas nem
+  dados em servidor") porque a sincronização entre aparelhos (acima) já
+  trouxe Supabase Auth de verdade pro app.
+
+  O QUE JÁ FOI FEITO (lado do código):
+  - Projeto Supabase ponto-paragrafo: duas tabelas novas,
+    nuvemshop_config (guarda o access_token da loja, só server-side) e
+    clientes_nuvemshop (clientes recebidos via webhook, com cursor
+    recebido_em) — RLS ligado, sem nenhuma policy (só as Edge Functions,
+    via service_role, tocam nessas tabelas; o frontend nunca lê direto).
+  - Três Edge Functions novas, publicadas e testadas (smoke test manual —
+    ver abaixo o que falta pra teste ponta a ponta real):
+      nuvemshop-oauth-callback — troca o "code" do OAuth por access_token
+        e já registra sozinha o webhook de customer/created.
+      nuvemshop-webhook — recebe o webhook, verifica a assinatura HMAC
+        (header x-linkedstore-hmac-sha256) antes de confiar em qualquer
+        coisa, busca o cliente completo na API da Nuvemshop e grava em
+        clientes_nuvemshop.
+      listar-clientes-nuvemshop — o webapp consulta essa função (não a
+        tabela direto) pra puxar só os clientes novos desde o último
+        cursor salvo em localStorage (pp_clientes_sync_v1). Publicada com
+        verify_jwt=true, e ainda confirma por conta própria (chamando
+        /auth/v1/user) que quem chamou é uma sessão de usuário de
+        verdade — a anon key sozinha não basta, porque é um JWT válido
+        pro projeto mesmo sem ninguém logado.
+  - app.js módulo 13: syncClientesFromNuvemshop() (perto de
+    loadClientesState()/findCliente) mescla os clientes novos em
+    clientesState.clientes, dedup por nuvemshopId (undefined pra
+    clientes cadastrados manualmente). Disparada ao abrir a tela de
+    Clientes (dentro de showScreen) e uma vez no boot (dentro de
+    enterApp). Estilo best-effort/silencioso, igual
+    enviarAvisoServidor: sem retry, sem timeout, falha de rede não
+    aparece pra usuária.
+
+  O QUE FALTA (passos manuais, fora do código — ver histórico do chat
+  pra instruções completas):
+  1. No Nuvemshop Partners: registrar a redirect URI (aponta pra
+     nuvemshop-oauth-callback) e confirmar o escopo read_customers.
+  2. No Supabase Dashboard → Edge Functions → Secrets: cadastrar
+     NUVEMSHOP_CLIENT_ID e NUVEMSHOP_CLIENT_SECRET.
+  3. Confirmar se a loja usa api.nuvemshop.com.br ou api.tiendanube.com
+     (hoje fixado como .com.br nas duas funções que chamam a API da
+     Nuvemshop — ajustar se a loja não for BR).
+  4. Visitar uma vez o link de autorização da Nuvemshop (com o app_id do
+     Partners) pra completar o OAuth — isso salva o token e registra o
+     webhook sozinho.
+  5. Criar um cliente de teste na loja pra confirmar que ele aparece em
+     Clientes no webapp sem nenhuma ação manual.
+  Sem esses 5 passos, o código fica publicado mas inerte (as funções
+  respondem erro de configuração até os secrets existirem).
 
 - [RESOLVIDO em 08/09/2026, de quebra] Segurança da senha da conta:
   antes a senha ficava em texto puro no localStorage (pp_conta_v1),
