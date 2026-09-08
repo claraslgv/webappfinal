@@ -158,11 +158,11 @@ ESTRUTURA GERAL DO APP — pendências importantes
   conta, backup/exportação de dados ou ajuda — vale pensar no que entra
   ali antes de qualquer implementação.
 
-- As pastas "Vendas" (registrar venda, encomendas, histórico, controle
-  de custos, cupons) e o card "relatório completo" do dashboard ainda
-  são só atalhos que abrem um toast "em breve" (procure "em breve" no
-  index.html pra ver a lista completa) — nenhuma dessas telas tem
-  desenho ainda.
+- As pastas "Vendas" (histórico, controle de custos, cupons) e o card
+  "relatório completo" do dashboard ainda são só atalhos que abrem um
+  toast "em breve" (procure "em breve" no index.html pra ver a lista
+  completa) — nenhuma dessas telas tem desenho ainda. "Registrar Venda"
+  e "Encomendas" já saíram desse grupo, ver módulos 14 e 15 abaixo.
 
 - [RESOLVIDO em 08/09/2026] Ícones do card "resumo de hoje" no dashboard
   sem contraste: usuária gostou dos ícones (produção/insumos/vendas) mas
@@ -202,6 +202,39 @@ ESTRUTURA GERAL DO APP — pendências importantes
   Registrar Venda → cliente avulso → item → forma de pagamento →
   confirmar), toast "venda de R$ 158,00 registrada.", zero erros de
   console. Commitado (39b0720).
+
+- [RESOLVIDO em 08/09/2026] Encomendas: pasta "Vendas → Encomendas"
+  deixou de ser um toast "em breve" e virou 3 telas de verdade (lista,
+  novo/editar, detalhe). Fluxo pendente → em produção → entregue: criar
+  uma encomenda (cliente ou avulso, itens por variação, entrega
+  prevista opcional, observações opcionais) NÃO mexe em estoque — é só
+  uma promessa de venda futura; avançar pra "em produção" só muda o
+  status (com um lote existente da Produção vinculável, opcional);
+  avançar pra "entregue" é que gera a venda de verdade — revalida o
+  estoque de velas prontas na hora (bloqueia com toast se não tiver o
+  suficiente, sem deixar converter estoque negativo), debita
+  producaoEstoqueState e grava em vendasState.vendas com
+  origemEncomendaId apontando de volta pra a encomenda (campo que já
+  existia, sem uso, desde o módulo de vendas) — dashboard, ranking de
+  clientes e histórico já contam a entrega sozinhos, sem tela extra.
+  Lista com filtro por status (todas/pendente/em produção/entregue),
+  cada linha mostra cliente, itens, entrega prevista e total; forma de
+  pagamento só é perguntada na hora de marcar como entregue (pill
+  Pix/Cartão/Dinheiro), já que na criação da encomenda ainda não houve
+  pagamento. Reaproveita os mesmos padrões visuais de Registrar
+  Venda/Clientes (raised-sm, badge good/warn/primary, pills, picker de
+  cliente) — nenhum CSS novo. Ver app.js: "Encomendas — módulo 15";
+  index.html: data-screen="encomendas" / "encomendaForm" /
+  "encomendaDetalhe". Testado ponta a ponta com Playwright/Chromium
+  headless em claro e escuro (a troca de tema do app ignora
+  prefers-color-scheme do navegador — tem toggle próprio em pp_tema_v1,
+  default "claro" — o teste força o toggle da tela "mais" pra cobrir o
+  escuro de verdade): lista com as 3 encomendas de exemplo, filtro por
+  status, criar uma encomenda nova (contador 3→4), tentar entregar uma
+  encomenda com item sem estoque suficiente (bloqueado com toast, status
+  não muda) e o ciclo completo pendente→em produção→entregue de outra
+  (vira venda, nota "já virou uma venda confirmada" aparece). Zero erros
+  de console nas duas rodadas.
 
 - [RESOLVIDO em 04/09/2026] Backup / exportação dos dados: cartão
   "backup dos dados" na tela "mais" — "exportar backup (.json)" baixa
@@ -263,10 +296,15 @@ FEEDBACK NOVO (04/09/2026) — cores brancas/creme, quer marrom
   fazer o efeito neumórfico (relevo/pressed) sumir ou ficar estranho.
   Antes de mexer, decidir com a usuária: (1) qual marrom (ex.: --primary
   #442D1C, ou um novo tom), (2) se é modo claro que ela está vendo (no
-  escuro, que é o padrão do app, esses elementos já saem marrom), e
-  (3) o escopo — só seta de voltar + busca, ou todo elemento que hoje
-  usa var(--bg) como superfície (isso inclui vários .iconbtn de "+"
-  espalhados pelo app, não só o de voltar).
+  escuro esses elementos já saem marrom) — [CORRIGIDO em 08/09/2026:
+  quando essa nota foi escrita o padrão do app era escuro, mas em algum
+  commit depois disso o padrão de quem abre o app pela 1ª vez mudou pra
+  claro (ver app.js: loadTema(), comentário "Padrão agora é claro"); a
+  maioria de quem relatar esse problema provavelmente está no claro por
+  padrão, não por ter trocado manualmente], e (3) o escopo — só seta de
+  voltar + busca, ou todo elemento que hoje usa var(--bg) como
+  superfície (isso inclui vários .iconbtn de "+" espalhados pelo app,
+  não só o de voltar).
 
 - Percentual "perda X% inclusa" na calculadora de velas (e na
   calculadora de lucro): usuária não entendeu o objetivo — já
@@ -301,3 +339,7 @@ REFERÊNCIAS NO CÓDIGO
   (todos usam background:var(--bg))
 - app.js: perda de derretimento (o "% inclusa" da calculadora) — buscar
   por "perdaDerretimento"
+- app.js: fluxo de Encomendas (criar/editar, avançar status, conversão
+  em venda ao entregar) — buscar por "Encomendas — módulo 15"
+- app.js: tema padrão do app (claro, não mais escuro) — buscar por
+  "loadTema"

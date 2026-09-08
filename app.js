@@ -697,7 +697,20 @@
           formaPagamento: "cartao", data: offsetISO(-20), subtotal: 158, cupomCodigo: null, cupomDesconto: 0, total: 158,
           status: "confirmada", origemEncomendaId: null }
       ],
-      encomendas: []
+      encomendas: [
+        { id: "enc1", clienteId: null, clienteNome: "Bianca Ferreira",
+          itens: [{ variacaoId: "v1", quantidade: 6, precoUnit: 79 }],
+          dataPrevista: offsetISO(9), observacoes: "presente de aniversário — embrulhar", status: "pendente",
+          loteId: null, dataCriacao: offsetISO(-1), vendaId: null },
+        { id: "enc2", clienteId: null, clienteNome: "Marina Duarte",
+          itens: [{ variacaoId: "v2", quantidade: 4, precoUnit: 79 }, { variacaoId: "v3", quantidade: 2, precoUnit: 79 }],
+          dataPrevista: offsetISO(3), observacoes: "", status: "producao",
+          loteId: "l2", dataCriacao: offsetISO(-4), vendaId: null },
+        { id: "enc3", clienteId: null, clienteNome: "Cliente avulso",
+          itens: [{ variacaoId: "v1", quantidade: 3, precoUnit: 79 }],
+          dataPrevista: offsetISO(-2), observacoes: "", status: "entregue",
+          loteId: "l1", dataCriacao: offsetISO(-10), vendaId: null }
+      ]
     };
   }
   function loadVendasState(){
@@ -1247,6 +1260,384 @@
     renderDashboard();
     checarNotificacaoAutomatica();
     showScreen("vendas");
+  }
+
+  // ================================================================
+  // Encomendas — módulo 15. Fluxo pendente → em produção → entregue. Criar uma encomenda
+  // não mexe em estoque (é uma promessa de venda futura, não debita nada ainda); avançar
+  // pra "em produção" só marca o status (com um lote existente vinculado, opcional);
+  // avançar pra "entregue" é que de fato gera uma venda real — debita o estoque de velas
+  // prontas (mesma lógica do submitVenda acima) e grava em vendasState.vendas com
+  // origemEncomendaId apontando de volta pra esta encomenda, então dashboard/ranking de
+  // clientes/histórico já contam a entrega sozinhos, sem tela extra.
+  // ================================================================
+  var encomendaFormState = null;
+  var encomendaFormModo = "novo"; // "novo" | "editar"
+  var currentEncomendaId = null;
+  var encomendasFiltroStatus = "todas";
+  var encomendaEntregaForma = "pix";
+
+  function findEncomenda(id){ return vendasState.encomendas.filter(function(e){ return e.id === id; })[0]; }
+
+  function encomendaStatusLabel(status){
+    if (status === "producao") return "em produção";
+    if (status === "entregue") return "entregue";
+    return "pendente";
+  }
+  function encomendaStatusBadgeClass(status){
+    if (status === "producao") return "primary";
+    if (status === "entregue") return "good";
+    return "warn";
+  }
+  function computeEncomendaTotal(itens){
+    return round2(itens.reduce(function(sum, it){ return sum + it.quantidade * it.precoUnit; }, 0));
+  }
+  function encomendaItensResumo(itens){
+    return itens.map(function(it){ return it.quantidade + "× " + variacaoLabel(findVariacao(it.variacaoId)); }).join(", ");
+  }
+
+  // ---- Lista ----
+  function encomendasFiltradas(){
+    var arr = vendasState.encomendas.slice().sort(function(a, b){ return a.dataCriacao < b.dataCriacao ? 1 : -1; });
+    if (encomendasFiltroStatus === "todas") return arr;
+    return arr.filter(function(e){ return e.status === encomendasFiltroStatus; });
+  }
+  function encomendaRowHTML(enc){
+    return '' +
+      '<div class="raised-sm" role="button" tabindex="0" aria-label="Ver encomenda de ' + escapeHtml(enc.clienteNome) + '" data-encomenda-id="' + enc.id + '" style="padding:14px 16px;margin-bottom:11px;">' +
+        '<div class="between" style="margin-bottom:6px;">' +
+          '<div style="font-size:14px;font-weight:600;">' + escapeHtml(enc.clienteNome) + '</div>' +
+          '<span class="badge ' + encomendaStatusBadgeClass(enc.status) + '">' + encomendaStatusLabel(enc.status) + '</span>' +
+        '</div>' +
+        '<div style="font-size:12px;color:var(--text-faint);margin-bottom:4px;">' + escapeHtml(encomendaItensResumo(enc.itens)) + '</div>' +
+        '<div class="between">' +
+          '<div style="font-size:11px;color:var(--text-faint);">' + (enc.dataPrevista ? "entrega prevista " + formatDateBR(enc.dataPrevista) : "sem data prevista") + '</div>' +
+          '<div style="font-size:13px;font-weight:700;">' + fmtMoney(computeEncomendaTotal(enc.itens)) + '</div>' +
+        '</div>' +
+      '</div>';
+  }
+  function renderEncomendas(){
+    var itens = encomendasFiltradas();
+    var listEl = document.getElementById("encomendasList");
+    if (listEl) {
+      listEl.innerHTML = itens.length ? itens.map(encomendaRowHTML).join("") : emptyStateHTML({
+        icon: ICON_VENDAS,
+        title: encomendasFiltroStatus === "todas" ? "nenhuma encomenda ainda" : "nenhuma encomenda " + encomendaStatusLabel(encomendasFiltroStatus),
+        sub: encomendasFiltroStatus === "todas" ? 'toque no "+" acima pra registrar a primeira.' : "mude o filtro acima pra ver as outras."
+      });
+    }
+    var n = vendasState.encomendas.length;
+    setText("encomendasCount", n + (n === 1 ? " encomenda" : " encomendas"));
+    document.querySelectorAll('#encomendasFiltroPills [data-status]').forEach(function(p){ p.classList.toggle("active", p.dataset.status === encomendasFiltroStatus); });
+  }
+  function setEncomendasFiltro(status){ encomendasFiltroStatus = status; renderEncomendas(); }
+
+  // ---- Formulário (novo / editar) ----
+  function defaultEncomendaFormState(){
+    return {
+      clienteId: null, clienteNome: "Cliente avulso", itens: [],
+      variacaoId: catalogoState.variacoes.length ? catalogoState.variacoes[0].id : null,
+      quantidade: 1, dataPrevista: "", observacoes: ""
+    };
+  }
+  function openEncomendaForm(modo, id){
+    encomendaFormModo = modo;
+    if (modo === "editar" && id) {
+      var enc = findEncomenda(id);
+      if (!enc) return;
+      currentEncomendaId = id;
+      encomendaFormState = {
+        clienteId: enc.clienteId, clienteNome: enc.clienteNome,
+        itens: enc.itens.map(function(it){ return { variacaoId: it.variacaoId, quantidade: it.quantidade, precoUnit: it.precoUnit }; }),
+        variacaoId: catalogoState.variacoes.length ? catalogoState.variacoes[0].id : null,
+        quantidade: 1, dataPrevista: enc.dataPrevista || "", observacoes: enc.observacoes || ""
+      };
+      setText("encomendaFormTitle", "editar encomenda");
+      setHidden("encomendaFormRemoveWrap", false);
+    } else {
+      currentEncomendaId = null;
+      encomendaFormState = defaultEncomendaFormState();
+      setText("encomendaFormTitle", "nova encomenda");
+      setHidden("encomendaFormRemoveWrap", true);
+    }
+    setHidden("encomendaClientePicker", true);
+    var searchEl = document.getElementById("encomendaClienteSearchInput");
+    if (searchEl) searchEl.value = "";
+    var dataEl = document.getElementById("encomendaFormDataPrevista");
+    if (dataEl) dataEl.value = encomendaFormState.dataPrevista || "";
+    var obsEl = document.getElementById("encomendaFormObs");
+    if (obsEl) obsEl.value = encomendaFormState.observacoes || "";
+    renderEncomendaForm();
+  }
+  function encomendaVarPillHTML(v){
+    var active = v.id === encomendaFormState.variacaoId ? " active" : "";
+    return '<div class="pill' + active + '" style="flex:none;" data-enc-var-id="' + v.id + '">' + escapeHtml(variacaoLabel(v)) + '</div>';
+  }
+  function encomendaItemRowHTML(item, idx){
+    var v = findVariacao(item.variacaoId);
+    return '' +
+      '<div class="raised-sm between" style="padding:13px 16px;margin-bottom:10px;">' +
+        '<div style="flex:1;min-width:0;">' +
+          '<div style="font-size:13.5px;font-weight:600;">' + escapeHtml(variacaoLabel(v)) + '</div>' +
+          '<div style="font-size:11.5px;color:var(--text-faint);margin-top:2px;">' + item.quantidade + ' × ' + fmtMoney(item.precoUnit) + '</div>' +
+        '</div>' +
+        '<div class="row" style="gap:12px;">' +
+          '<div style="font-size:13.5px;font-weight:700;">' + fmtMoney(round2(item.quantidade * item.precoUnit)) + '</div>' +
+          '<div class="tapicon" role="button" tabindex="0" aria-label="Remover item · ' + escapeHtml(variacaoLabel(v)) + '" data-action="encomenda-item-remove" data-idx="' + idx + '" style="width:30px;height:30px;">' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+  }
+  function renderEncomendaForm(){
+    if (!encomendaFormState) return;
+    setText("encomendaClienteLabel", encomendaFormState.clienteNome);
+    var pillsEl = document.getElementById("encomendaVarPills");
+    if (pillsEl) {
+      pillsEl.innerHTML = catalogoState.variacoes.length ? catalogoState.variacoes.map(encomendaVarPillHTML).join("") : emptyStateHTML({
+        icon: ICON_VENDAS, title: "nenhuma variação no catálogo", sub: "cadastre uma variação no Catálogo de Produtos primeiro."
+      });
+    }
+    setText("encomendaQtdValue", String(encomendaFormState.quantidade));
+    var itensEl = document.getElementById("encomendaItensList");
+    if (itensEl) itensEl.innerHTML = encomendaFormState.itens.map(encomendaItemRowHTML).join("");
+    setHidden("encomendaItensEmpty", encomendaFormState.itens.length > 0);
+    setText("encomendaFormTotal", fmtMoney(computeEncomendaTotal(encomendaFormState.itens)));
+    var submitBtn = document.getElementById("encomendaFormSaveBtn");
+    if (submitBtn) submitBtn.disabled = encomendaFormState.itens.length === 0;
+  }
+  function encomendaClienteToggle(){
+    var picker = document.getElementById("encomendaClientePicker");
+    if (!picker) return;
+    var opening = picker.hidden;
+    picker.hidden = !opening;
+    if (opening) {
+      var searchEl = document.getElementById("encomendaClienteSearchInput");
+      if (searchEl) { searchEl.value = ""; searchEl.focus(); }
+      renderEncomendaClienteList("");
+    }
+  }
+  function encomendaClienteRowHTML(c){
+    return '<div class="raised-sm" role="button" tabindex="0" data-encomenda-cliente-id="' + c.id + '" style="padding:12px 14px;margin-bottom:9px;">' +
+        '<div style="font-size:13.5px;font-weight:600;">' + escapeHtml(c.nome) + '</div>' +
+        '<div style="font-size:11.5px;color:var(--text-faint);margin-top:2px;">' + escapeHtml(c.telefone || "") + '</div>' +
+      '</div>';
+  }
+  function renderEncomendaClienteList(filtro){
+    var listEl = document.getElementById("encomendaClienteList");
+    if (!listEl) return;
+    var termo = (filtro || "").trim().toLowerCase();
+    var avulsoHTML = '<div class="raised-sm" role="button" tabindex="0" data-encomenda-cliente-id="avulso" style="padding:12px 14px;margin-bottom:9px;"><div style="font-size:13.5px;font-weight:600;">Cliente avulso</div></div>';
+    var itens = clientesState.clientes.filter(function(c){
+      return !termo || c.nome.toLowerCase().indexOf(termo) !== -1 || (c.telefone || "").indexOf(termo) !== -1;
+    });
+    listEl.innerHTML = avulsoHTML + itens.map(encomendaClienteRowHTML).join("");
+  }
+  function encomendaClienteSelecionar(id){
+    if (id === "avulso") {
+      encomendaFormState.clienteId = null; encomendaFormState.clienteNome = "Cliente avulso";
+    } else {
+      var c = findCliente(id);
+      if (!c) return;
+      encomendaFormState.clienteId = c.id; encomendaFormState.clienteNome = c.nome;
+    }
+    setHidden("encomendaClientePicker", true);
+    renderEncomendaForm();
+  }
+  function encomendaVarSelecionar(id){
+    encomendaFormState.variacaoId = id;
+    encomendaFormState.quantidade = 1;
+    renderEncomendaForm();
+  }
+  function encomendaQtdAjustar(delta){
+    encomendaFormState.quantidade = Math.max(1, encomendaFormState.quantidade + delta);
+    renderEncomendaForm();
+  }
+  function encomendaItemAdicionar(){
+    var v = findVariacao(encomendaFormState.variacaoId);
+    if (!v) { showToast("cadastre uma variação no catálogo antes de fazer uma encomenda."); return; }
+    var qtd = encomendaFormState.quantidade;
+    var existente = encomendaFormState.itens.filter(function(it){ return it.variacaoId === v.id; })[0];
+    if (existente) existente.quantidade += qtd;
+    else encomendaFormState.itens.push({ variacaoId: v.id, quantidade: qtd, precoUnit: v.precoVenda });
+    encomendaFormState.quantidade = 1;
+    renderEncomendaForm();
+  }
+  function encomendaItemRemover(idx){
+    encomendaFormState.itens.splice(idx, 1);
+    renderEncomendaForm();
+  }
+  function submitEncomendaForm(){
+    if (!encomendaFormState.itens.length) return;
+    var itensSalvos = encomendaFormState.itens.map(function(it){ return { variacaoId: it.variacaoId, quantidade: it.quantidade, precoUnit: it.precoUnit }; });
+    if (encomendaFormModo === "editar" && currentEncomendaId) {
+      var enc = findEncomenda(currentEncomendaId);
+      if (!enc) return;
+      enc.clienteId = encomendaFormState.clienteId;
+      enc.clienteNome = encomendaFormState.clienteNome;
+      enc.itens = itensSalvos;
+      enc.dataPrevista = encomendaFormState.dataPrevista || null;
+      enc.observacoes = encomendaFormState.observacoes || "";
+    } else {
+      vendasState.encomendas.push({
+        id: uid("enc"), clienteId: encomendaFormState.clienteId, clienteNome: encomendaFormState.clienteNome,
+        itens: itensSalvos, dataPrevista: encomendaFormState.dataPrevista || null,
+        observacoes: encomendaFormState.observacoes || "", status: "pendente", loteId: null,
+        dataCriacao: todayISO(), vendaId: null
+      });
+    }
+    saveVendasState();
+    showToast(encomendaFormModo === "editar" ? "encomenda atualizada." : "encomenda registrada.");
+    renderEncomendas();
+    showScreen("encomendas");
+  }
+  // ---- Detalhe / avanço de status ----
+  function openEncomendaDetalhe(id){
+    currentEncomendaId = id;
+    renderEncomendaDetalhe();
+    showScreen("encomendaDetalhe");
+  }
+  function encomendaProximoStatusLabel(status){
+    if (status === "pendente") return "iniciar produção";
+    if (status === "producao") return "marcar como entregue";
+    return null;
+  }
+  function encomendaLoteRowHTML(lote){
+    var v = findVariacao(lote.variacaoId);
+    return '<div class="raised-sm" role="button" tabindex="0" data-encomenda-lote-id="' + lote.id + '" style="padding:12px 14px;margin-bottom:9px;">' +
+        '<div style="font-size:13.5px;font-weight:600;">' + escapeHtml(variacaoLabel(v)) + '</div>' +
+        '<div style="font-size:11.5px;color:var(--text-faint);margin-top:2px;">' + formatDateBR(lote.data) + ' · ' + lote.quantidade + ' velas</div>' +
+      '</div>';
+  }
+  function renderEncomendaLoteList(){
+    var listEl = document.getElementById("encomendaLoteList");
+    if (!listEl) return;
+    var nenhumHTML = '<div class="raised-sm" role="button" tabindex="0" data-encomenda-lote-id="nenhum" style="padding:12px 14px;margin-bottom:9px;"><div style="font-size:13.5px;font-weight:600;">nenhum lote</div></div>';
+    listEl.innerHTML = nenhumHTML + lotesOrdenados().map(encomendaLoteRowHTML).join("");
+  }
+  function encomendaLoteToggle(){
+    var picker = document.getElementById("encomendaLotePicker");
+    if (!picker) return;
+    var opening = picker.hidden;
+    picker.hidden = !opening;
+    if (opening) renderEncomendaLoteList();
+  }
+  function encomendaLoteSelecionar(id){
+    var enc = findEncomenda(currentEncomendaId);
+    if (!enc) return;
+    enc.loteId = id === "nenhum" ? null : id;
+    saveVendasState();
+    setHidden("encomendaLotePicker", true);
+    renderEncomendaDetalhe();
+  }
+  function encomendaFormaEntregaSelecionar(forma){
+    encomendaEntregaForma = forma;
+    document.querySelectorAll('#encomendaFormaPills [data-forma]').forEach(function(p){ p.classList.toggle("active", p.dataset.forma === forma); });
+  }
+  function renderEncomendaDetalhe(){
+    var enc = findEncomenda(currentEncomendaId);
+    if (!enc) return;
+    setText("encomendaDetalheCliente", enc.clienteNome);
+    setText("encomendaDetalheData", enc.dataPrevista ? formatDateBR(enc.dataPrevista) : "sem data prevista");
+    setHidden("encomendaDetalheObsRow", !enc.observacoes);
+    setText("encomendaDetalheObs", enc.observacoes || "");
+
+    var badgeEl = document.getElementById("encomendaDetalheStatusBadge");
+    if (badgeEl) { badgeEl.className = "badge " + encomendaStatusBadgeClass(enc.status); badgeEl.textContent = encomendaStatusLabel(enc.status); }
+
+    var itensEl = document.getElementById("encomendaDetalheItensList");
+    if (itensEl) itensEl.innerHTML = enc.itens.map(function(it){
+      var v = findVariacao(it.variacaoId);
+      return '<div class="between" style="padding:10px 0;border-bottom:1px solid var(--line);">' +
+          '<span style="font-size:13px;color:var(--text-faint);">' + escapeHtml(variacaoLabel(v)) + ' × ' + it.quantidade + '</span>' +
+          '<span style="font-size:13.5px;font-weight:700;">' + fmtMoney(round2(it.quantidade * it.precoUnit)) + '</span>' +
+        '</div>';
+    }).join("");
+    setText("encomendaDetalheTotal", fmtMoney(computeEncomendaTotal(enc.itens)));
+
+    var lote = enc.loteId ? lotesState.lotes.filter(function(l){ return l.id === enc.loteId; })[0] : null;
+    setText("encomendaDetalheLoteLabel", lote ? (variacaoLabel(findVariacao(lote.variacaoId)) + " · " + formatDateBR(lote.data)) : "nenhum lote vinculado");
+    setHidden("encomendaDetalheLoteRow", enc.status === "entregue");
+    setHidden("encomendaLotePicker", true);
+
+    var mostrarForma = enc.status === "producao";
+    setHidden("encomendaFormaPagamentoWrap", !mostrarForma);
+    if (mostrarForma) {
+      encomendaEntregaForma = "pix";
+      document.querySelectorAll('#encomendaFormaPills [data-forma]').forEach(function(p){ p.classList.toggle("active", p.dataset.forma === "pix"); });
+    }
+
+    var proximoLabel = encomendaProximoStatusLabel(enc.status);
+    setHidden("encomendaAvancarBtn", !proximoLabel);
+    if (proximoLabel) setText("encomendaAvancarBtn", proximoLabel);
+    setHidden("encomendaConvertidaNota", enc.status !== "entregue");
+  }
+  function encomendaAvancarStatus(){
+    var enc = findEncomenda(currentEncomendaId);
+    if (!enc) return;
+
+    if (enc.status === "pendente") {
+      enc.status = "producao";
+      saveVendasState();
+      showToast("encomenda em produção.");
+      renderEncomendaDetalhe();
+      renderEncomendas();
+      return;
+    }
+
+    if (enc.status === "producao") {
+      // Revalida o estoque de velas prontas na hora de confirmar a entrega — pode ter
+      // mudado desde que a encomenda foi criada.
+      for (var i = 0; i < enc.itens.length; i++) {
+        var item = enc.itens[i];
+        var estoqueVela = findEstoqueVela(item.variacaoId);
+        var disponivel = estoqueVela ? estoqueVela.quantidade : 0;
+        if (item.quantidade > disponivel) {
+          showToast("estoque de " + variacaoLabel(findVariacao(item.variacaoId)) + " insuficiente — só há " + disponivel + " prontas agora.");
+          return;
+        }
+      }
+      var total = computeEncomendaTotal(enc.itens);
+      if (!window.confirm("Marcar como entregue? Isso registra uma venda de " + fmtMoney(total) + " e debita o estoque de velas prontas.")) return;
+
+      var today = todayISO();
+      var vendaId = uid("vd");
+      enc.itens.forEach(function(item){
+        var estoqueVela = findEstoqueVela(item.variacaoId);
+        estoqueVela.quantidade = round2(Math.max(0, estoqueVela.quantidade - item.quantidade));
+        producaoEstoqueState.movimentacoes.push({ id: uid("pm"), variacaoId: item.variacaoId, tipo: "saida", quantidade: item.quantidade, data: today, motivo: "Venda", vendaId: vendaId });
+      });
+      saveProducaoEstoqueState();
+
+      vendasState.vendas.push({
+        id: vendaId, clienteId: enc.clienteId, clienteNome: enc.clienteNome,
+        itens: enc.itens.map(function(it){ return { variacaoId: it.variacaoId, quantidade: it.quantidade, precoUnit: it.precoUnit, precoTabela: it.precoUnit }; }),
+        formaPagamento: encomendaEntregaForma, data: today, subtotal: total, cupomCodigo: null, cupomDesconto: 0, total: total,
+        status: "confirmada", origemEncomendaId: enc.id
+      });
+      enc.status = "entregue";
+      enc.vendaId = vendaId;
+      saveVendasState();
+
+      showToast("encomenda entregue — venda de " + fmtMoney(total) + " registrada.");
+      renderEncomendaDetalhe();
+      renderEncomendas();
+      renderEstoqueHub();
+      renderProducaoList();
+      renderClientesList();
+      renderClientesRanking();
+      renderDashboard();
+      checarNotificacaoAutomatica();
+    }
+  }
+  function excluirEncomenda(){
+    if (!currentEncomendaId) return;
+    if (!window.confirm("Excluir esta encomenda? Essa ação não pode ser desfeita.")) return;
+    vendasState.encomendas = vendasState.encomendas.filter(function(e){ return e.id !== currentEncomendaId; });
+    saveVendasState();
+    showToast("encomenda excluída.");
+    renderEncomendas();
+    showScreen("encomendas");
   }
 
   // ================================================================
@@ -2627,11 +3018,10 @@
   var MAIS_SCREENS = {
     mais: true, configuracoes: true, conta: true, ajuda: true
   };
-  // Telas que vivem sob a pasta "Vendas" — só a tela-hub por enquanto; as sub-telas
-  // (registrar venda, encomendas, histórico, custos, cupons) entram aqui conforme
+  // Telas que vivem sob a pasta "Vendas" — histórico, custos e cupons entram aqui conforme
   // forem construídas, no mesmo esquema do ESTOQUE_SCREENS acima.
   var VENDAS_SCREENS = {
-    vendas: true, registrarVenda: true
+    vendas: true, registrarVenda: true, encomendas: true, encomendaForm: true, encomendaDetalhe: true
   };
   // Telas do módulo 13 (Controle de Clientes) — cadastro/lista, formulário e detalhe.
   var CLIENTES_SCREENS = {
@@ -2643,6 +3033,7 @@
     "insumoMovimentarDock", "estoqueProducaoDock", "estoqueCalculadoraDock",
     "registroProducaoDock", "loteDetalheDock",
     "configuracoesDock", "vendasDock", "registrarVendaDock",
+    "encomendasDock", "encomendaFormDock", "encomendaDetalheDock",
     "clientesDock", "clienteFormDock", "clienteDetalheDock",
     "contaDock", "ajudaDock"
   ];
@@ -2824,6 +3215,9 @@
     var gotoRegistrarVenda = e.target.closest('[data-goto="registrarVenda"]');
     if (gotoRegistrarVenda) { openRegistrarVendaForm(); showScreen("registrarVenda"); return; }
 
+    var gotoEncomendas = e.target.closest('[data-goto="encomendas"]');
+    if (gotoEncomendas) { renderEncomendas(); showScreen("encomendas"); return; }
+
     var gotoEl = e.target.closest("[data-goto]");
     if (gotoEl) { showScreen(gotoEl.dataset.goto); return; }
 
@@ -3004,6 +3398,61 @@
     var vendaSubmitBtn = e.target.closest('[data-action="venda-submit"]');
     if (vendaSubmitBtn) { if (!vendaSubmitBtn.hasAttribute("disabled")) submitVenda(); return; }
 
+    // ---- Encomendas ----
+    var encomendaFiltroPill = e.target.closest('#encomendasFiltroPills [data-status]');
+    if (encomendaFiltroPill) { setEncomendasFiltro(encomendaFiltroPill.dataset.status); return; }
+
+    var encomendaAddBtn = e.target.closest('[data-action="encomenda-add"]');
+    if (encomendaAddBtn) { openEncomendaForm("novo"); showScreen("encomendaForm"); return; }
+
+    var encomendaRow = e.target.closest('[data-encomenda-id]');
+    if (encomendaRow) { openEncomendaDetalhe(encomendaRow.dataset.encomendaId); return; }
+
+    var encomendaDetalheEditBtn = e.target.closest('[data-action="encomenda-detalhe-edit"]');
+    if (encomendaDetalheEditBtn) { openEncomendaForm("editar", currentEncomendaId); showScreen("encomendaForm"); return; }
+
+    var encomendaClienteToggleBtn = e.target.closest('[data-action="encomenda-cliente-toggle"]');
+    if (encomendaClienteToggleBtn) { encomendaClienteToggle(); return; }
+
+    var encomendaClienteRow = e.target.closest('[data-encomenda-cliente-id]');
+    if (encomendaClienteRow) { encomendaClienteSelecionar(encomendaClienteRow.dataset.encomendaClienteId); return; }
+
+    var encomendaVarPill = e.target.closest('#encomendaVarPills [data-enc-var-id]');
+    if (encomendaVarPill) { encomendaVarSelecionar(encomendaVarPill.dataset.encVarId); return; }
+
+    var encomendaQtdIncBtn = e.target.closest('[data-action="encomenda-qtd-inc"]');
+    if (encomendaQtdIncBtn) { encomendaQtdAjustar(1); return; }
+
+    var encomendaQtdDecBtn = e.target.closest('[data-action="encomenda-qtd-dec"]');
+    if (encomendaQtdDecBtn) { encomendaQtdAjustar(-1); return; }
+
+    var encomendaItemAddBtn = e.target.closest('[data-action="encomenda-item-add"]');
+    if (encomendaItemAddBtn) { encomendaItemAdicionar(); return; }
+
+    var encomendaItemRemoveBtn = e.target.closest('[data-action="encomenda-item-remove"]');
+    if (encomendaItemRemoveBtn) { encomendaItemRemover(parseInt(encomendaItemRemoveBtn.dataset.idx, 10)); return; }
+
+    var encomendaFormSaveBtn = e.target.closest('[data-action="encomenda-form-save"]');
+    if (encomendaFormSaveBtn) { if (!encomendaFormSaveBtn.hasAttribute("disabled")) submitEncomendaForm(); return; }
+
+    var encomendaFormRemoveBtn = e.target.closest('[data-action="encomenda-form-remove"]');
+    if (encomendaFormRemoveBtn) { excluirEncomenda(); return; }
+
+    var encomendaLoteToggleBtn = e.target.closest('[data-action="encomenda-lote-toggle"]');
+    if (encomendaLoteToggleBtn) { encomendaLoteToggle(); return; }
+
+    var encomendaLoteRow = e.target.closest('[data-encomenda-lote-id]');
+    if (encomendaLoteRow) { encomendaLoteSelecionar(encomendaLoteRow.dataset.encomendaLoteId); return; }
+
+    var encomendaFormaPill = e.target.closest('#encomendaFormaPills [data-forma]');
+    if (encomendaFormaPill) { encomendaFormaEntregaSelecionar(encomendaFormaPill.dataset.forma); return; }
+
+    var encomendaAvancarBtn = e.target.closest('[data-action="encomenda-avancar-status"]');
+    if (encomendaAvancarBtn) { encomendaAvancarStatus(); return; }
+
+    var encomendaExcluirBtn = e.target.closest('[data-action="encomenda-excluir"]');
+    if (encomendaExcluirBtn) { excluirEncomenda(); return; }
+
     // ---- Backup dos dados ----
     var backupExportarBtn = e.target.closest('[data-action="backup-exportar"]');
     if (backupExportarBtn) { exportarBackup(); return; }
@@ -3022,6 +3471,9 @@
     if (e.target.id === "notifEmailInput") { setNotifContato("email", e.target.value.trim()); return; }
     if (e.target.id === "notifWhatsappInput") { setNotifContato("whatsapp", e.target.value.trim()); return; }
     if (e.target.id === "vendaClienteSearchInput") { renderVendaClienteList(e.target.value); return; }
+    if (e.target.id === "encomendaClienteSearchInput") { renderEncomendaClienteList(e.target.value); return; }
+    if (e.target.id === "encomendaFormDataPrevista") { encomendaFormState.dataPrevista = e.target.value || ""; return; }
+    if (e.target.id === "encomendaFormObs") { encomendaFormState.observacoes = e.target.value; return; }
   });
 
   document.addEventListener("change", function(e){
@@ -3065,6 +3517,7 @@
   renderNotifCanal();
   renderClientesList();
   renderClientesRanking();
+  renderEncomendas();
 
   // ================================================================
   checkAuthAndInit();

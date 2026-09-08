@@ -1289,8 +1289,7 @@
             </svg>
           </div>
 
-          <div class="folder-card" role="button" tabindex="0" data-action="toast-em-breve"
-            data-msg="em breve — encomendas ainda está sendo construído."
+          <div class="folder-card" role="button" tabindex="0" data-goto="encomendas"
             aria-label="Abrir Encomendas" style="background:#84592B;color:#F3E6CE;">
             <div style="flex:1;min-width:0;">
               <div class="folder-card-title">Encomendas</div>
@@ -1467,6 +1466,251 @@
           disabled>confirmar venda</button>
       </div>
       <div class="dock" id="registrarVendaDock" role="navigation" aria-label="Navegação principal"></div>
+    </div>
+
+    <!-- ---------- Encomendas — módulo 15 ---------- -->
+    <div class="screen" data-screen="encomendas" hidden>
+      <div class="backrow between">
+        <div class="row">
+          <div class="iconbtn" role="button" tabindex="0" data-goto="vendas" aria-label="Voltar a vendas">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path d="m15 6-6 6 6 6" />
+            </svg>
+          </div>
+          <div>
+            <div class="crumb">vendas</div>
+            <div class="pagetitle" style="font-size:19px;">encomendas</div>
+          </div>
+        </div>
+        <div class="iconbtn" role="button" tabindex="0" data-action="encomenda-add" aria-label="Nova encomenda">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+            <path d="M12 5v14M5 12h14" />
+          </svg>
+        </div>
+      </div>
+      <div class="content">
+        <div class="skel-overlay" aria-hidden="true" hidden>
+          <div class="skel-block" style="height:40px;"></div>
+          <div class="skel-block" style="height:80px;"></div>
+          <div class="skel-block" style="height:80px;"></div>
+        </div>
+
+        <div class="row" style="gap:9px;overflow-x:auto;margin-bottom:14px;padding-bottom:2px;" id="encomendasFiltroPills">
+          <div class="pill active" style="flex:none;" data-status="todas" role="button" tabindex="0" aria-pressed="true">todas</div>
+          <div class="pill" style="flex:none;" data-status="pendente" role="button" tabindex="0" aria-pressed="false">pendente</div>
+          <div class="pill" style="flex:none;" data-status="producao" role="button" tabindex="0" aria-pressed="false">em produção</div>
+          <div class="pill" style="flex:none;" data-status="entregue" role="button" tabindex="0" aria-pressed="false">entregue</div>
+        </div>
+
+        <div class="label" id="encomendasCount">encomendas</div>
+
+        <div id="encomendasList"></div>
+
+        <div class="reveal-footer" aria-hidden="true">
+          <span class="reveal-footer-mark">.parágrafo</span>
+        </div>
+      </div>
+      <div class="dock" id="encomendasDock" role="navigation" aria-label="Navegação principal"></div>
+    </div>
+
+    <!-- ---------- Nova / Editar Encomenda — módulo 15 ---------- -->
+    <div class="screen" data-screen="encomendaForm" hidden>
+      <div class="backrow">
+        <div class="iconbtn" role="button" tabindex="0" data-goto="encomendas" aria-label="Voltar a encomendas">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"
+            stroke-linejoin="round">
+            <path d="m15 6-6 6 6 6" />
+          </svg>
+        </div>
+        <div>
+          <div class="crumb">encomendas</div>
+          <div class="pagetitle" style="font-size:19px;" id="encomendaFormTitle">nova encomenda</div>
+        </div>
+      </div>
+      <div class="content">
+        <div class="skel-overlay" aria-hidden="true" hidden>
+          <div class="skel-block" style="height:56px;"></div>
+          <div class="skel-block" style="height:140px;"></div>
+          <div class="skel-block" style="height:90px;"></div>
+        </div>
+
+        <div class="label" style="margin: 2px 4px 8px;">cliente</div>
+        <div class="raised-sm between" role="button" tabindex="0" data-action="encomenda-cliente-toggle"
+          aria-label="Trocar cliente" style="padding:14px 16px;margin-bottom:16px;">
+          <div style="font-size:14.5px;font-weight:600;" id="encomendaClienteLabel">Cliente avulso</div>
+          <svg class="folder-card-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="m9 6 6 6-6 6" />
+          </svg>
+        </div>
+
+        <div id="encomendaClientePicker" hidden style="margin-bottom:16px;">
+          <div class="pressed field">
+            <div class="label">buscar cliente</div>
+            <input type="text" id="encomendaClienteSearchInput" placeholder="nome ou telefone" />
+          </div>
+          <div id="encomendaClienteList"></div>
+        </div>
+
+        <div class="label" style="margin: 2px 4px 8px;">variação</div>
+        <div style="display:flex;gap:9px;overflow-x:auto;margin-bottom:14px;padding-bottom:2px;" id="encomendaVarPills">
+        </div>
+
+        <div class="raised-sm between" style="padding:14px 16px;margin-bottom:14px;">
+          <div class="label" style="margin:0;">quantidade</div>
+          <div class="row" style="gap:12px;">
+            <div class="pressed" role="button" tabindex="0" aria-label="Diminuir quantidade" data-action="encomenda-qtd-dec"
+              style="width:34px;height:34px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--text);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+                <path d="M5 12h14" />
+              </svg>
+            </div>
+            <div style="font-size:18px;font-weight:700;min-width:26px;text-align:center;" id="encomendaQtdValue">1</div>
+            <div class="raised-sm" role="button" tabindex="0" aria-label="Aumentar quantidade" data-action="encomenda-qtd-inc"
+              style="width:34px;height:34px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--card-text);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+                <path d="M12 5v14M5 12h14" />
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn btn-ghost" data-action="encomenda-item-add" style="width:100%;margin-bottom:22px;">adicionar
+          à encomenda</button>
+
+        <div class="label" style="margin: 2px 4px 8px;">itens da encomenda</div>
+        <div id="encomendaItensList"></div>
+        <div class="emptystate" id="encomendaItensEmpty">
+          <div class="emptystate-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 8h12l1 12H5L6 8z" />
+              <path d="M9 8V6a3 3 0 0 1 6 0v2" />
+            </svg></div>
+          <div class="emptystate-title">nenhum item ainda</div>
+          <div class="emptystate-sub">escolha uma variação e a quantidade acima, depois toque em "adicionar à
+            encomenda".</div>
+        </div>
+
+        <div class="pressed field" style="margin-top:22px;">
+          <div class="label">entrega prevista (opcional)</div>
+          <input type="date" id="encomendaFormDataPrevista" />
+        </div>
+
+        <div class="pressed field">
+          <div class="label">observações (opcional)</div>
+          <input type="text" id="encomendaFormObs" placeholder="ex.: embrulho pra presente" />
+        </div>
+
+        <div class="raised-sm between" style="padding:16px;margin:8px 0 16px;">
+          <div style="font-size:14px;font-weight:700;">total</div>
+          <div style="font-size:20px;font-weight:800;" id="encomendaFormTotal">R$ 0,00</div>
+        </div>
+
+        <button class="btn btn-primary" id="encomendaFormSaveBtn" data-action="encomenda-form-save" style="width:100%;margin-bottom:12px;"
+          disabled>salvar encomenda</button>
+        <div style="text-align:center;" id="encomendaFormRemoveWrap" hidden>
+          <button class="btn btn-text" data-action="encomenda-form-remove" style="color:var(--warn);">Excluir encomenda</button>
+        </div>
+      </div>
+      <div class="dock" id="encomendaFormDock" role="navigation" aria-label="Navegação principal"></div>
+    </div>
+
+    <!-- ---------- Detalhe da Encomenda — módulo 15 ---------- -->
+    <div class="screen" data-screen="encomendaDetalhe" hidden>
+      <div class="backrow between">
+        <div class="row">
+          <div class="iconbtn" role="button" tabindex="0" data-goto="encomendas" aria-label="Voltar a encomendas">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path d="m15 6-6 6 6 6" />
+            </svg>
+          </div>
+          <div>
+            <div class="crumb">encomendas</div>
+            <div class="pagetitle" style="font-size:19px;" id="encomendaDetalheCliente">—</div>
+          </div>
+        </div>
+        <div class="tapicon" role="button" tabindex="0" aria-label="Editar encomenda" data-action="encomenda-detalhe-edit"
+          style="width:40px;height:40px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 20h9" />
+            <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z" />
+          </svg></div>
+      </div>
+      <div class="content">
+        <div class="skel-overlay" aria-hidden="true" hidden>
+          <div class="skel-block" style="height:130px;"></div>
+          <div class="skel-block" style="height:64px;"></div>
+          <div class="skel-block" style="height:96px;"></div>
+        </div>
+
+        <div class="raised card">
+          <div class="between" style="padding:0 0 11px;border-bottom:1px solid var(--line);">
+            <span style="font-size:13px;color:var(--text-faint);">status</span>
+            <span class="badge warn" id="encomendaDetalheStatusBadge">pendente</span>
+          </div>
+          <div class="between" style="padding:11px 0;border-bottom:1px solid var(--line);">
+            <span style="font-size:13px;color:var(--text-faint);">entrega prevista</span>
+            <span style="font-size:13.5px;font-weight:600;color:var(--text-dim);" id="encomendaDetalheData">sem data prevista</span>
+          </div>
+          <div class="between" style="padding:11px 0 0;" id="encomendaDetalheObsRow" hidden>
+            <span style="font-size:13px;color:var(--text-faint);">observações</span>
+            <span style="font-size:13.5px;font-weight:600;color:var(--text-dim);text-align:right;max-width:60%;"
+              id="encomendaDetalheObs">—</span>
+          </div>
+        </div>
+
+        <div class="label" style="margin-top:16px;">itens</div>
+        <div class="raised card" id="encomendaDetalheItensCard">
+          <div id="encomendaDetalheItensList"></div>
+          <div class="between" style="padding:11px 0 0;margin-top:4px;">
+            <span style="font-size:13.5px;font-weight:700;">total</span>
+            <span style="font-size:15px;font-weight:800;" id="encomendaDetalheTotal">R$ 0,00</span>
+          </div>
+        </div>
+
+        <div id="encomendaDetalheLoteRow">
+          <div class="label" style="margin-top:16px;">lote vinculado (opcional)</div>
+          <div class="raised-sm between" role="button" tabindex="0" data-action="encomenda-lote-toggle"
+            aria-label="Vincular lote" style="padding:14px 16px;margin-bottom:8px;">
+            <div style="font-size:13.5px;font-weight:600;" id="encomendaDetalheLoteLabel">nenhum lote vinculado</div>
+            <svg class="folder-card-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="m9 6 6 6-6 6" />
+            </svg>
+          </div>
+          <div id="encomendaLotePicker" hidden style="margin-bottom:8px;">
+            <div id="encomendaLoteList"></div>
+          </div>
+        </div>
+
+        <div id="encomendaFormaPagamentoWrap" hidden>
+          <div class="label" style="margin-top:12px;">forma de pagamento na entrega</div>
+          <div class="row" style="gap:9px;margin-bottom:8px;" id="encomendaFormaPills">
+            <div class="pill active" style="flex:1;text-align:center;" data-forma="pix" role="button" tabindex="0"
+              aria-pressed="true">Pix</div>
+            <div class="pill" style="flex:1;text-align:center;" data-forma="cartao" role="button" tabindex="0"
+              aria-pressed="false">Cartão</div>
+            <div class="pill" style="flex:1;text-align:center;" data-forma="dinheiro" role="button" tabindex="0"
+              aria-pressed="false">Dinheiro</div>
+          </div>
+        </div>
+
+        <button class="btn btn-primary" id="encomendaAvancarBtn" data-action="encomenda-avancar-status"
+          style="width:100%;margin-top:14px;">iniciar produção</button>
+
+        <div style="font-size:11.5px;color:var(--good);line-height:1.5;text-align:center;margin-top:10px;" id="encomendaConvertidaNota" hidden>
+          entregue — já virou uma venda confirmada, contabilizada no histórico do cliente.</div>
+
+        <button class="btn btn-text" data-action="encomenda-excluir"
+          style="width:100%;margin-top:10px;color:var(--warn);">Excluir encomenda</button>
+
+        <div class="reveal-footer" aria-hidden="true">
+          <span class="reveal-footer-mark">.parágrafo</span>
+        </div>
+      </div>
+      <div class="dock" id="encomendaDetalheDock" role="navigation" aria-label="Navegação principal"></div>
     </div>
 
     <!-- ---------- Controle de Clientes — módulo 13 ---------- -->
