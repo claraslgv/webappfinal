@@ -185,26 +185,23 @@ ESTRUTURA GERAL DO APP — pendências importantes
 
 -- Funcionalidades --
 
-- [REGREDIU em 08/09/2026 — voltou a ser pendência] Cadastro de venda de
-  verdade: tela "Registrar Venda" (Vendas → Registrar Venda), descrita
-  como resolvida abaixo em 04/09, foi perdida numa sobrescrita acidental
-  de index.html nesta mesma sessão de hoje (arquivo virou só a palavra
-  "placeholder"). Recuperado via `git checkout HEAD` (commit 22dad9c),
-  mas esse commit é anterior à existência dessa tela — ela nunca tinha
-  sido commitada. O card "Registrar Venda" no hub de Vendas voltou a
-  abrir o toast "em breve". A lógica original (descrita abaixo) precisa
-  ser reimplementada do zero; o texto abaixo serve de referência do que
-  já tinha funcionado uma vez.
-
-  [descrição original, RESOLVIDO em 04/09/2026, hoje desfeita]
+- [RESOLVIDO em 04/09/2026; regrediu e foi reconstruído em 08/09/2026]
   Cadastro de venda de verdade: tela "Registrar Venda" (Vendas →
   Registrar Venda) implementada — cliente (ou avulso), itens por
   variação com estoque ao vivo, forma de pagamento, cupom opcional,
   resumo com desconto/total. Ao confirmar, debita producaoEstoqueState
   na hora e grava em vendasState de verdade; dashboard, ranking de
-  clientes e histórico já leem isso sozinhos. Testado ponta a ponta em
-  navegador real, sem bugs. Ver app.js: módulo "Registrar Venda —
-  módulo 14"; index.html: data-screen="registrarVenda".
+  clientes e histórico já leem isso sozinhos. Ver app.js: módulo
+  "Registrar Venda — módulo 14"; index.html: data-screen="registrarVenda".
+  Em 08/09/2026 essa tela foi perdida numa sobrescrita acidental de
+  index.html (virou só a palavra "placeholder") e o restore por git
+  trouxe um commit anterior à existência dela — reconstruída no mesmo
+  dia reaproveitando os IDs/data-actions que o app.js já esperava
+  (nenhuma lógica JS tinha sido perdida, só o HTML). Testado ponta a
+  ponta com Playwright/Chromium headless (criar conta → Vendas →
+  Registrar Venda → cliente avulso → item → forma de pagamento →
+  confirmar), toast "venda de R$ 158,00 registrada.", zero erros de
+  console. Commitado (39b0720).
 
 - [RESOLVIDO em 04/09/2026] Backup / exportação dos dados: cartão
   "backup dos dados" na tela "mais" — "exportar backup (.json)" baixa
