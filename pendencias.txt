@@ -252,6 +252,27 @@ ESTRUTURA GERAL DO APP — pendências importantes
   por exemplo), essa sincronização precisa ser implementada — ou a
   tabela removida, se não for mais o plano.
 
+- Integração com a Nuvemshop (site oficial da loja): pergunta em aberto
+  da usuária — quando um cliente se cadastra no site (Nuvemshop), dá pra
+  isso cair automaticamente no webapp? Hoje NÃO existe nenhuma
+  integração com a Nuvemshop no código (conferido: nenhuma menção a
+  "nuvemshop" em app.js/index.html). Falta decidir qual dos dois
+  cenários é o que a usuária quer, porque mudam bastante o tamanho do
+  trabalho:
+    1. O cliente da loja aparece sozinho na lista de Clientes do webapp
+       (módulo 13) — via webhook da Nuvemshop (customer/created ou
+       order/created) chamando um endpoint que grava o cliente.
+    2. Login automático: o cliente se cadastra na Nuvemshop e já entra
+       logado no webapp (SSO/magic link).
+  Nos dois casos existe o mesmo bloqueio: o webapp ainda não tem contas
+  nem dados em servidor — hoje é tudo local por navegador (ver
+  "Sincronização entre dispositivos" acima e a "Conta local" no módulo 9
+  de app.js); o único uso de backend real hoje é o Supabase pra disparar
+  os avisos de reposição, sem relação com cadastro de cliente ou login.
+  Uma integração de verdade com a Nuvemshop precisa vir junto com essa
+  migração pra backend (ex.: Supabase Auth + tabela de clientes), que
+  ainda não foi implementada.
+
 - Segurança da senha da conta: a senha da conta local fica salva em
   texto puro no localStorage (pp_conta_v1), legível por qualquer um com
   acesso ao navegador/devtools do aparelho. Mesmo sendo uma conta só
