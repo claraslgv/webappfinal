@@ -246,13 +246,22 @@
     };
   }
   // Supabase Auth devolve mensagens de erro em inglês, cruas — traduz as mais comuns pro
-  // tom do resto do app; o que não reconhece, mostra como veio (melhor que nada).
+  // tom do resto do app. Prioriza o campo error_code (estável, testado direto contra a API
+  // real desta sessão via curl — ver pendencias.txt) sobre casar texto em "msg" (o texto
+  // livre varia mais entre versões/idiomas do que o código). O que não reconhece nem por
+  // código nem por texto, mostra como veio (melhor que nada).
   function supaErroMsg(data){
+    var code = (data && data.error_code) || "";
+    if (code === "invalid_credentials") return "e-mail ou senha incorretos.";
+    if (code === "user_already_exists" || code === "email_exists") return "já existe uma conta com esse e-mail.";
+    if (code === "weak_password") return "a senha precisa ter pelo menos 6 caracteres.";
+    if (code === "email_address_invalid") return "esse e-mail não é válido.";
+    if (code === "over_email_send_rate_limit" || code === "over_request_rate_limit") return "muitas tentativas em pouco tempo — espera um minuto e tenta de novo.";
     var msg = (data && (data.error_description || data.msg || data.error)) || "";
     if (/invalid.*(credentials|login)/i.test(msg)) return "e-mail ou senha incorretos.";
     if (/already registered|already exists|user already/i.test(msg)) return "já existe uma conta com esse e-mail.";
     if (/password.*(least|short|weak)/i.test(msg)) return "a senha precisa ter pelo menos 6 caracteres.";
-    if (/rate limit/i.test(msg)) return "muitas tentativas — espera um minuto e tenta de novo.";
+    if (/rate limit|only request this after/i.test(msg)) return "muitas tentativas em pouco tempo — espera um minuto e tenta de novo.";
     return msg || "não consegui falar com o servidor — confira sua internet.";
   }
   // Aplica a resposta de login/criar conta/renovar sessão (todas devolvem o mesmo formato:
