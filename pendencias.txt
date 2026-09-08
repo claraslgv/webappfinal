@@ -337,12 +337,102 @@ ESTRUTURA GERAL DO APP — pendências importantes
   Testado ponta a ponta, sem bugs. Ver app.js: "Backup / exportação
   dos dados" (BACKUP_KEYS, exportarBackup, importarBackupFile).
 
-- Sincronização entre dispositivos: o projeto Supabase ponto-paragrafo
-  já tem uma tabela "estado" (jsonb por usuário) criada, mas nada no
-  app.js usa ela ainda — hoje o app funciona só num navegador por vez.
-  Se o plano é usar em mais de um aparelho (celular da loja + computador,
-  por exemplo), essa sincronização precisa ser implementada — ou a
-  tabela removida, se não for mais o plano.
+- [IMPLEMENTADO em 08/09/2026, PRECISA DE TESTE MANUAL COMPLETO ANTES DE
+  CONFIAR — ver lista no fim] Sincronização entre dispositivos. Decisões
+  tomadas com a usuária (3 perguntas): (1) login real via Supabase Auth
+  (e-mail+senha), substituindo a conta local fake de antes — mesmo
+  login em qualquer aparelho; (2) sincronização em "blob único" (sobe/
+  baixa tudo de uma vez, mesmo formato do backup .json), sem sync por
+  registro nem em tempo real; (3) aceitável exigir internet só pra
+  entrar/criar conta — o resto do app continua funcionando offline
+  depois de logado.
+
+  O QUE MUDOU:
+  - app.js módulo 9 ("Conta / sessão") inteiro reescrito: submitSignup/
+    submitLogin agora chamam a API REST do Supabase Auth direto (fetch,
+    sem SDK — mesmo padrão que a Edge Function de avisos já usava:
+    ver "Supabase — config compartilhada", SUPABASE_URL/
+    SUPABASE_ANON_KEY, reaproveitado pelo módulo de notificação
+    também, que antes tinha sua própria cópia da anon key).
+  - sessaoState agora guarda accessToken/refreshToken/expiresAt/userId
+    de verdade (Supabase), não um "logado:true" fake. checkAuthAndInit
+    tenta renovar o token sozinho (supaRefreshSessao) se tiver vencido
+    ao abrir o app; se a renovação falhar, volta pro login.
+  - contaState não guarda mais senha nenhuma (nem em texto puro, nem de
+    outro jeito) — resolve de quebra a pendência antiga da senha em
+    texto puro no localStorage, que não precisa mais existir como item
+    separado nesta lista.
+  - "trocar senha" (tela Conta) reautentica com a senha atual antes de
+    trocar (Supabase Auth não tem endpoint próprio de "confirma senha
+    atual" — reautenticar é o jeito recomendado pela documentação
+    deles). "esqueci a senha" (tela de login) agora dispara um e-mail
+    de recuperação de verdade via /auth/v1/recover — MAS a tela de
+    "definir nova senha" que o link do e-mail deveria abrir ainda NÃO
+    foi construída (ver "NÃO TESTADO" abaixo).
+  - E-mail da conta virou somente-leitura na tela Conta (mudar e-mail
+    exigiria um fluxo de confirmação por e-mail, fora do escopo desta
+    sessão — só nome é editável por lá agora).
+  - Sincronização de verdade (módulo 20, novo): buildEstadoDados/
+    aplicarEstadoDados (extraídos do módulo de Backup, que passou a
+    reusar as duas — mesma lista BACKUP_KEYS pros dois, sem duas listas
+    divergentes) montam/aplicam o mesmo pacote de dados de negócio
+    (insumos, catálogo, produção, lotes, cupons, vendas, custos,
+    clientes — conta/senha continuam de fora) que o backup .json já
+    usava. supaEstadoPush sobe esse pacote pra tabela "estado" do
+    Supabase (1 linha por usuário, RLS já configurada — ver políticas
+    "usuario ve/insere/atualiza seu proprio estado", conferidas nesta
+    sessão, já corretas, nada mudou nelas). Disparo: PUSH ao criar
+    conta (primeiro aparelho — não tem nada pra puxar ainda), PUSH ao
+    sair da conta (logout), PUSH manual pelo botão "sincronizar agora"
+    (tela Conta, mostra a hora da última sincronização deste
+    aparelho). PULL só acontece no login, com window.confirm antes de
+    sobrescrever os dados deste aparelho (se cancelar, o login segue
+    normal mantendo os dados daqui).
+  - Tela "mais" → "ajuda" (FAQ) e a tela Conta tiveram os textos
+    atualizados pra não falar mais em "conta só local, sem
+    sincronização" (estava certo antes, ficou errado depois desta
+    mudança).
+
+  LIMITAÇÃO CONHECIDA (aceita pela usuária, registrar pra não
+  redescobrir depois): sem merge de verdade entre aparelhos — é
+  "último push vence". Se os dois aparelhos editarem coisas diferentes
+  offline antes de sincronizar, quem sincronizar por último sobrescreve
+  o que o outro tinha mandado. Pro uso combinado (sincronizar ao
+  terminar uma sessão de trabalho, não no meio dela) não deve ser
+  problema na prática.
+
+  NÃO TESTADO (nenhum node/npx/navegador disponível nesta sessão —
+  isso aqui é código de login e sincronização, o coração do app, então
+  vale testar com calma antes de confiar):
+  1. Se o projeto Supabase exige confirmação de e-mail pra criar conta
+     (configuração "Confirm email" em Authentication → Settings/
+     Providers) — o código trata os dois casos (com e sem sessão
+     imediata), mas não dá pra saber qual comportamento o projeto tem
+     configurado sem testar de verdade criando uma conta.
+  2. Fluxo completo: criar conta num aparelho → confirmar e-mail (se
+     for exigido) → entrar → editar alguma coisa (ex.: cadastrar um
+     insumo) → sincronizar (ou sair da conta) → entrar com a MESMA
+     conta em outro aparelho/navegador → confirmar que os dados
+     aparecem lá.
+  3. Trocar senha (tela Conta) e conferir que a senha nova realmente
+     funciona pra entrar depois de sair da conta.
+  4. "esqueci a senha" (tela de login) — confirma se o e-mail chega e
+     PRA ONDE o link leva (bem provável que não leve a lugar nenhum
+     útil ainda, porque a tela de "definir nova senha" pelo link não
+     foi construída nesta sessão — se for o caso, ou constrói essa
+     tela numa próxima sessão, ou por enquanto troca a senha direto
+     pelo Supabase Dashboard → Authentication → Users quando alguém
+     esquecer).
+  5. IMPORTANTE pra quem já usava o app antes desta mudança: a conta
+     local antiga (se existir) não é reconhecida mais — ao abrir o app
+     depois desta atualização, cai direto na tela de login/criar conta
+     de novo (é esperado, não é bug). Os dados de negócio (insumos,
+     vendas, etc.) continuam intactos no localStorage — só o login
+     reseta. Vale confirmar isso acontecendo certinho (sem perder dado
+     nenhum) na primeira abertura depois do deploy.
+  Ver app.js: "Supabase — config compartilhada", "Conta / sessão —
+  módulo 9", "Sincronização entre aparelhos — módulo 20"; index.html:
+  data-screen="conta" (bloco "sincronização entre aparelhos").
 
 - Integração com a Nuvemshop (site oficial da loja): pergunta em aberto
   da usuária — quando um cliente se cadastra no site (Nuvemshop), dá pra
@@ -365,10 +455,14 @@ ESTRUTURA GERAL DO APP — pendências importantes
   migração pra backend (ex.: Supabase Auth + tabela de clientes), que
   ainda não foi implementada.
 
-- Segurança da senha da conta: a senha da conta local fica salva em
-  texto puro no localStorage (pp_conta_v1), legível por qualquer um com
-  acesso ao navegador/devtools do aparelho. Mesmo sendo uma conta só
-  local, vale pelo menos um hash antes de guardar.
+- [RESOLVIDO em 08/09/2026, de quebra] Segurança da senha da conta:
+  antes a senha ficava em texto puro no localStorage (pp_conta_v1),
+  legível por qualquer um com acesso ao navegador/devtools do
+  aparelho. Resolvida como efeito colateral da "Sincronização entre
+  dispositivos" (ver pendência própria) — a senha não é mais guardada
+  neste aparelho de jeito nenhum, fica só no Supabase Auth (com hash,
+  do lado do servidor); pp_conta_v1 hoje só guarda nome/e-mail (cache
+  de exibição, sem dado sensível).
 
 - PWA / instalável: o app já é desenhado como um "app" (layout mobile
   fixo, navegação por dock), mas falta manifest.json + ícones +
@@ -490,7 +584,10 @@ REFERÊNCIAS NO CÓDIGO
   "Notificação do aviso de reposição"
 - index.html: card "notificar por" — buscar por "notificar por"
 - Supabase: projeto ponto-paragrafo (id vmqpvlcckcfixsryvfdn),
-  Edge Function "enviar-aviso", tabela "estado" (ainda não usada pelo app)
+  Edge Function "enviar-aviso", tabela "estado" (1 linha por usuário,
+  usada pela sincronização entre aparelhos desde 08/09/2026 — ver
+  "Sincronização entre aparelhos — módulo 20" em app.js), Auth (login
+  real desde 08/09/2026 — ver "Conta / sessão — módulo 9")
 - index.html: nenhum atalho "em breve" restante — o último era o card
   "relatório completo" do dashboard, resolvido em 08/09/2026 (agora
   data-goto="relatorioCompleto")
@@ -514,3 +611,6 @@ REFERÊNCIAS NO CÓDIGO
   Custos — tela — módulo 18"
 - app.js: Relatório completo (vendido por variação, por forma de
   pagamento, cupons usados) — buscar por "Relatório completo — módulo 19"
+- app.js: login real/sessão (Supabase Auth) — buscar por "Conta / sessão
+  — módulo 9"; sincronização entre aparelhos (push/pull do blob de
+  dados) — buscar por "Sincronização entre aparelhos — módulo 20"

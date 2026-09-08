@@ -2284,7 +2284,7 @@
       <div class="dock" id="maisDock" role="navigation" aria-label="Navegação principal"></div>
     </div>
 
-    <!-- ---------- Mais → Conta: nome/e-mail e trocar senha da conta local ---------- -->
+    <!-- ---------- Mais → Conta: nome, senha e sincronização entre aparelhos (login real via Supabase Auth) ---------- -->
     <div class="screen" data-screen="conta" hidden>
       <div class="backrow">
         <div class="iconbtn" role="button" tabindex="0" data-goto="mais" aria-label="Voltar a mais">
@@ -2307,15 +2307,27 @@
           </div>
           <div class="pressed field">
             <div class="label">e-mail</div>
-            <input type="email" id="contaEmail" placeholder="voce@email.com" autocomplete="email" />
+            <input type="email" id="contaEmail" placeholder="voce@email.com" autocomplete="email" readonly />
           </div>
         </div>
-        <button class="btn btn-primary" data-action="conta-salvar-dados" style="width:100%;margin:14px 0 24px;">salvar
+        <div style="font-size:11px;color:var(--text-faint);margin:-10px 4px 14px;">o e-mail é a identidade da conta —
+          pra trocar, fale com quem administra o app.</div>
+        <button class="btn btn-primary" data-action="conta-salvar-dados" style="width:100%;margin:0 0 24px;">salvar
           dados</button>
 
+        <div class="label">sincronização entre aparelhos</div>
+        <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;margin:-6px 4px 14px;">Entrar com esta
+          conta em outro aparelho já baixa os dados salvos aqui. Use o botão abaixo quando quiser subir uma
+          atualização no meio do dia, sem esperar sair da conta.</div>
+        <div class="raised-sm between" style="padding:14px 16px;margin-bottom:14px;">
+          <div style="font-size:11.5px;color:var(--text-faint);" id="contaSyncInfo">nunca sincronizado neste aparelho.</div>
+        </div>
+        <button class="btn btn-ghost" data-action="conta-sincronizar" style="width:100%;margin-bottom:24px;">sincronizar
+          agora</button>
+
         <div class="label">trocar senha</div>
-        <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;margin:-6px 4px 14px;">A senha da conta
-          fica salva só neste aparelho. Preencha os três campos abaixo pra trocar.</div>
+        <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;margin:-6px 4px 14px;">Preencha os três
+          campos abaixo pra trocar — a nova senha vale em qualquer aparelho onde você entrar com esta conta.</div>
         <div class="raised card">
           <div class="pressed field" style="margin-bottom:12px;">
             <div class="label">senha atual</div>
@@ -2416,9 +2428,10 @@
                 <path d="m9 6 6 6-6 6" />
               </svg>
             </summary>
-            <p>insumos, produção, vendas, clientes e configurações ficam salvos só neste navegador, neste aparelho —
-              o app ainda não sincroniza entre celular e computador. por isso vale exportar um backup de vez em
-              quando (tela mais › backup dos dados).</p>
+            <p>insumos, produção, vendas, clientes e configurações ficam salvos neste navegador, neste aparelho.
+              entrando com a mesma conta em outro aparelho, dá pra sincronizar essa cópia (tela mais › conta ›
+              sincronizar agora, ou automaticamente ao entrar/sair da conta). mesmo assim vale exportar um backup de
+              vez em quando (tela mais › backup dos dados) — é uma cópia à parte, independente da nuvem.</p>
           </details>
           <details class="faq-item">
             <summary>como faço backup ou levo os dados pra outro aparelho?
@@ -2438,10 +2451,9 @@
                 <path d="m9 6 6 6-6 6" />
               </svg>
             </summary>
-            <p>como a conta é só local, não existe recuperação por e-mail. se ainda estiver logada, troque a senha
-              em mais › conta. se tiver saído da conta e esquecido a senha, o jeito é criar uma conta nova neste
-              aparelho — isso substitui o acesso salvo aqui, mas não apaga os dados do negócio, que ficam guardados
-              à parte (e podem ser recuperados por um backup, se você tiver um).</p>
+            <p>se ainda estiver logada, troque a senha em mais › conta. se tiver saído da conta, toque em "esqueci"
+              na tela de entrar — mandamos um link de recuperação pro seu e-mail. os dados do negócio não dependem
+              da senha, ficam salvos à parte (e sincronizam de novo assim que você entrar com a senha nova).</p>
           </details>
         </div>
 

@@ -164,13 +164,32 @@
   }
 
   // ================================================================
-  // Conta / sessão / tema — módulo 9
-  // Conta local: e-mail, nome e senha ficam salvos só neste navegador (sem backend/sync
-  // entre aparelhos — escolha explícita, não limitação escondida). "Manter conectado neste
-  // dispositivo" desmarcado guarda a sessão só em sessionStorage (some ao fechar a aba) em
-  // vez de localStorage — é o que a caixinha promete, não só um enfeite visual.
+  // Supabase — config compartilhada (Auth + REST + a Edge Function de avisos, módulo 7,
+  // usam o mesmo projeto ponto-paragrafo). Sem SDK: tudo aqui é fetch() direto contra a API
+  // REST do Supabase, mesmo padrão que a Edge Function de avisos já usava antes desta
+  // sessão — evita puxar uma biblioteca externa só pra isso.
   // ================================================================
-  var CONTA_KEY = "pp_conta_v1";
+  var SUPABASE_URL = "https://vmqpvlcckcfixsryvfdn.supabase.co";
+  var SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZtcXB2bGNja2NmaXhzcnl2ZmRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcwODYyNDQsImV4cCI6MjEwMjY2MjI0NH0.JGpqSGXuEM8Rc1s9oo451UCotu4ub1D9JhCJcLiPplM";
+
+  // ================================================================
+  // Conta / sessão — módulo 9. Login real via Supabase Auth (e-mail+senha) — substitui a
+  // conta local fake de antes (sem backend, senha em texto puro guardada no localStorage).
+  // Decisão da usuária: um login só, o mesmo em qualquer aparelho, pra permitir a
+  // sincronização entre aparelhos (ver "Sincronização — módulo 20", mais abaixo, que reusa
+  // sessaoState.accessToken/userId daqui). Criar conta/entrar agora exigem internet; o resto
+  // do app continua funcionando offline depois de logado (sessão fica salva localmente, e
+  // os dados de negócio continuam no localStorage como sempre). "Manter conectado neste
+  // dispositivo" desmarcado guarda a sessão só em sessionStorage (some ao fechar a aba) em
+  // vez de localStorage — mesmo comportamento de antes, só que agora guardando tokens reais
+  // em vez de um "logado:true" fake.
+  // IMPORTANTE pra quem já tinha uma conta local criada antes desta mudança: essa conta
+  // antiga não existe no Supabase (era só um registro deste navegador) — na próxima vez que
+  // abrir o app, vai cair na tela de login sem sessão válida e vai precisar CRIAR CONTA DE
+  // NOVO (agora de verdade, via Supabase) — os dados de negócio (insumos/vendas/etc.)
+  // continuam intactos no localStorage, só o login em si reseta.
+  // ================================================================
+  var CONTA_KEY = "pp_conta_v1"; // cache local só de nome/e-mail pra exibir sem precisar de rede
   var SESSAO_KEY = "pp_sessao_v1";
 
   function loadContaState(){
@@ -178,23 +197,28 @@
       var raw = localStorage.getItem(CONTA_KEY);
       if (raw) {
         var parsed = JSON.parse(raw);
-        if (parsed && typeof parsed.criada === "boolean") return parsed;
+        if (parsed && typeof parsed.email === "string") return parsed;
       }
     } catch (e) {}
-    return { criada: false, email: "", senha: "", nome: "" };
+    return { nome: "", email: "" };
   }
   function saveContaState(){
     try { localStorage.setItem(CONTA_KEY, JSON.stringify(contaState)); } catch (e) {}
+  }
+  function sessaoVazia(){
+    return { logado: false, lembrar: true, accessToken: null, refreshToken: null, expiresAt: 0, userId: null, email: "" };
   }
   function loadSessaoState(){
     try {
       var raw = localStorage.getItem(SESSAO_KEY) || sessionStorage.getItem(SESSAO_KEY);
       if (raw) {
         var parsed = JSON.parse(raw);
-        if (parsed && typeof parsed.logado === "boolean") return parsed;
+        // uma sessão antiga (conta local fake, sem token de verdade) não serve mais —
+        // força passar pelo login real de novo em vez de "entrar" com um estado inválido.
+        if (parsed && parsed.logado && parsed.accessToken && parsed.userId) return parsed;
       }
     } catch (e) {}
-    return { logado: false, lembrar: true };
+    return sessaoVazia();
   }
   function saveSessaoState(){
     try {
@@ -210,10 +234,68 @@
   var contaState = loadContaState();
   var sessaoState = loadSessaoState();
 
+  // headers padrão de qualquer chamada à API do Supabase: apikey sempre a anon key;
+  // Authorization é a anon key pra rotas públicas (login/criar conta/recuperar senha) ou o
+  // token da pessoa logada pra rotas que dependem de quem está autenticado (trocar senha,
+  // ler/escrever a própria linha da tabela "estado").
+  function supaHeaders(comSessao){
+    return {
+      "Content-Type": "application/json",
+      "apikey": SUPABASE_ANON_KEY,
+      "Authorization": "Bearer " + ((comSessao && sessaoState.accessToken) ? sessaoState.accessToken : SUPABASE_ANON_KEY)
+    };
+  }
+  // Supabase Auth devolve mensagens de erro em inglês, cruas — traduz as mais comuns pro
+  // tom do resto do app; o que não reconhece, mostra como veio (melhor que nada).
+  function supaErroMsg(data){
+    var msg = (data && (data.error_description || data.msg || data.error)) || "";
+    if (/invalid.*(credentials|login)/i.test(msg)) return "e-mail ou senha incorretos.";
+    if (/already registered|already exists|user already/i.test(msg)) return "já existe uma conta com esse e-mail.";
+    if (/password.*(least|short|weak)/i.test(msg)) return "a senha precisa ter pelo menos 6 caracteres.";
+    if (/rate limit/i.test(msg)) return "muitas tentativas — espera um minuto e tenta de novo.";
+    return msg || "não consegui falar com o servidor — confira sua internet.";
+  }
+  // Aplica a resposta de login/criar conta/renovar sessão (todas devolvem o mesmo formato:
+  // access_token/refresh_token/expires_in/user) no sessaoState e no contaState (cache local
+  // de nome/e-mail pra exibir sem precisar de rede).
+  function aplicarSessaoLogin(tokenData, opts){
+    opts = opts || {};
+    var user = tokenData.user || {};
+    sessaoState = {
+      logado: true,
+      lembrar: opts.lembrar !== false,
+      accessToken: tokenData.access_token,
+      refreshToken: tokenData.refresh_token,
+      expiresAt: Date.now() + ((tokenData.expires_in || 3600) * 1000),
+      userId: user.id,
+      email: user.email || ""
+    };
+    saveSessaoState();
+    contaState = {
+      nome: (user.user_metadata && user.user_metadata.nome) || opts.nomeFallback || contaState.nome || "",
+      email: user.email || ""
+    };
+    saveContaState();
+  }
+  function supaRefreshSessao(onDone){
+    if (!sessaoState.refreshToken) { onDone(false); return; }
+    fetch(SUPABASE_URL + "/auth/v1/token?grant_type=refresh_token", {
+      method: "POST", headers: supaHeaders(false),
+      body: JSON.stringify({ refresh_token: sessaoState.refreshToken })
+    }).then(function(resp){ return resp.json().then(function(data){ return { status: resp.status, data: data }; }); })
+      .then(function(res){
+        if (res.status >= 400 || !res.data.access_token) { onDone(false); return; }
+        aplicarSessaoLogin(res.data, { lembrar: sessaoState.lembrar });
+        onDone(true);
+      })
+      .catch(function(){ onDone(false); });
+  }
+
   // ================================================================
-  // Mais → Conta: ver/editar nome e e-mail, trocar a senha da conta local. Reaproveita o
-  // mesmo contaState acima (só o cadastro inicial escrevia nele até agora); não mexe em
-  // sessaoState nem desloga ninguém.
+  // Mais → Conta: ver/editar nome (e-mail não dá mais pra editar por aqui — é a identidade
+  // da conta no Supabase Auth; trocar exigiria um fluxo de confirmação por e-mail que ainda
+  // não foi construído, ver pendencias.txt), trocar a senha da conta e sincronizar com a
+  // nuvem manualmente.
   // ================================================================
   function renderContaForm(){
     var nomeEl = document.getElementById("contaNome");
@@ -224,32 +306,52 @@
       var el = document.getElementById(id);
       if (el) { el.value = ""; el.type = "password"; }
     });
+    renderSyncInfo();
   }
 
   function submitContaDadosForm(){
     var nome = (document.getElementById("contaNome").value || "").trim();
-    var email = (document.getElementById("contaEmail").value || "").trim();
     if (!nome) { showToast("preencha seu nome."); return; }
-    if (!email || email.indexOf("@") === -1) { showToast("preencha um e-mail válido."); return; }
-    contaState.nome = nome;
-    contaState.email = email;
-    saveContaState();
-    renderDashboard();
-    showToast("dados salvos.");
+    if (!sessaoState.logado) { showToast("sessão inválida — entre na conta de novo."); return; }
+    fetch(SUPABASE_URL + "/auth/v1/user", {
+      method: "PUT", headers: supaHeaders(true), body: JSON.stringify({ data: { nome: nome } })
+    }).then(function(resp){
+      if (!resp.ok) { showToast("não consegui salvar — tenta de novo."); return; }
+      contaState.nome = nome;
+      saveContaState();
+      renderDashboard();
+      showToast("dados salvos.");
+    }).catch(function(){ showToast("não consegui falar com o servidor — confira sua internet."); });
   }
 
+  // Supabase Auth não tem um endpoint só de "confirma a senha atual" — o jeito recomendado
+  // pela própria documentação é reautenticar com email+senha atual (se der certo, a senha
+  // atual está correta) antes de trocar de fato via PUT /auth/v1/user.
   function submitContaSenhaForm(){
     var atual = document.getElementById("contaSenhaAtual").value || "";
     var nova = document.getElementById("contaSenhaNova").value || "";
     var confirma = document.getElementById("contaSenhaNovaConfirm").value || "";
     if (!atual && !nova && !confirma) { showToast("preencha os 3 campos pra trocar a senha."); return; }
-    if (atual !== contaState.senha) { showToast("senha atual incorreta."); return; }
     if (nova.length < 6) { showToast("a nova senha precisa ter pelo menos 6 caracteres."); return; }
     if (nova !== confirma) { showToast("as senhas não coincidem."); return; }
-    contaState.senha = nova;
-    saveContaState();
-    renderContaForm();
-    showToast("senha atualizada.");
+    if (!sessaoState.logado || !contaState.email) { showToast("sessão inválida — entre na conta de novo."); return; }
+    showToast("verificando…");
+    fetch(SUPABASE_URL + "/auth/v1/token?grant_type=password", {
+      method: "POST", headers: supaHeaders(false),
+      body: JSON.stringify({ email: contaState.email, password: atual })
+    }).then(function(resp){ return resp.json().then(function(data){ return { status: resp.status, data: data }; }); })
+      .then(function(res){
+        if (res.status >= 400 || !res.data.access_token) { showToast("senha atual incorreta."); return; }
+        aplicarSessaoLogin(res.data, { lembrar: sessaoState.lembrar }); // reautenticar já renova a sessão
+        return fetch(SUPABASE_URL + "/auth/v1/user", {
+          method: "PUT", headers: supaHeaders(true), body: JSON.stringify({ password: nova })
+        }).then(function(r2){
+          if (!r2.ok) { showToast("não consegui trocar a senha — tenta de novo."); return; }
+          renderContaForm();
+          showToast("senha atualizada.");
+        });
+      })
+      .catch(function(){ showToast("não consegui falar com o servidor — confira sua internet."); });
   }
 
   // ================================================================
@@ -289,18 +391,38 @@
     var aceiteRow = document.getElementById("signupAceiteRow");
     var aceite = aceiteRow && aceiteRow.getAttribute("aria-pressed") === "true";
     var errEl = document.getElementById("signupError");
-    function fail(msg){ if (errEl) { errEl.hidden = false; errEl.textContent = msg; } }
+    var btn = document.querySelector('[data-authscreen="criarConta"] .auth-submit');
+    function fail(msg){ if (errEl) { errEl.hidden = false; errEl.textContent = msg; } if (btn) btn.disabled = false; }
     if (!nome) { fail("diz seu nome, pra gente saber como te chamar."); return; }
     if (!email || email.indexOf("@") === -1) { fail("digite um e-mail válido."); return; }
     if (senha.length < 6) { fail("a senha precisa ter pelo menos 6 caracteres."); return; }
     if (senha !== senha2) { fail("as senhas não coincidem."); return; }
     if (!aceite) { fail("você precisa aceitar as regras internas de uso pra continuar."); return; }
     if (errEl) errEl.hidden = true;
-    contaState = { criada: true, email: email, senha: senha, nome: nome };
-    saveContaState();
-    sessaoState = { logado: true, lembrar: true };
-    saveSessaoState();
-    enterAppWithWelcome();
+    if (btn) btn.disabled = true;
+
+    fetch(SUPABASE_URL + "/auth/v1/signup", {
+      method: "POST", headers: supaHeaders(false),
+      body: JSON.stringify({ email: email, password: senha, data: { nome: nome } })
+    }).then(function(resp){ return resp.json().then(function(data){ return { status: resp.status, data: data }; }); })
+      .then(function(res){
+        if (res.status >= 400) { fail(supaErroMsg(res.data)); return; }
+        if (!res.data.access_token) {
+          // projeto exige confirmação por e-mail — sem sessão até a pessoa clicar no link.
+          // Mostra no login (não no formulário de criar conta, que já vai ficar escondido).
+          if (btn) btn.disabled = false;
+          showAuthScreen("login");
+          var loginErrEl = document.getElementById("loginError");
+          if (loginErrEl) { loginErrEl.hidden = false; loginErrEl.textContent = "conta criada! confira seu e-mail pra confirmar o acesso, depois entre por aqui."; }
+          return;
+        }
+        aplicarSessaoLogin(res.data, { lembrar: true, nomeFallback: nome });
+        // primeiro aparelho desta conta: nada salvo na nuvem ainda, sobe os dados locais
+        // como ponto de partida pra quando outro aparelho entrar com o mesmo login.
+        supaEstadoPush();
+        enterAppWithWelcome();
+      })
+      .catch(function(){ fail("não consegui falar com o servidor — confira sua internet."); });
   }
 
   function submitLogin(){
@@ -309,24 +431,45 @@
     var lembrarRow = document.getElementById("loginLembrarRow");
     var lembrar = lembrarRow ? lembrarRow.getAttribute("aria-pressed") === "true" : true;
     var errEl = document.getElementById("loginError");
-    function fail(msg){ if (errEl) { errEl.hidden = false; errEl.textContent = msg; } }
-    if (!contaState.criada) { fail("nenhuma conta encontrada neste aparelho — crie a conta da loja."); return; }
-    if (email.toLowerCase() !== contaState.email.toLowerCase() || senha !== contaState.senha) { fail("e-mail ou senha incorretos."); return; }
+    var btn = document.querySelector('[data-authscreen="login"] .auth-submit');
+    function fail(msg){ if (errEl) { errEl.hidden = false; errEl.textContent = msg; } if (btn) btn.disabled = false; }
+    if (!email || email.indexOf("@") === -1) { fail("digite um e-mail válido."); return; }
+    if (!senha) { fail("digite sua senha."); return; }
     if (errEl) errEl.hidden = true;
-    sessaoState = { logado: true, lembrar: lembrar };
-    saveSessaoState();
-    enterAppWithWelcome();
+    if (btn) btn.disabled = true;
+
+    fetch(SUPABASE_URL + "/auth/v1/token?grant_type=password", {
+      method: "POST", headers: supaHeaders(false),
+      body: JSON.stringify({ email: email, password: senha })
+    }).then(function(resp){ return resp.json().then(function(data){ return { status: resp.status, data: data }; }); })
+      .then(function(res){
+        if (res.status >= 400 || !res.data.access_token) { fail(supaErroMsg(res.data)); return; }
+        aplicarSessaoLogin(res.data, { lembrar: lembrar });
+        // puxa o que já estiver salvo na nuvem (sincronizado de outro aparelho) — com
+        // confirmação, porque pode substituir dados deste aparelho.
+        supaEstadoPullComConfirmacao(function(){ enterAppWithWelcome(); });
+      })
+      .catch(function(){ fail("não consegui falar com o servidor — confira sua internet."); });
   }
 
   function logout(){
-    sessaoState = { logado: false, lembrar: true };
-    try { localStorage.removeItem(SESSAO_KEY); } catch (e) {}
-    try { sessionStorage.removeItem(SESSAO_KEY); } catch (e) {}
-    var authEl = document.getElementById("authView");
-    var frame = document.querySelector(".app-frame");
-    showAuthScreen("login");
-    if (authEl) authEl.hidden = false;
-    if (frame) frame.hidden = true;
+    function limpar(){
+      sessaoState = sessaoVazia();
+      try { localStorage.removeItem(SESSAO_KEY); } catch (e) {}
+      try { sessionStorage.removeItem(SESSAO_KEY); } catch (e) {}
+      var authEl = document.getElementById("authView");
+      var frame = document.querySelector(".app-frame");
+      showAuthScreen("login");
+      if (authEl) authEl.hidden = false;
+      if (frame) frame.hidden = true;
+    }
+    if (sessaoState.logado && sessaoState.userId) {
+      showToast("sincronizando antes de sair…");
+      fetch(SUPABASE_URL + "/auth/v1/logout", { method: "POST", headers: supaHeaders(true) }).catch(function(){});
+      supaEstadoPush(function(){ limpar(); });
+    } else {
+      limpar();
+    }
   }
 
   function enterApp(){
@@ -354,9 +497,23 @@
     }, 550);
   }
 
+  // Sessão salva com o token ainda válido: entra direto. Token vencido (expiresAt no
+  // passado — o access_token do Supabase dura ~1h): tenta renovar em silêncio com o
+  // refresh_token antes de decidir; se a renovação falhar (refresh_token também vencido/
+  // revogado), volta pro login. Sem sessão nenhuma: login normal.
   function checkAuthAndInit(){
-    if (contaState.criada && sessaoState.logado) {
-      enterApp();
+    if (sessaoState.logado && sessaoState.accessToken) {
+      if (sessaoState.expiresAt && sessaoState.expiresAt < Date.now()) {
+        supaRefreshSessao(function(ok){
+          if (ok) { enterApp(); return; }
+          sessaoState = sessaoVazia();
+          try { localStorage.removeItem(SESSAO_KEY); } catch (e) {}
+          try { sessionStorage.removeItem(SESSAO_KEY); } catch (e) {}
+          showAuthScreen("login");
+        });
+      } else {
+        enterApp();
+      }
     } else {
       showAuthScreen("login");
     }
@@ -2966,8 +3123,8 @@
   // checagem e sempre tenta mandar.
   // ================================================================
   var NOTIF_KEY = "pp_notif_v1";
-  var NOTIF_FUNCTION_URL = "https://vmqpvlcckcfixsryvfdn.supabase.co/functions/v1/enviar-aviso";
-  var NOTIF_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZtcXB2bGNja2NmaXhzcnl2ZmRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcwODYyNDQsImV4cCI6MjEwMjY2MjI0NH0.JGpqSGXuEM8Rc1s9oo451UCotu4ub1D9JhCJcLiPplM";
+  var NOTIF_FUNCTION_URL = SUPABASE_URL + "/functions/v1/enviar-aviso";
+  var NOTIF_ANON_KEY = SUPABASE_ANON_KEY; // mesma anon key do projeto, ver "Supabase — config compartilhada" acima
   // Trava opcional (ver pendencias.txt): a Edge Function "enviar-aviso" só exige este
   // header se o secret APP_SHARED_SECRET estiver configurado no projeto Supabase — sem
   // ele, o header abaixo é ignorado e nada quebra. Não é segurança forte (o valor mora no
@@ -3512,7 +3669,11 @@
     custos: CUSTOS_KEY, clientes: CLIENTES_KEY
   };
 
-  function exportarBackup(){
+  // Monta/aplica o mesmo "blob" de dados de negócio (tudo em BACKUP_KEYS) tanto pro backup
+  // .json quanto pra sincronização com a nuvem (módulo 20, logo abaixo) — os dois reusam
+  // exatamente essas duas funções, pra nunca ter duas listas de "o que é dado de negócio"
+  // divergindo uma da outra.
+  function buildEstadoDados(){
     var dados = {};
     Object.keys(BACKUP_KEYS).forEach(function(nome){
       try {
@@ -3520,7 +3681,17 @@
         if (raw) dados[nome] = JSON.parse(raw);
       } catch (e) {}
     });
-    var payload = { app: "ponto-paragrafo", versao: 1, exportadoEm: new Date().toISOString(), dados: dados };
+    return dados;
+  }
+  function aplicarEstadoDados(dados){
+    Object.keys(BACKUP_KEYS).forEach(function(nome){
+      if (dados[nome] === undefined) return;
+      try { localStorage.setItem(BACKUP_KEYS[nome], JSON.stringify(dados[nome])); } catch (e) {}
+    });
+  }
+
+  function exportarBackup(){
+    var payload = { app: "ponto-paragrafo", versao: 1, exportadoEm: new Date().toISOString(), dados: buildEstadoDados() };
     var blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json;charset=utf-8;" });
     var url = URL.createObjectURL(blob);
     var a = document.createElement("a");
@@ -3548,14 +3719,96 @@
       if (!nomes.length) { showToast("esse backup não tem nenhum dado reconhecido."); return; }
       if (!window.confirm("Restaurar este backup substitui TODOS os dados atuais (insumos, produção, vendas, clientes, configurações) pelos do arquivo. Essa ação não pode ser desfeita. Continuar?")) return;
 
-      nomes.forEach(function(nome){
-        try { localStorage.setItem(BACKUP_KEYS[nome], JSON.stringify(parsed.dados[nome])); } catch (e) {}
-      });
+      aplicarEstadoDados(parsed.dados);
       showToast("backup restaurado — recarregando…");
       window.setTimeout(function(){ window.location.reload(); }, 900);
     };
     reader.onerror = function(){ showToast("não deu pra ler esse arquivo."); };
     reader.readAsText(file);
+  }
+
+  // ================================================================
+  // Sincronização entre aparelhos — módulo 20. Sobe/baixa um "blob" único (mesmo formato do
+  // backup .json acima — buildEstadoDados/aplicarEstadoDados) pra tabela "estado" do
+  // Supabase: 1 linha por usuário (user_id = auth.uid(), RLS já trava cada login só na
+  // própria linha — ver política "usuario ve/insere/atualiza seu proprio estado"). Sem sync
+  // em tempo real nem por registro: sobe (push) no login de uma conta nova/no logout/num
+  // botão manual em Conta; baixa (pull) no login, com confirmação (pode substituir dados
+  // deste aparelho). Decisão da usuária: um blob único é suficiente pro uso real — celular
+  // da loja + computador, não muita gente editando ao mesmo tempo — não vale a complexidade
+  // de sincronizar linha a linha ou em tempo real.
+  // Limitação conhecida (registrar em pendencias.txt): sem merge de verdade — se os dois
+  // aparelhos editarem coisas diferentes offline antes de sincronizar, quem sincronizar por
+  // último (push) sobrescreve o que o outro tinha mandado. Pro uso combinado (sincronizar
+  // depois de cada sessão de trabalho, não no meio dela) isso não deve ser um problema na
+  // prática, mas vale ter em mente.
+  // ================================================================
+  var SYNC_ULTIMO_KEY = "pp_sync_ultimo_v1"; // só um carimbo local de "quando este aparelho sincronizou pela última vez"
+
+  function supaEstadoPush(onDone){
+    if (!sessaoState.logado || !sessaoState.userId) { if (onDone) onDone(false); return; }
+    var headers = supaHeaders(true);
+    headers["Prefer"] = "resolution=merge-duplicates";
+    var body = {
+      user_id: sessaoState.userId,
+      dados: buildEstadoDados(),
+      atualizado_em: new Date().toISOString(),
+      atualizado_por: contaState.nome || contaState.email || ""
+    };
+    fetch(SUPABASE_URL + "/rest/v1/estado?on_conflict=user_id", {
+      method: "POST", headers: headers, body: JSON.stringify(body)
+    }).then(function(resp){
+      if (resp.ok) { try { localStorage.setItem(SYNC_ULTIMO_KEY, new Date().toISOString()); } catch (e) {} }
+      if (onDone) onDone(resp.ok);
+    }).catch(function(){ if (onDone) onDone(false); });
+  }
+
+  // Chamado só no login (ver submitLogin). Se a nuvem já tiver algo salvo (outro aparelho
+  // sincronizou antes), pergunta antes de substituir os dados deste aparelho — se a pessoa
+  // cancelar, o login continua normal mantendo o que já está aqui (dá pra sincronizar
+  // manualmente depois em Conta). onDone só é chamado quando NÃO recarrega a página.
+  function supaEstadoPullComConfirmacao(onDone){
+    fetch(SUPABASE_URL + "/rest/v1/estado?user_id=eq." + sessaoState.userId + "&select=dados", {
+      headers: supaHeaders(true)
+    }).then(function(resp){ return resp.ok ? resp.json() : []; })
+      .then(function(rows){
+        var row = rows && rows[0];
+        if (row && row.dados && typeof row.dados === "object" && Object.keys(row.dados).length) {
+          if (window.confirm("Encontrei dados salvos na nuvem (sincronizados de outro aparelho). Substituir os dados deste aparelho pelos da nuvem?\n\nSe preferir manter o que já está aqui, cancele — depois dá pra sincronizar manualmente em Conta.")) {
+            aplicarEstadoDados(row.dados);
+            try { localStorage.setItem(SYNC_ULTIMO_KEY, new Date().toISOString()); } catch (e) {}
+            showToast("dados sincronizados da nuvem — recarregando…");
+            window.setTimeout(function(){ window.location.reload(); }, 900);
+            return;
+          }
+        }
+        onDone();
+      })
+      .catch(function(){ onDone(); }); // sem internet/erro: não trava o login, só não sincroniza
+  }
+
+  // Botão manual "sincronizar agora" (tela Conta) — sobe os dados deste aparelho pra nuvem
+  // (mesma direção do que já acontece sozinho no logout; existe também como ação explícita
+  // pra quando a pessoa quer atualizar a nuvem no meio do dia, sem precisar sair da conta).
+  function submitSincronizarAgora(){
+    if (!sessaoState.logado) { showToast("entre na sua conta pra sincronizar."); return; }
+    showToast("sincronizando…");
+    supaEstadoPush(function(ok){
+      showToast(ok ? "sincronizado com a nuvem." : "não consegui sincronizar — confira sua internet.");
+      renderSyncInfo();
+    });
+  }
+  function renderSyncInfo(){
+    var el = document.getElementById("contaSyncInfo");
+    if (!el) return;
+    var raw = null;
+    try { raw = localStorage.getItem(SYNC_ULTIMO_KEY); } catch (e) {}
+    if (!raw) { el.textContent = "nunca sincronizado neste aparelho."; return; }
+    var d = new Date(raw);
+    var hoje = todayISO();
+    var diaISO = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+    var hora = String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
+    el.textContent = "última sincronização: " + (diaISO === hoje ? "hoje" : formatDateBR(diaISO)) + " às " + hora;
   }
 
   // ================================================================
@@ -3619,7 +3872,21 @@
     var forgot = e.target.closest('[data-action="auth-forgot"]');
     if (forgot) {
       var errEl = document.getElementById("loginError");
-      if (errEl) { errEl.hidden = false; errEl.textContent = "os dados ficam só neste aparelho, sem recuperação por e-mail — se esqueceu a senha, crie uma nova conta (isso substitui o acesso salvo aqui)."; }
+      var emailForgot = (document.getElementById("loginEmail").value || "").trim();
+      if (!emailForgot || emailForgot.indexOf("@") === -1) {
+        if (errEl) { errEl.hidden = false; errEl.textContent = "digite seu e-mail no campo acima primeiro, pra eu saber pra onde mandar o link de recuperação."; }
+        return;
+      }
+      // Dispara o e-mail de recuperação real do Supabase Auth. NOTA (ver pendencias.txt):
+      // o link desse e-mail depende do "Site URL"/redirect configurado no projeto Supabase
+      // pra abrir uma tela de "definir nova senha" — essa tela ainda não existe no app, só
+      // o disparo do e-mail. Se o link não levar a lugar nenhum, a senha ainda pode ser
+      // trocada direto pelo Supabase Dashboard → Authentication → Users enquanto isso não
+      // é construído.
+      fetch(SUPABASE_URL + "/auth/v1/recover", {
+        method: "POST", headers: supaHeaders(false), body: JSON.stringify({ email: emailForgot })
+      }).catch(function(){});
+      if (errEl) { errEl.hidden = false; errEl.textContent = "se esse e-mail tiver uma conta, mandamos um link de recuperação — confira sua caixa de entrada."; }
       return;
     }
 
@@ -3661,6 +3928,9 @@
 
     var contaSalvarSenha = e.target.closest('[data-action="conta-salvar-senha"]');
     if (contaSalvarSenha) { submitContaSenhaForm(); return; }
+
+    var contaSincronizar = e.target.closest('[data-action="conta-sincronizar"]');
+    if (contaSincronizar) { submitSincronizarAgora(); return; }
 
     var gotoRegistrarVenda = e.target.closest('[data-goto="registrarVenda"]');
     if (gotoRegistrarVenda) { openRegistrarVendaForm(); showScreen("registrarVenda"); return; }
