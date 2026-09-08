@@ -153,10 +153,21 @@ ESTRUTURA GERAL DO APP — pendências importantes
 
 -- Design --
 
-- Tela "mais" (menu final, data-screen="mais") hoje só tem alternância
-  de tema + sair da conta. Não tem espaço desenhado pra configurações de
-  conta, backup/exportação de dados ou ajuda — vale pensar no que entra
-  ali antes de qualquer implementação.
+- [JÁ ESTAVA RESOLVIDO — só não tinha sido marcado aqui, achado em
+  08/09/2026 ao checar esta pendência] Tela "mais": esta pendência
+  descrevia um estado antigo (só alternância de tema + sair da conta) —
+  o app real já não bate com essa descrição há um tempo. Conferido
+  index.html/app.js hoje: a tela "mais" tem 4 cartões de verdade —
+  "configurações" (data-goto="configuracoes", receita padrão/jarra/
+  preços — já existia antes desta pendência), "conta" (nome/e-mail +
+  troca de senha com os 3 campos e "mostrar senha", renderContaForm/
+  submitContaDadosForm/submitContaSenhaForm), "backup dos dados"
+  (exportar/restaurar .json, já resolvido em 04/09) e "ajuda" (5
+  perguntas frequentes em <details>/<summary>, .faq-item no style.css,
+  cobrindo aviso de reposição, perda de derretimento, onde ficam os
+  dados, backup e "esqueci minha senha") — mais o botão "sair da
+  conta". Nada ficou faltando do que esta pendência pedia; não precisou
+  de nenhuma mudança de código, só corrigir o registro aqui.
 
 - O card "relatório completo" do dashboard ainda é só um atalho que abre
   um toast "em breve" (procure "em breve" no index.html) — é a única
