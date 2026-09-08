@@ -172,7 +172,6 @@
   // ================================================================
   var CONTA_KEY = "pp_conta_v1";
   var SESSAO_KEY = "pp_sessao_v1";
-  var TEMA_KEY = "pp_tema_v1";
 
   function loadContaState(){
     try {
@@ -253,30 +252,11 @@
     showToast("senha atualizada.");
   }
 
-  function loadTema(){
-    // Padrão agora é claro (fundo creme) — o escuro continua existindo, só deixou de ser o
-    // tema-padrão de quem abre o app pela 1ª vez. Ver mesmo default no script inline do
-    // <head> de index.html, que aplica o tema antes deste script carregar.
-    try { return localStorage.getItem(TEMA_KEY) === "escuro" ? "escuro" : "claro"; } catch (e) { return "claro"; }
-  }
-  function applyTema(tema){
-    document.documentElement.setAttribute("data-theme", tema === "claro" ? "light" : "dark");
-    var dot = document.getElementById("temaSwitchDot");
-    if (dot) dot.style.transform = tema === "claro" ? "translateX(19px)" : "translateX(0)";
-  }
-  var temaState = loadTema();
-  applyTema(temaState);
-  function setTema(tema){
-    temaState = tema === "claro" ? "claro" : "escuro";
-    applyTema(temaState);
-    try { localStorage.setItem(TEMA_KEY, temaState); } catch (e) {}
-  }
-
   // ================================================================
   // Alternador computador/celular — força o layout do app-frame independente da largura
   // real da janela (ver html[data-preview="..."] em style.css), pra dar pra comparar os
   // dois formatos sem redimensionar o navegador. Sem preferência salva, detecta uma vez
-  // pela largura real da tela; depois disso guarda a escolha da pessoa, igual ao tema.
+  // pela largura real da tela; depois disso guarda a escolha da pessoa.
   // ================================================================
   var PREVIEW_KEY = "pp_preview_v1";
   function loadPreview(){
@@ -2979,8 +2959,8 @@
 
   // ================================================================
   // Dock inferior — cluster de botões circulares coloridos (referência: dock do app
-  // "Bloom"). Cada item leva sempre uma das 5 cores da marca, independente do tema
-  // claro/escuro do resto do app — só o fundo do dock (--dock-bg) segue o tema.
+  // "Bloom"). Cada item leva sempre uma das 5 cores fixas da marca — só o fundo do dock
+  // (--dock-bg) usa o token de tema.
   // ================================================================
   var DOCK_ITEMS = [
     { key: "inicio", big: true, bg: "#442D1C", fg: "#E8D1A7", enabled: true, screen: "dashboard",
@@ -3247,9 +3227,6 @@
 
     var logoutBtn = e.target.closest('[data-action="logout"]');
     if (logoutBtn) { logout(); return; }
-
-    var toggleTemaBtn = e.target.closest('[data-action="toggle-tema"]');
-    if (toggleTemaBtn) { setTema(temaState === "escuro" ? "claro" : "escuro"); return; }
 
     var periodoPill = e.target.closest("[data-periodo]");
     if (periodoPill) { setPeriodoModo(periodoPill.dataset.periodo); return; }

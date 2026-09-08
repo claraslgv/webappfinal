@@ -1,73 +1,11 @@
 
+/* O app é só escuro (a marca .parágrafo vive num Cowhide Cocoa #442D1C) — havia um modo
+   claro alternável por toggle, removido a pedido da usuária; estes tokens eram os do
+   `html[data-theme="dark"]` de antes e agora são os únicos valores, direto no :root.
+   A técnica de sombra usada aqui (drop-shadow único bem definido + friso interno sutil,
+   em vez de um par claro/escuro neumórfico) segue sendo a mesma — nenhuma regra abaixo
+   precisa saber disso, só consome --shadow-raised-* / --shadow-pressed-*. */
 :root{
-  --bg:#FBF6EC;
-  --text:#2B1B10;
-  --text-dim:#84592B;
-  /* #8C7A63 (o tom original) dava só 3.84:1 contra --bg — abaixo do mínimo de 4.5:1
-     do WCAG 2.1 AA pra texto normal, e --text-faint é usado em legendas/rótulos
-     pequenos por todo o app (datas, subtítulos, contagens). #7A6852 escurece a mesma
-     família de marrom quente (mesma proporção entre os canais) até 4.96:1, mantendo a
-     cor "neutra discreta" que o brandbook pede sem deixar o texto ilegível. */
-  --text-faint:#7A6852;
-  --primary:#442D1C;
-  --primary-soft:rgba(68,45,28,.10);
-  --primary-soft-2:rgba(68,45,28,.17);
-  --shadow-d:#E4D6BE;
-  --shadow-l:#FFFFFF;
-  /* Era rgba(68,45,28,.12) — quase imperceptível contra --bg (~1.1:1), então nenhum card,
-     pill ou input tinha um contorno de verdade: a separação inteira dependia do box-shadow
-     neumórfico, que "some" em telas não calibradas. .28 dá um traço visível e ainda discreto
-     (usado como border-width:1px em .raised/.pressed/.pill/.dock/.field a partir daqui). */
-  --line:rgba(68,45,28,.28);
-  --warn:#743014;
-  --warn-soft:rgba(116,48,20,.11);
-  --good:#5C6B3F;
-  --good-soft:rgba(92,107,63,.12);
-  --chart-2:#84592B;
-  --chart-3:#9D9167;
-  --on-primary:#E8D1A7;
-  --dock-bg:#FFFDF7;
-  --page-bg:#EFE4CC;
-  --knob-shadow:rgba(68,45,28,.28);
-  /* Marrom sólido dos cards (.raised/.raised-sm) — pedido explícito pra sair do card
-     creme-sobre-creme (mesma cor do fundo, só com shadow) e virar um bloco de cor de
-     verdade. #84592B é o Toasted Caramel já usado em ".dash-resumo" (a mesma escolha do
-     card "resumo de hoje" no Dashboard), não um tom novo — e de propósito diferente de
-     --primary (#442D1C), senão um elemento em --primary (ex.: .pill.active) sumiria
-     dentro do próprio card. --card-text* reaproveita o creme de ".dash-resumo"
-     (#F3E6CE, ~5:1 contra #84592B — AA) pro texto que mora dentro desses cards; --card-line
-     é a mesma borda sutil translúcida que ".dash-resumo .resumo-row" já usa. */
-  --card-bg:#84592B;
-  --card-text:#F3E6CE;
-  --card-text-dim:rgba(243,230,206,.78);
-  --card-line:rgba(243,230,206,.20);
-  /* Cópia travada de --text/--text-dim/--text-faint, pra quem precisa do texto "de página"
-     mesmo dentro de um .raised/.raised-sm agora marrom. .raised redefine --text/--text-dim/
-     --text-faint localmente (pro texto solto do card virar creme) — mas var() sempre resolve
-     no ponto de uso, não onde foi declarado, então um filho com fundo próprio claro (.field,
-     .pressed-pill, .iconbtn — ex.: a pill "quem mais compra" dentro do card de ranking)
-     herdaria esse creme sobre o PRÓPRIO fundo claro dele, quase ilegível. --surface-text* nunca
-     é redefinido fora daqui, então essas classes usam ele em vez de --text/--text-dim direto. */
-  --surface-text:#2B1B10;
-  --surface-text-dim:#84592B;
-  --surface-text-faint:#7A6852;
-  /* Altura mínima do rodapé de marca no fim de cada tela (ver .reveal-footer mais abaixo). */
-  --reveal-footer-h:170px;
-  /* Sombra "raised" neumórfica dupla (clara/escura) — cada profundidade calculada uma vez
-     aqui, reaproveitada por todo o app. */
-  --shadow-raised-xxs:3px 3px 7px var(--shadow-d),-3px -3px 7px var(--shadow-l);
-  --shadow-raised-xs:4px 4px 9px var(--shadow-d),-4px -4px 9px var(--shadow-l);
-  --shadow-raised-sm:5px 5px 11px var(--shadow-d),-5px -5px 11px var(--shadow-l);
-  --shadow-raised-md:7px 7px 15px var(--shadow-d),-7px -7px 15px var(--shadow-l);
-  --shadow-pressed-xs:inset 3px 3px 7px var(--shadow-d),inset -3px -3px 7px var(--shadow-l);
-  --shadow-pressed-sm:inset 4px 4px 9px var(--shadow-d),inset -4px -4px 9px var(--shadow-l);
-}
-/* Modo escuro — a marca é dark-first (a própria .parágrafo vive num Cowhide Cocoa #442D1C),
-   então este é o tema padrão quando não há preferência salva (ver script inline no <head>).
-   Sem "fôlego" pra escurecer o próprio #442D1C num par de sombras claro/escuro como no modo
-   claro, a técnica muda pra um drop-shadow único bem definido + friso interno sutil — mesmos
-   nomes de variável, valores diferentes, então nenhuma regra abaixo precisa saber a diferença. */
-html[data-theme="dark"]{
   --bg:#442D1C;
   --text:#F3E7D6;
   --text-dim:#E8D1A7;
@@ -77,9 +15,8 @@ html[data-theme="dark"]{
   --primary-soft-2:rgba(232,209,167,.24);
   --shadow-d:rgba(0,0,0,.45);
   --shadow-l:rgba(232,209,167,.06);
-  /* Mesmo motivo do tema claro acima — .14 mal aparecia sobre #442D1C. .30 acompanha o
-     salto de opacidade do tema claro (mesma proporção) pra manter o contorno igualmente
-     visível nos dois temas. */
+  /* .30 dá um traço visível e ainda discreto (usado como border-width:1px em
+     .raised/.pressed/.pill/.dock/.field a partir daqui). */
   --line:rgba(232,209,167,.30);
   --warn:#C1552F;
   --warn-soft:rgba(193,85,47,.18);
@@ -91,17 +28,27 @@ html[data-theme="dark"]{
   --dock-bg:#5A3D27;
   --page-bg:#2E1D11;
   --knob-shadow:rgba(0,0,0,.5);
-  /* Mesma ideia do tema claro acima: #5A3D27 é o próprio --dock-bg de hoje, um marrom mais
-     claro que o --bg (#442D1C) da página — dá pra distinguir card de fundo mesmo os dois
-     sendo "marrom", e continua diferente de --primary (#E8D1A7, creme) pra não engolir
-     elementos que usam --primary como cor sólida (ex.: .pill.active). */
+  /* #5A3D27 é o próprio --dock-bg — um marrom mais claro que o --bg (#442D1C) da página —
+     dá pra distinguir card de fundo mesmo os dois sendo "marrom", e continua diferente de
+     --primary (#E8D1A7, creme) pra não engolir elementos que usam --primary como cor sólida
+     (ex.: .pill.active). */
   --card-bg:#5A3D27;
   --card-text:#F3E6CE;
   --card-text-dim:rgba(243,230,206,.78);
   --card-line:rgba(243,230,206,.16);
+  /* Cópia travada de --text/--text-dim/--text-faint, pra quem precisa do texto "de página"
+     mesmo dentro de um .raised/.raised-sm agora marrom. .raised redefine --text/--text-dim/
+     --text-faint localmente (pro texto solto do card virar creme) — mas var() sempre resolve
+     no ponto de uso, não onde foi declarado, então um filho com fundo próprio claro (.field,
+     .pressed-pill, .iconbtn — ex.: a pill "quem mais compra" dentro do card de ranking)
+     herdaria esse creme sobre o PRÓPRIO fundo claro dele, quase ilegível. --surface-text* nunca
+     é redefinido fora daqui, então essas classes usam ele em vez de --text/--text-dim direto. */
   --surface-text:#F3E7D6;
   --surface-text-dim:#E8D1A7;
   --surface-text-faint:#B99E76;
+  /* Altura mínima do rodapé de marca no fim de cada tela (ver .reveal-footer mais abaixo). */
+  --reveal-footer-h:170px;
+  /* Sombra "raised" — cada profundidade calculada uma vez aqui, reaproveitada por todo o app. */
   --shadow-raised-xxs:0 2px 6px rgba(0,0,0,.35),inset 0 1px 0 rgba(232,209,167,.05);
   --shadow-raised-xs:0 3px 9px rgba(0,0,0,.4),inset 0 1px 0 rgba(232,209,167,.06);
   --shadow-raised-sm:0 4px 12px rgba(0,0,0,.42),inset 0 1px 0 rgba(232,209,167,.07);
@@ -164,8 +111,8 @@ body{background:var(--page-bg);display:flex;align-items:flex-start;justify-conte
 /* ---------- #authView: login / criar conta — tela cheia, fora do .app-frame ----------
    O layout de duas colunas (marca + formulário) foi desenhado pra ocupar o viewport
    inteiro, não o cartão de celular de 430px do resto do app — por isso vive fora dele,
-   sempre no tom escuro da marca (Cowhide Cocoa), independente do tema claro/escuro do
-   app depois do login. checkAuthAndInit()/enterApp() (app.js) decidem qual dos dois
+   sempre no tom escuro da marca (Cowhide Cocoa), com cor fixa em vez de var(--bg).
+   checkAuthAndInit()/enterApp() (app.js) decidem qual dos dois
    (#authView ou .app-frame) fica visível. */
 #authView{
   min-height:100vh;width:100%;position:relative;display:flex;flex-direction:column;
@@ -286,15 +233,11 @@ input.auth-input:-webkit-autofill{-webkit-text-fill-color:#F3E6CE;transition:bac
 .app-frame{
   width:100%;max-width:430px;margin:0 auto;height:100vh;background:var(--bg);
   position:relative;overflow:hidden;
-  box-shadow:0 0 1px rgba(42,33,26,.15);
+  box-shadow:0 0 1px rgba(0,0,0,.4);
 }
 .app-frame[hidden]{display:none;}
 @media (min-width:431px){
-  .app-frame{box-shadow:0 30px 70px rgba(42,33,26,.22);}
-}
-html[data-theme="dark"] .app-frame{box-shadow:0 0 1px rgba(0,0,0,.4);}
-@media (min-width:431px){
-  html[data-theme="dark"] .app-frame{box-shadow:0 30px 70px rgba(0,0,0,.55);}
+  .app-frame{box-shadow:0 30px 70px rgba(0,0,0,.55);}
 }
 .screen{
   width:100%;height:100%;background:var(--bg);color:var(--text);
@@ -348,10 +291,11 @@ html[data-theme="dark"] .app-frame{box-shadow:0 0 1px rgba(0,0,0,.4);}
   margin-top:20px;min-height:var(--reveal-footer-h);border-radius:24px;
   display:flex;align-items:center;justify-content:center;
   background:#442D1C;
-  /* --bg no tema escuro já É #442D1C — sem sombra o rodapé "some" contra o próprio fundo
-     da tela (mesmo problema que .raised resolve pros cards: cor igual à página, separado só
-     pelo relevo). box-shadow fixo (não var(--shadow-raised-md), que no tema claro é dupla
-     clara/escura pensada pra um fundo claro) garante o mesmo relevo escuro em qualquer tema. */
+  /* --bg já É #442D1C — sem sombra o rodapé "some" contra o próprio fundo da tela (mesmo
+     problema que .raised resolve pros cards: cor igual à página, separado só pelo relevo).
+     box-shadow fixo, não var(--shadow-raised-md): no Dashboard/Estoque de Insumos/Produção
+     esse token resolve pra --shadow-d/--shadow-l calibrados pra fundo creme (ver paleta fixa
+     dessas telas mais abaixo), errado pro fundo sempre-escuro deste rodapé. */
   box-shadow:0 6px 18px rgba(0,0,0,.35),inset 0 1px 0 rgba(232,209,167,.08);
   opacity:0;transform:translateY(18px);transition:opacity .6s ease,transform .6s ease;
 }
@@ -396,9 +340,9 @@ html[data-theme="dark"] .app-frame{box-shadow:0 0 1px rgba(0,0,0,.4);}
    precisar caçar cada `style=` dentro de cada card. Filhos que continuam em var(--bg)
    (.pressed-pill, .iconbtn, .avatar, .field) não usam --bg redefinido aqui de propósito:
    viram um "chip" claro sobre o card escuro, igual ao emblema/avatar do .dash-hero. O
-   box-shadow também troca pra um drop-shadow simples (mesma fórmula do tema escuro), porque
-   o par claro/escuro difuso do neumorfismo original só faz sentido sobre uma superfície
-   clara. */
+   box-shadow também troca pra um drop-shadow simples (mesma fórmula usada no resto do app),
+   porque o par claro/escuro difuso do neumorfismo original só faz sentido sobre uma
+   superfície clara. */
 .raised{
   background:var(--card-bg);border-radius:20px;border:1px solid var(--card-line);
   box-shadow:0 6px 18px rgba(0,0,0,.28),inset 0 1px 0 rgba(243,230,206,.08);
@@ -600,11 +544,14 @@ a{color:var(--primary);}
 }
 
 /* ---------- Dashboard: paleta fixa da marca (Squarespace "createmor" — Golden Batter,
-   Toasted Caramel, Spiced Wine, Olive Harvest, Cowhide Cocoa), independente do toggle
-   claro/escuro de "mais" — mesma lógica de #authView, que também sempre usa as cores da
-   marca em vez do tema. Reaproveita os tokens do tema claro (já validados em WCAG AA
-   pelo resto do app, ver o comentário de --text-faint no topo do arquivo) e só troca
-   --bg pelo tom mais dourado do moodboard, pra dar o "fundo creme" pedido. */
+   Toasted Caramel, Spiced Wine, Olive Harvest, Cowhide Cocoa), independente dos tokens de
+   tema do :root — mesma lógica de #authView, que também sempre usa cor de marca fixa em
+   vez de var(--bg)/var(--text). --text-faint aqui é #7A6852, não o valor do :root: #8C7A63
+   (o tom original) dava só 3.84:1 contra o fundo creme desta tela — abaixo do mínimo de
+   4.5:1 do WCAG 2.1 AA pra texto normal — e #7A6852 escurece a mesma família de marrom
+   quente (mesma proporção entre os canais) até 4.96:1, mantendo a cor "neutra discreta"
+   que o brandbook pede sem deixar o texto ilegível. --bg troca pro tom mais dourado do
+   moodboard, pra dar o "fundo creme" pedido. */
 .screen[data-screen="dashboard"]{
   --bg:#FBF6EC;--text:#2B1B10;--text-dim:#84592B;--text-faint:#7A6852;
   --primary:#442D1C;--primary-soft:rgba(68,45,28,.10);--primary-soft-2:rgba(68,45,28,.17);
@@ -613,9 +560,9 @@ a{color:var(--primary);}
   --chart-2:#84592B;--chart-3:#9D9167;--on-primary:#E8D1A7;--dock-bg:#FFFDF7;
   /* --surface-text* (criado pra .pill/.field/.iconbtn não herdarem o creme do card marrom,
      ver comentário no :root) precisa ser repetido aqui: esta tela força --bg/--text sempre
-     claros, mas --surface-text* por si só continua puxando do tema real (claro/escuro do
-     toggle) se não for redefinido também aqui — em tema escuro, isso vazava o creme escuro
-     pro texto da pill "30 dias"/"personalizado", invisível sobre o próprio fundo claro dela. */
+     claros, mas --surface-text* por si só continua puxando do :root se não for redefinido
+     também aqui — sem isso, vazava o creme do :root pro texto da pill "30 dias"/
+     "personalizado", invisível sobre o próprio fundo claro dela. */
   --surface-text:#2B1B10;--surface-text-dim:#84592B;--surface-text-faint:#7A6852;
   background:#E8D1A7;
 }
@@ -649,7 +596,7 @@ a{color:var(--primary);}
 .screen[data-screen="dashboard"] .raised-sm .badge.primary{background:var(--primary-soft-2);color:var(--primary);}
 
 /* Estoque de Insumos e Estoque de Produção — mesmo "fundo creme" fixo do dashboard,
-   independente do toggle claro/escuro de "mais" (ver comentário acima). */
+   independente dos tokens de tema do :root (ver comentário acima). */
 .screen[data-screen="estoqueInsumos"],
 .screen[data-screen="estoqueProducao"]{
   --bg:#FBF6EC;--text:#2B1B10;--text-dim:#84592B;--text-faint:#7A6852;
@@ -657,9 +604,9 @@ a{color:var(--primary);}
   --shadow-d:#E4D6BE;--shadow-l:#FFFFFF;--line:rgba(68,45,28,.12);
   --warn:#743014;--warn-soft:rgba(116,48,20,.11);--good:#5C6B3F;--good-soft:rgba(92,107,63,.12);
   --chart-2:#84592B;--chart-3:#9D9167;--on-primary:#E8D1A7;--dock-bg:#FFFDF7;
-  /* Mesmo motivo do bloco do Dashboard acima — sem isso, em tema escuro o texto de .field/
-     .pill/.iconbtn nesta tela (ex.: "buscar insumo") herdava o creme do tema escuro, quase
-     invisível sobre o fundo sempre-claro forçado aqui. */
+  /* Mesmo motivo do bloco do Dashboard acima — sem isso, o texto de .field/.pill/.iconbtn
+     nesta tela (ex.: "buscar insumo") herdava o creme do :root, quase invisível sobre o
+     fundo sempre-claro forçado aqui. */
   --surface-text:#2B1B10;--surface-text-dim:#84592B;--surface-text-faint:#7A6852;
   background:#E8D1A7;
 }
@@ -714,10 +661,10 @@ a{color:var(--primary);}
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
 .cal-day-empty{aspect-ratio:1;}
 /* Borda de cada dia: var(--line), o mesmo contorno sutil que .raised/.pressed/.pill/.field
-   já usam no resto do app — no tema escuro (padrão da marca) ele já É um creme translúcido
-   (--primary vira E8D1A7 no escuro, --line é esse tom em baixa opacidade), então cada dia
-   ganha um chip arredondado creme sem precisar de uma cor nova só pra isto. Pedido: dar mais
-   definição à grade (antes só hoje/selecionado tinham contorno, o resto eram números soltos). */
+   já usam no resto do app — já É um creme translúcido (--primary é E8D1A7, --line é esse
+   tom em baixa opacidade), então cada dia ganha um chip arredondado creme sem precisar de
+   uma cor nova só pra isto. Pedido: dar mais definição à grade (antes só hoje/selecionado
+   tinham contorno, o resto eram números soltos). */
 .cal-day{aspect-ratio:1;border-radius:14px;border:1px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:13.5px;font-weight:600;color:var(--text);cursor:pointer;transition:background-color .15s ease,color .15s ease,border-color .15s ease,transform .1s ease;}
 .cal-day:active{transform:scale(.92);}
 /* Dia de hoje (sem ser o selecionado): contorno cheio em --primary (mais forte que o --line
@@ -768,7 +715,6 @@ a{color:var(--primary);}
   html:not([data-preview="mobile"]) .app-frame{
     width:100%;max-width:none;height:100vh;border-radius:0;box-shadow:none;margin:0;
   }
-  html[data-theme="dark"]:not([data-preview="mobile"]) .app-frame{box-shadow:none;}
   html:not([data-preview="mobile"]) .content{max-width:1180px;width:100%;margin-left:auto;margin-right:auto;padding:36px 40px 60px;box-sizing:border-box;}
   html:not([data-preview="mobile"]) .topbar,
   html:not([data-preview="mobile"]) .backrow{max-width:1180px;width:100%;margin:0 auto;padding-left:40px;padding-right:40px;box-sizing:border-box;}
@@ -855,7 +801,6 @@ html[data-preview="desktop"] body{padding:0;align-items:stretch;}
 html[data-preview="desktop"] .app-frame{
   width:100%;max-width:none;height:100vh;border-radius:0;box-shadow:none;margin:0;
 }
-html[data-preview="desktop"][data-theme="dark"] .app-frame{box-shadow:none;}
 html[data-preview="desktop"] .content{max-width:1180px;width:100%;margin-left:auto;margin-right:auto;padding:36px 40px 60px;box-sizing:border-box;}
 html[data-preview="desktop"] .topbar,
 html[data-preview="desktop"] .backrow{max-width:1180px;width:100%;margin:0 auto;padding-left:40px;padding-right:40px;box-sizing:border-box;}
@@ -898,12 +843,10 @@ html[data-preview="desktop"] .dash-area-produzido{
 
 html[data-preview="mobile"] body{padding:26px 0;align-items:flex-start;}
 html[data-preview="mobile"] .app-frame{
-  max-width:430px;height:100vh;border-radius:0;box-shadow:0 0 1px rgba(42,33,26,.15);
+  max-width:430px;height:100vh;border-radius:0;box-shadow:0 0 1px rgba(0,0,0,.4);
 }
-html[data-preview="mobile"][data-theme="dark"] .app-frame{box-shadow:0 0 1px rgba(0,0,0,.4);}
 @media (min-width:431px){
-  html[data-preview="mobile"] .app-frame{box-shadow:0 30px 70px rgba(42,33,26,.22);}
-  html[data-preview="mobile"][data-theme="dark"] .app-frame{box-shadow:0 30px 70px rgba(0,0,0,.55);}
+  html[data-preview="mobile"] .app-frame{box-shadow:0 30px 70px rgba(0,0,0,.55);}
 }
 
 /* ---------- Mostrar/ocultar senha dentro de um .pressed.field comum (fora da tela de auth,

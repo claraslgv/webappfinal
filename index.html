@@ -5,20 +5,6 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>.parágrafo</title>
-  <script>
-    // Aplica o tema salvo antes do CSS pintar a tela, pra não piscar um tema e trocar pro
-    // outro logo em seguida. Sem preferência salva, cai no escuro — é o tema-padrão da marca
-    // (a própria .parágrafo vive num Cowhide Cocoa escuro). app.js mantém isto sincronizado
-    // no resto da sessão (ver setTema() e o switch em "mais").
-    (function () {
-      try {
-        var tema = localStorage.getItem("pp_tema_v1");
-        document.documentElement.setAttribute("data-theme", tema === "claro" ? "light" : "dark");
-      } catch (e) {
-        document.documentElement.setAttribute("data-theme", "dark");
-      }
-    })();
-  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet"
@@ -183,7 +169,8 @@
     <div class="screen" data-screen="dashboard">
       <!-- Bloco "hero" — cor sólida da marca (Spiced Wine) + texto creme, tira dos 7 dias
            da semana com hoje em destaque. Ver o repin de --bg/--text/etc. pra esta tela em
-           style.css (mesma lógica de #authView: ignora o toggle claro/escuro). -->
+           style.css (mesma lógica de #authView: paleta de marca fixa, não depende dos
+           tokens de tema). -->
       <div class="dash-hero">
         <div class="topbar">
           <div class="brandrow">
@@ -464,7 +451,7 @@
 
         <!-- As 3 pastas empilhadas — mesma lógica de cor fixa do dash-hero e do dock: sempre
              uma das cores da marca, cascateando de mais clara pra mais escura (a mesma
-             sequência de cores do dock, só reordenada), independente do tema claro/escuro. -->
+             sequência de cores do dock, só reordenada). -->
         <div class="folder-stack">
           <div class="folder-card" role="button" tabindex="0" data-goto="estoqueInsumos"
             aria-label="Abrir Estoque de Insumos" style="background:#9D9167;color:#2B1B10;">
@@ -1947,20 +1934,6 @@
             stroke-linejoin="round" style="width:20px;height:20px;flex:none;color:var(--text-dim);">
             <path d="m9 6 6 6-6 6" />
           </svg>
-        </div>
-
-        <div class="raised card between" role="button" tabindex="0" data-action="toggle-tema"
-          aria-label="Alternar tema claro/escuro">
-          <div>
-            <div style="font-size:14px;font-weight:600;">tema escuro</div>
-            <div style="font-size:11.5px;color:var(--text-faint);margin-top:2px;">a marca nasceu escura — troque se
-              preferir um fundo claro</div>
-          </div>
-          <div class="pressed-pill" id="temaSwitchKnob" style="width:46px;height:27px;padding:3px;flex:none;">
-            <div id="temaSwitchDot"
-              style="width:21px;height:21px;border-radius:50%;background:var(--primary);transition:transform .18s ease;">
-            </div>
-          </div>
         </div>
 
         <div class="raised card" style="margin-top:14px;margin-bottom:14px;">
