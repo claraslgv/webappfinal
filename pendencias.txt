@@ -164,6 +164,27 @@ ESTRUTURA GERAL DO APP — pendências importantes
   Venda, Encomendas, Histórico de Vendas, Controle de Custos, Cupons)
   já navega de verdade, ver módulos 14 a 18.
 
+- [RESOLVIDO em 08/09/2026] Cupons: pasta "Vendas → Cupons" deixou de
+  ser um toast "em breve" e virou 2 telas de verdade (lista + novo/
+  editar). Cadastro completo do cupom que "Registrar Venda" já sabia
+  aplicar mas não tinha onde nascer (cuponsState existia só como seed
+  no código, sem UI nenhuma): código (único, comparado sem diferenciar
+  maiúscula/minúscula), tipo percentual ou fixo, início e fim de
+  validade opcionais, limite de uso opcional (0 = sem limite) e status
+  ativo/inativo. Cada linha da lista mostra um badge calculado (ativo/
+  inativo/vencido/esgotado — não só o campo bruto "ativo", também olha
+  data de validade e limite×usos) e a contagem de usos; tocar num
+  cupom abre editar direto, sem tela de detalhe separada (não fazia
+  sentido duplicar pra um cadastro tão simples). Reaproveita os mesmos
+  padrões visuais de Encomendas/Registrar Venda (raised-sm, pressed
+  field, pills, badge good/warn) — nenhum CSS novo. Ver app.js:
+  "Cupons — módulo 17"; index.html: data-screen="cupons" /
+  "cupomForm". Testado ponta a ponta com Playwright/Chromium headless:
+  criar cupom fixo (R$ 15,00, limite 5 usos), bloquear cadastro de
+  código duplicado (PAUSA10 já existente, mesmo digitado em minúscula)
+  sem sair do formulário, editar o cupom novo pra inativo (badge muda
+  na lista) e excluir — zero erros de console em toda a sequência.
+
 - [RESOLVIDO em 08/09/2026] Controle de Custos: pasta "Vendas →
   Controle de Custos" deixou de ser um toast "em breve" e virou uma
   tela de verdade. Card "custo real por vela" (custo de insumo médio
