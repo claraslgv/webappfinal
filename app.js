@@ -756,6 +756,116 @@
   }
 
   // ================================================================
+  // Controle de Custos — tela — módulo 18. Único lugar do app onde custosState.fixos e
+  // rateioBase (usados pelas contas acima e pelo "lucro líquido real" do Dashboard) ficam
+  // visíveis e editáveis — até aqui só existiam como dado de seed, sem tela nenhuma. Segue
+  // o mesmo esquema de "Configurações de produção" (módulo 8, ver renderConfiguracoes):
+  // inputs sem controle nenhum enquanto a pessoa digita, um botão "salvar" só que lê tudo
+  // do DOM de uma vez. Adicionar/remover linha de custo fixo mexe só no DOM (insertAdjacentHTML
+  // / remove()), sem re-render da lista inteira, pra nunca perder o que já foi digitado nas
+  // outras linhas antes de salvar.
+  // ================================================================
+  function custosMargemRowHTML(v, custoRealVela, last){
+    var margemValor = round2((v.precoVenda || 0) - custoRealVela);
+    var margemPct = v.precoVenda > 0 ? Math.round((margemValor / v.precoVenda) * 100) : 0;
+    var prejuizo = margemValor < 0;
+    return '' +
+      '<div class="between" style="padding:11px 0;' + (last ? "" : "border-bottom:1px solid var(--line);") + '">' +
+        '<div style="flex:1;min-width:0;">' +
+          '<div style="font-size:13.5px;font-weight:500;">' + escapeHtml(variacaoLabel(v)) + '</div>' +
+          '<div style="font-size:11px;color:var(--text-faint);margin-top:2px;">venda ' + fmtMoney(v.precoVenda) + '</div>' +
+        '</div>' +
+        '<div style="text-align:right;">' +
+          '<div style="font-size:13.5px;font-weight:700;' + (prejuizo ? "color:var(--warn);" : "") + '">' + fmtMoney(margemValor) + '</div>' +
+          '<div style="font-size:11px;margin-top:2px;' + (prejuizo ? "color:var(--warn);" : "color:var(--text-faint);") + '">' + (prejuizo ? "prejuízo · " : "") + margemPct + '%</div>' +
+        '</div>' +
+      '</div>';
+  }
+  function custosFixoRowHTML(fixo){
+    return '' +
+      '<div class="row" style="gap:8px;margin-bottom:10px;align-items:flex-end;" data-custos-fixo-row="' + fixo.id + '">' +
+        '<div class="pressed field" style="flex:1;margin-bottom:0;">' +
+          '<div class="label">nome</div>' +
+          '<input type="text" class="custos-fixo-nome" placeholder="ex.: aluguel do ateliê" value="' + escapeHtml(fixo.nome) + '" />' +
+        '</div>' +
+        '<div class="pressed field" style="width:96px;flex:none;margin-bottom:0;">' +
+          '<div class="label">valor</div>' +
+          '<div class="row" style="gap:4px;">' +
+            '<span style="font-size:13px;font-weight:600;color:var(--text-faint);">R$</span>' +
+            '<input type="text" class="custos-fixo-valor" style="flex:1;text-align:right;" value="' + numToStr(fixo.valor) + '" />' +
+          '</div>' +
+        '</div>' +
+        '<div class="tapicon" role="button" tabindex="0" aria-label="Remover custo fixo" data-action="custos-fixo-remove" style="width:30px;height:30px;flex:none;margin-bottom:9px;">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>' +
+        '</div>' +
+      '</div>';
+  }
+  function renderControleCustos(){
+    var custoInsumo = round2(custoInsumoPorVela());
+    var custoFixo = round2(custoFixoPorVela());
+    var custoReal = round2(custoInsumo + custoFixo);
+
+    setText("custosCustoRealVela", fmtMoney(custoReal));
+    setText("custosInsumoPorVela", fmtMoney(custoInsumo));
+    setText("custosFixoPorVela", fmtMoney(custoFixo));
+    var base = custosState.rateioBase || 0;
+    setText("custosFixoPorVelaSub", base > 0 ? ("rateado por " + base + " velas/mês") : "sem produção mensal estimada");
+
+    setText("custosLucroPeriodoLabel", periodoLabelText());
+    setText("custosLucroLiquido", fmtMoney(computeLucroLiquidoReal()));
+
+    var margemList = document.getElementById("custosMargemList");
+    if (margemList) {
+      margemList.innerHTML = catalogoState.variacoes.length ? catalogoState.variacoes.map(function(v, i){
+        return custosMargemRowHTML(v, custoReal, i === catalogoState.variacoes.length - 1);
+      }).join("") : emptyStateHTML({
+        icon: ICON_PRODUCAO, title: "nenhuma variação no catálogo", sub: "cadastre uma variação no Catálogo de Produtos primeiro."
+      });
+    }
+
+    var fixosList = document.getElementById("custosFixosList");
+    if (fixosList) fixosList.innerHTML = custosState.fixos.map(custosFixoRowHTML).join("");
+    var rateioInput = document.getElementById("custosRateioBase");
+    if (rateioInput) rateioInput.value = numToStr(custosState.rateioBase);
+
+    setText("custosFixoTotalTxt", fmtMoney(custoFixoTotal()));
+  }
+  function custosFixoAdd(){
+    var listEl = document.getElementById("custosFixosList");
+    if (!listEl) return;
+    listEl.insertAdjacentHTML("beforeend", custosFixoRowHTML({ id: uid("cf"), nome: "", valor: 0 }));
+    var rows = listEl.querySelectorAll("[data-custos-fixo-row]");
+    var lastRow = rows[rows.length - 1];
+    var nomeInput = lastRow && lastRow.querySelector(".custos-fixo-nome");
+    if (nomeInput) nomeInput.focus();
+  }
+  function custosFixoRemove(el){
+    var row = el.closest("[data-custos-fixo-row]");
+    if (row) row.remove();
+  }
+  function submitCustosFixos(){
+    var rows = document.querySelectorAll("#custosFixosList [data-custos-fixo-row]");
+    var novos = [];
+    rows.forEach(function(row){
+      var nomeInput = row.querySelector(".custos-fixo-nome");
+      var valorInput = row.querySelector(".custos-fixo-valor");
+      var nome = (nomeInput.value || "").trim();
+      if (!nome) return;
+      novos.push({ id: row.dataset.custosFixoRow, nome: nome, valor: round2(Math.max(0, strToNum(valorInput.value))) });
+    });
+    var rateioInput = document.getElementById("custosRateioBase");
+    var rateio = Math.max(0, Math.round(strToNum(rateioInput ? rateioInput.value : "0")));
+
+    custosState.fixos = novos;
+    custosState.rateioBase = rateio;
+    saveCustosState();
+
+    renderControleCustos();
+    renderPeriodoResumo();
+    showToast("custos fixos salvos.");
+  }
+
+  // ================================================================
   // Controle de clientes — módulo 13
   // Cadastro simples (nome, telefone, e-mail e endereço opcionais) com ID gerado sozinho
   // (uid("cl"), igual ao resto do app — nunca é a pessoa quem define). Histórico de
@@ -1697,6 +1807,159 @@
   }
   function setHistoricoVendasPeriodo(periodo){ historicoVendasState.periodo = periodo; renderHistoricoVendas(); }
   function setHistoricoVendasBusca(termo){ historicoVendasState.busca = termo || ""; renderHistoricoVendas(); }
+
+  // ================================================================
+  // Cupons — módulo 17. Cadastro/edição dos cupons que "Registrar Venda" já sabe aplicar
+  // (ver vendaCupomAplicar acima, e cuponsState logo no topo do arquivo). Cada cupom é
+  // percentual ou fixo, com validade e limite de uso opcionais; "escopo" existe no dado
+  // desde o seed original mas hoje só tem o valor "todas" — sem tela própria pra isso
+  // enquanto não houver um segundo valor de verdade pra escolher.
+  // ================================================================
+  var cupomFormState = null;
+  var cupomFormModo = "novo"; // "novo" | "editar"
+  var currentCupomId = null;
+
+  function findCupom(id){ return cuponsState.cupons.filter(function(c){ return c.id === id; })[0]; }
+
+  function cupomStatusInfo(cupom){
+    if (!cupom.ativo) return { label: "inativo", cls: "warn" };
+    var hoje = todayISO();
+    if (cupom.dataValidade && hoje > cupom.dataValidade) return { label: "vencido", cls: "warn" };
+    if (cupom.limiteUso > 0 && cupom.usosCount >= cupom.limiteUso) return { label: "esgotado", cls: "warn" };
+    return { label: "ativo", cls: "good" };
+  }
+  function cupomValorLabel(cupom){
+    return cupom.tipo === "fixo" ? fmtMoney(cupom.valor) + " de desconto" : numToStr(cupom.valor) + "% de desconto";
+  }
+  function cupomValidadeLabel(cupom){
+    if (!cupom.dataInicio && !cupom.dataValidade) return "sem prazo de validade";
+    if (cupom.dataInicio && cupom.dataValidade) return formatDateBR(cupom.dataInicio) + " até " + formatDateBR(cupom.dataValidade);
+    if (cupom.dataValidade) return "até " + formatDateBR(cupom.dataValidade);
+    return "a partir de " + formatDateBR(cupom.dataInicio);
+  }
+
+  // ---- Lista ----
+  function cuponsOrdenados(){ return cuponsState.cupons.slice().reverse(); }
+  function cupomRowHTML(cupom){
+    var status = cupomStatusInfo(cupom);
+    var usos = cupom.limiteUso > 0 ? (cupom.usosCount || 0) + "/" + cupom.limiteUso + " usos" : (cupom.usosCount || 0) + " usos";
+    return '' +
+      '<div class="raised-sm" role="button" tabindex="0" aria-label="Ver cupom ' + escapeHtml(cupom.codigo) + '" data-cupom-id="' + cupom.id + '" style="padding:14px 16px;margin-bottom:11px;">' +
+        '<div class="between" style="margin-bottom:6px;">' +
+          '<div style="font-size:14px;font-weight:600;">' + escapeHtml(cupom.codigo) + '</div>' +
+          '<span class="badge ' + status.cls + '">' + status.label + '</span>' +
+        '</div>' +
+        '<div style="font-size:12px;color:var(--text-faint);margin-bottom:4px;">' + escapeHtml(cupomValorLabel(cupom)) + ' · ' + usos + '</div>' +
+        '<div style="font-size:11px;color:var(--text-faint);">' + escapeHtml(cupomValidadeLabel(cupom)) + '</div>' +
+      '</div>';
+  }
+  function renderCupons(){
+    var itens = cuponsOrdenados();
+    var listEl = document.getElementById("cuponsList");
+    if (listEl) {
+      listEl.innerHTML = itens.length ? itens.map(cupomRowHTML).join("") : emptyStateHTML({
+        icon: ICON_VENDAS, title: "nenhum cupom ainda", sub: 'toque no "+" acima pra cadastrar o primeiro.'
+      });
+    }
+    var n = cuponsState.cupons.length;
+    setText("cuponsCount", n + (n === 1 ? " cupom" : " cupons"));
+  }
+
+  // ---- Formulário (novo / editar) ----
+  function defaultCupomFormState(){
+    return { codigo: "", tipo: "percentual", valor: 0, dataInicio: "", dataValidade: "", limiteUso: 0, ativo: true };
+  }
+  function openCupomForm(modo, id){
+    cupomFormModo = modo;
+    if (modo === "editar" && id) {
+      var cupom = findCupom(id);
+      if (!cupom) return;
+      currentCupomId = id;
+      cupomFormState = {
+        codigo: cupom.codigo, tipo: cupom.tipo, valor: cupom.valor,
+        dataInicio: cupom.dataInicio || "", dataValidade: cupom.dataValidade || "",
+        limiteUso: cupom.limiteUso || 0, ativo: !!cupom.ativo
+      };
+      setText("cupomFormTitle", "editar cupom");
+      setHidden("cupomFormRemoveWrap", false);
+    } else {
+      currentCupomId = null;
+      cupomFormState = defaultCupomFormState();
+      setText("cupomFormTitle", "novo cupom");
+      setHidden("cupomFormRemoveWrap", true);
+    }
+    renderCupomForm();
+  }
+  function renderCupomForm(){
+    if (!cupomFormState) return;
+    var codigoEl = document.getElementById("cupomFormCodigo");
+    if (codigoEl) codigoEl.value = cupomFormState.codigo;
+    var valorEl = document.getElementById("cupomFormValor");
+    if (valorEl) valorEl.value = cupomFormState.valor ? String(cupomFormState.valor) : "";
+    var inicioEl = document.getElementById("cupomFormDataInicio");
+    if (inicioEl) inicioEl.value = cupomFormState.dataInicio;
+    var validadeEl = document.getElementById("cupomFormDataValidade");
+    if (validadeEl) validadeEl.value = cupomFormState.dataValidade;
+    var limiteEl = document.getElementById("cupomFormLimiteUso");
+    if (limiteEl) limiteEl.value = cupomFormState.limiteUso ? String(cupomFormState.limiteUso) : "";
+    setText("cupomFormValorLabel", cupomFormState.tipo === "fixo" ? "desconto (R$)" : "desconto (%)");
+    document.querySelectorAll('#cupomFormTipoPills [data-cupom-tipo]').forEach(function(p){
+      var active = p.dataset.cupomTipo === cupomFormState.tipo;
+      p.classList.toggle("active", active);
+      p.setAttribute("aria-pressed", active ? "true" : "false");
+    });
+    document.querySelectorAll('#cupomFormStatusPills [data-cupom-ativo]').forEach(function(p){
+      var active = (p.dataset.cupomAtivo === "1") === cupomFormState.ativo;
+      p.classList.toggle("active", active);
+      p.setAttribute("aria-pressed", active ? "true" : "false");
+    });
+  }
+  function cupomTipoSelecionar(tipo){
+    cupomFormState.tipo = tipo;
+    renderCupomForm();
+  }
+  function cupomStatusSelecionar(ativo){
+    cupomFormState.ativo = ativo;
+    renderCupomForm();
+  }
+  function submitCupomForm(){
+    var codigo = (cupomFormState.codigo || "").trim().toUpperCase();
+    if (!codigo) { showToast("digite um código pro cupom."); return; }
+    var duplicado = cuponsState.cupons.filter(function(c){ return c.codigo.toUpperCase() === codigo && c.id !== currentCupomId; })[0];
+    if (duplicado) { showToast("já existe um cupom com esse código."); return; }
+    var valor = cupomFormState.valor;
+    if (!(valor > 0)) { showToast("digite um valor de desconto maior que zero."); return; }
+    if (cupomFormState.tipo === "percentual" && valor > 100) { showToast("desconto percentual não pode passar de 100%."); return; }
+    if (cupomFormState.dataInicio && cupomFormState.dataValidade && cupomFormState.dataInicio > cupomFormState.dataValidade) {
+      showToast("a data de início não pode ser depois da validade."); return;
+    }
+    if (cupomFormModo === "editar" && currentCupomId) {
+      var cupom = findCupom(currentCupomId);
+      if (!cupom) return;
+      cupom.codigo = codigo; cupom.tipo = cupomFormState.tipo; cupom.valor = valor;
+      cupom.dataInicio = cupomFormState.dataInicio || null; cupom.dataValidade = cupomFormState.dataValidade || null;
+      cupom.limiteUso = cupomFormState.limiteUso || 0; cupom.ativo = cupomFormState.ativo;
+    } else {
+      cuponsState.cupons.push({
+        id: uid("c"), codigo: codigo, tipo: cupomFormState.tipo, valor: valor, escopo: "todas",
+        dataInicio: cupomFormState.dataInicio || null, dataValidade: cupomFormState.dataValidade || null,
+        limiteUso: cupomFormState.limiteUso || 0, usosCount: 0, ativo: cupomFormState.ativo
+      });
+    }
+    saveCuponsState();
+    showToast(cupomFormModo === "editar" ? "cupom atualizado." : "cupom cadastrado.");
+    renderCupons();
+    showScreen("cupons");
+  }
+  function excluirCupom(){
+    if (!currentCupomId) return;
+    if (!window.confirm("Excluir este cupom? Essa ação não pode ser desfeita.")) return;
+    cuponsState.cupons = cuponsState.cupons.filter(function(c){ return c.id !== currentCupomId; });
+    saveCuponsState();
+    showToast("cupom excluído.");
+    renderCupons();
+    showScreen("cupons");
+  }
 
   // ================================================================
   // Seletor único de período — 7 dias / 30 dias / personalizado
@@ -3080,7 +3343,7 @@
   // construídas, no mesmo esquema do ESTOQUE_SCREENS acima.
   var VENDAS_SCREENS = {
     vendas: true, registrarVenda: true, encomendas: true, encomendaForm: true, encomendaDetalhe: true,
-    historicoVendas: true
+    historicoVendas: true, cupons: true, cupomForm: true, controleCustos: true
   };
   // Telas do módulo 13 (Controle de Clientes) — cadastro/lista, formulário e detalhe.
   var CLIENTES_SCREENS = {
@@ -3093,6 +3356,7 @@
     "registroProducaoDock", "loteDetalheDock",
     "configuracoesDock", "vendasDock", "registrarVendaDock",
     "encomendasDock", "encomendaFormDock", "encomendaDetalheDock", "historicoVendasDock",
+    "cuponsDock", "cupomFormDock", "controleCustosDock",
     "clientesDock", "clienteFormDock", "clienteDetalheDock",
     "contaDock", "ajudaDock"
   ];
@@ -3279,6 +3543,12 @@
 
     var gotoHistoricoVendas = e.target.closest('[data-goto="historicoVendas"]');
     if (gotoHistoricoVendas) { renderHistoricoVendas(); showScreen("historicoVendas"); return; }
+
+    var gotoControleCustos = e.target.closest('[data-goto="controleCustos"]');
+    if (gotoControleCustos) { renderControleCustos(); showScreen("controleCustos"); return; }
+
+    var gotoCupons = e.target.closest('[data-goto="cupons"]');
+    if (gotoCupons) { renderCupons(); showScreen("cupons"); return; }
 
     var gotoEl = e.target.closest("[data-goto]");
     if (gotoEl) { showScreen(gotoEl.dataset.goto); return; }
@@ -3516,6 +3786,35 @@
     var historicoPeriodoPill = e.target.closest('#historicoVendasPeriodoPills [data-hist-periodo]');
     if (historicoPeriodoPill) { setHistoricoVendasPeriodo(historicoPeriodoPill.dataset.histPeriodo); return; }
 
+    // ---- Controle de Custos ----
+    var custosFixoAddBtn = e.target.closest('[data-action="custos-fixo-add"]');
+    if (custosFixoAddBtn) { custosFixoAdd(); return; }
+
+    var custosFixoRemoveBtn = e.target.closest('[data-action="custos-fixo-remove"]');
+    if (custosFixoRemoveBtn) { custosFixoRemove(custosFixoRemoveBtn); return; }
+
+    var custosSalvarBtn = e.target.closest('[data-action="custos-salvar"]');
+    if (custosSalvarBtn) { submitCustosFixos(); return; }
+
+    // ---- Cupons ----
+    var cupomAddBtn = e.target.closest('[data-action="cupom-add"]');
+    if (cupomAddBtn) { openCupomForm("novo"); showScreen("cupomForm"); return; }
+
+    var cupomRow = e.target.closest('[data-cupom-id]');
+    if (cupomRow) { openCupomForm("editar", cupomRow.dataset.cupomId); showScreen("cupomForm"); return; }
+
+    var cupomTipoPill = e.target.closest('#cupomFormTipoPills [data-cupom-tipo]');
+    if (cupomTipoPill) { cupomTipoSelecionar(cupomTipoPill.dataset.cupomTipo); return; }
+
+    var cupomStatusPill = e.target.closest('#cupomFormStatusPills [data-cupom-ativo]');
+    if (cupomStatusPill) { cupomStatusSelecionar(cupomStatusPill.dataset.cupomAtivo === "1"); return; }
+
+    var cupomFormSaveBtn = e.target.closest('[data-action="cupom-form-save"]');
+    if (cupomFormSaveBtn) { submitCupomForm(); return; }
+
+    var cupomFormRemoveBtn = e.target.closest('[data-action="cupom-form-remove"]');
+    if (cupomFormRemoveBtn) { excluirCupom(); return; }
+
     // ---- Backup dos dados ----
     var backupExportarBtn = e.target.closest('[data-action="backup-exportar"]');
     if (backupExportarBtn) { exportarBackup(); return; }
@@ -3538,6 +3837,11 @@
     if (e.target.id === "encomendaClienteSearchInput") { renderEncomendaClienteList(e.target.value); return; }
     if (e.target.id === "encomendaFormDataPrevista") { encomendaFormState.dataPrevista = e.target.value || ""; return; }
     if (e.target.id === "encomendaFormObs") { encomendaFormState.observacoes = e.target.value; return; }
+    if (e.target.id === "cupomFormCodigo") { cupomFormState.codigo = e.target.value; return; }
+    if (e.target.id === "cupomFormValor") { cupomFormState.valor = strToNum(e.target.value); return; }
+    if (e.target.id === "cupomFormDataInicio") { cupomFormState.dataInicio = e.target.value || ""; return; }
+    if (e.target.id === "cupomFormDataValidade") { cupomFormState.dataValidade = e.target.value || ""; return; }
+    if (e.target.id === "cupomFormLimiteUso") { cupomFormState.limiteUso = parseInt(e.target.value, 10) || 0; return; }
   });
 
   document.addEventListener("change", function(e){
@@ -3583,6 +3887,7 @@
   renderClientesRanking();
   renderEncomendas();
   renderHistoricoVendas();
+  renderControleCustos();
 
   // ================================================================
   checkAuthAndInit();

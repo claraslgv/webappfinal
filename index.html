@@ -1260,10 +1260,8 @@
         </div>
       </div>
       <div class="content">
-        <!-- Mesmo esquema de cascata de cores da marca do hub Estoque. Custos e Cupons ainda
-             não têm tela — disparam o toast "em breve" (data-action toast-em-breve +
-             data-msg) em vez de navegar (data-goto); Registrar Venda, Encomendas e
-             Histórico de Vendas já navegam de verdade. -->
+        <!-- Mesmo esquema de cascata de cores da marca do hub Estoque — todas as pastas já
+             navegam de verdade (data-goto); nenhuma dispara mais o toast "em breve". -->
         <div class="folder-stack">
           <div class="folder-card" role="button" tabindex="0" data-goto="registrarVenda"
             aria-label="Abrir Registrar Venda" style="background:#9D9167;color:#2B1B10;">
@@ -1301,8 +1299,7 @@
             </svg>
           </div>
 
-          <div class="folder-card" role="button" tabindex="0" data-action="toast-em-breve"
-            data-msg="em breve — controle de custos ainda está sendo construído."
+          <div class="folder-card" role="button" tabindex="0" data-goto="controleCustos"
             aria-label="Abrir Controle de Custos" style="background:#442D1C;color:#E8D1A7;">
             <div style="flex:1;min-width:0;">
               <div class="folder-card-title">Controle de Custos</div>
@@ -1314,8 +1311,7 @@
             </svg>
           </div>
 
-          <div class="folder-card" role="button" tabindex="0" data-action="toast-em-breve"
-            data-msg="em breve — cupons ainda está sendo construído."
+          <div class="folder-card" role="button" tabindex="0" data-goto="cupons"
             aria-label="Abrir Cupons" style="background:#E8D1A7;color:#442D1C;">
             <div style="flex:1;min-width:0;">
               <div class="folder-card-title">Cupons</div>
@@ -1762,6 +1758,209 @@
         </div>
       </div>
       <div class="dock" id="historicoVendasDock" role="navigation" aria-label="Navegação principal"></div>
+    </div>
+
+    <!-- ---------- Cupons — módulo 17 ---------- -->
+    <div class="screen" data-screen="cupons" hidden>
+      <div class="backrow between">
+        <div class="row">
+          <div class="iconbtn" role="button" tabindex="0" data-goto="vendas" aria-label="Voltar a vendas">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path d="m15 6-6 6 6 6" />
+            </svg>
+          </div>
+          <div>
+            <div class="crumb">vendas</div>
+            <div class="pagetitle" style="font-size:19px;">cupons</div>
+          </div>
+        </div>
+        <div class="iconbtn" role="button" tabindex="0" data-action="cupom-add" aria-label="Novo cupom">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+            <path d="M12 5v14M5 12h14" />
+          </svg>
+        </div>
+      </div>
+      <div class="content">
+        <div class="skel-overlay" aria-hidden="true" hidden>
+          <div class="skel-block" style="height:40px;"></div>
+          <div class="skel-block" style="height:80px;"></div>
+          <div class="skel-block" style="height:80px;"></div>
+        </div>
+
+        <div class="label" id="cuponsCount">cupons</div>
+
+        <div id="cuponsList"></div>
+
+        <div class="reveal-footer" aria-hidden="true">
+          <span class="reveal-footer-mark">.parágrafo</span>
+        </div>
+      </div>
+      <div class="dock" id="cuponsDock" role="navigation" aria-label="Navegação principal"></div>
+    </div>
+
+    <!-- ---------- Novo / Editar Cupom — módulo 17 ---------- -->
+    <div class="screen" data-screen="cupomForm" hidden>
+      <div class="backrow">
+        <div class="iconbtn" role="button" tabindex="0" data-goto="cupons" aria-label="Voltar a cupons">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"
+            stroke-linejoin="round">
+            <path d="m15 6-6 6 6 6" />
+          </svg>
+        </div>
+        <div>
+          <div class="crumb">cupons</div>
+          <div class="pagetitle" style="font-size:19px;" id="cupomFormTitle">novo cupom</div>
+        </div>
+      </div>
+      <div class="content">
+        <div class="skel-overlay" aria-hidden="true" hidden>
+          <div class="skel-block" style="height:56px;"></div>
+          <div class="skel-block" style="height:56px;"></div>
+          <div class="skel-block" style="height:90px;"></div>
+        </div>
+
+        <div class="pressed field">
+          <div class="label">código</div>
+          <input type="text" id="cupomFormCodigo" placeholder="ex.: PAUSA10" autocapitalize="characters" />
+        </div>
+
+        <div class="label" style="margin: 14px 4px 8px;">tipo de desconto</div>
+        <div class="row" style="gap:9px;margin-bottom:16px;" id="cupomFormTipoPills">
+          <div class="pill active" style="flex:1;text-align:center;" data-cupom-tipo="percentual" role="button"
+            tabindex="0" aria-pressed="true">percentual (%)</div>
+          <div class="pill" style="flex:1;text-align:center;" data-cupom-tipo="fixo" role="button" tabindex="0"
+            aria-pressed="false">fixo (R$)</div>
+        </div>
+
+        <div class="pressed field">
+          <div class="label" id="cupomFormValorLabel">desconto (%)</div>
+          <input type="number" inputmode="decimal" min="0" step="0.01" id="cupomFormValor" placeholder="0" />
+        </div>
+
+        <div class="pressed field">
+          <div class="label">início da validade (opcional)</div>
+          <input type="date" id="cupomFormDataInicio" />
+        </div>
+
+        <div class="pressed field">
+          <div class="label">fim da validade (opcional)</div>
+          <input type="date" id="cupomFormDataValidade" />
+        </div>
+
+        <div class="pressed field">
+          <div class="label">limite de usos (opcional, 0 = sem limite)</div>
+          <input type="number" inputmode="numeric" min="0" step="1" id="cupomFormLimiteUso" placeholder="0" />
+        </div>
+
+        <div class="label" style="margin: 14px 4px 8px;">status</div>
+        <div class="row" style="gap:9px;margin-bottom:8px;" id="cupomFormStatusPills">
+          <div class="pill active" style="flex:1;text-align:center;" data-cupom-ativo="1" role="button" tabindex="0"
+            aria-pressed="true">ativo</div>
+          <div class="pill" style="flex:1;text-align:center;" data-cupom-ativo="0" role="button" tabindex="0"
+            aria-pressed="false">inativo</div>
+        </div>
+
+        <button class="btn btn-primary" id="cupomFormSaveBtn" data-action="cupom-form-save"
+          style="width:100%;margin-top:14px;margin-bottom:12px;">salvar cupom</button>
+        <div style="text-align:center;" id="cupomFormRemoveWrap" hidden>
+          <button class="btn btn-text" data-action="cupom-form-remove" style="color:var(--warn);">Excluir cupom</button>
+        </div>
+      </div>
+      <div class="dock" id="cupomFormDock" role="navigation" aria-label="Navegação principal"></div>
+    </div>
+
+    <!-- ---------- Controle de Custos — módulo 18 ---------- -->
+    <div class="screen" data-screen="controleCustos" hidden>
+      <div class="backrow">
+        <div class="iconbtn" role="button" tabindex="0" data-goto="vendas" aria-label="Voltar a vendas">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"
+            stroke-linejoin="round">
+            <path d="m15 6-6 6 6 6" />
+          </svg>
+        </div>
+        <div>
+          <div class="crumb">vendas</div>
+          <div class="pagetitle" style="font-size:19px;">controle de custos</div>
+        </div>
+      </div>
+      <div class="content">
+        <div class="skel-overlay" aria-hidden="true" hidden>
+          <div class="skel-block" style="height:96px;"></div>
+          <div class="skel-block" style="height:74px;"></div>
+          <div class="skel-block" style="height:56px;"></div>
+          <div class="skel-block" style="height:140px;"></div>
+          <div class="skel-block" style="height:140px;"></div>
+        </div>
+
+        <div class="raised card" style="background:var(--primary);margin-bottom:12px;">
+          <div
+            style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--on-primary);opacity:.7;margin-bottom:8px;">
+            custo real por vela</div>
+          <div style="font-size:30px;font-weight:800;letter-spacing:-.01em;color:var(--on-primary);"
+            id="custosCustoRealVela">R$ 0,00</div>
+          <div style="font-size:11px;color:var(--on-primary);opacity:.6;margin-top:6px;">insumo + custo fixo rateado
+          </div>
+        </div>
+
+        <div style="display:flex;gap:12px;margin-bottom:12px;">
+          <div class="raised-sm" style="padding:16px;flex:1;">
+            <div class="label" style="margin-bottom:8px;">custo de insumo</div>
+            <div style="font-size:18px;font-weight:700;letter-spacing:-.01em;" id="custosInsumoPorVela">R$ 0,00</div>
+            <div style="font-size:11px;color:var(--text-faint);margin-top:6px;">média dos lotes registrados</div>
+          </div>
+          <div class="raised-sm" style="padding:16px;flex:1;">
+            <div class="label" style="margin-bottom:8px;">custo fixo</div>
+            <div style="font-size:18px;font-weight:700;letter-spacing:-.01em;" id="custosFixoPorVela">R$ 0,00</div>
+            <div style="font-size:11px;color:var(--text-faint);margin-top:6px;" id="custosFixoPorVelaSub">rateado
+            </div>
+          </div>
+        </div>
+
+        <div class="raised-sm between" style="padding:14px 16px;margin-bottom:20px;">
+          <div>
+            <div class="label" style="margin-bottom:4px;">lucro líquido real</div>
+            <div style="font-size:11px;color:var(--text-faint);" id="custosLucroPeriodoLabel">últimos 7 dias</div>
+          </div>
+          <div style="font-size:18px;font-weight:700;letter-spacing:-.01em;" id="custosLucroLiquido">R$ 0,00</div>
+        </div>
+        <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;margin:-14px 4px 20px;text-align:center;">
+          mesmo período do Dashboard — pra mudar, ajuste os dias por lá.</div>
+
+        <div class="label">margem por variação</div>
+        <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;margin:-6px 4px 14px;">Preço de venda
+          cadastrado menos o custo real por vela acima.</div>
+        <div class="raised card" style="margin-bottom:20px;">
+          <div id="custosMargemList"></div>
+        </div>
+
+        <div class="label">custos fixos mensais</div>
+        <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;margin:-6px 4px 14px;">Somados, dão o
+          "custo fixo" acima, rateado pela produção mensal estimada.</div>
+        <div class="raised card">
+          <div id="custosFixosList"></div>
+          <button class="btn btn-ghost" data-action="custos-fixo-add" style="width:100%;margin-top:4px;">+ adicionar
+            custo fixo</button>
+        </div>
+
+        <div class="pressed field" style="margin-top:14px;">
+          <div class="label">produção mensal estimada (rateio)</div>
+          <div class="row">
+            <input type="text" id="custosRateioBase" placeholder="0" style="flex:1;" />
+            <div style="font-size:14.5px;font-weight:600;color:var(--text-faint);">velas/mês</div>
+          </div>
+        </div>
+
+        <button class="btn btn-primary" data-action="custos-salvar" style="width:100%;margin:20px 0 12px;">Salvar
+          custos fixos</button>
+        <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;text-align:center;">total de custos
+          fixos: <span id="custosFixoTotalTxt">R$ 0,00</span> por mês.</div>
+
+        <div class="reveal-footer" aria-hidden="true">
+          <span class="reveal-footer-mark">.parágrafo</span>
+        </div>
+      </div>
+      <div class="dock" id="controleCustosDock" role="navigation" aria-label="Navegação principal"></div>
     </div>
 
     <!-- ---------- Controle de Clientes — módulo 13 ---------- -->
