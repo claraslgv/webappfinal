@@ -125,26 +125,25 @@ FUNCIONALIDADES (depois do design)
        TWILIO_WHATSAPP_FROM   (ex.: whatsapp:+14155238886)
        TWILIO_TEMPLATE_SID    (Content SID do template aprovado)
 
-- [RESOLVIDO em 08/09/2026, falta 1 passo manual seu] Travar quem pode
-  chamar a função de envio: a Edge Function "enviar-aviso" (Supabase,
-  projeto ponto-paragrafo) já veio com a checagem pronta (achado ao
-  buscar o código: `if (APP_SHARED_SECRET && req.headers.get("x-app-secret")
-  !== APP_SHARED_SECRET) return 401` — se o secret não existir, a função
-  ignora a checagem e aceita qualquer chamada, como hoje). O que faltava
-  e foi feito: app.js agora manda o header x-app-secret em toda chamada
-  (ver NOTIF_APP_SECRET, logo abaixo de NOTIF_ANON_KEY, e o header em
-  enviarAvisoServidor). Testado com curl direto na função com um header
-  errado → respondeu 200 normal, confirmando que o secret AINDA NÃO está
-  cadastrado no Supabase (a trava existe no código mas está inativa —
-  nada quebrou com essa mudança).
-  PASSO QUE FALTA (só o usuário consegue fazer, é um secret, não dá pra
-  automatizar por aqui): no Supabase → projeto ponto-paragrafo → Edge
-  Functions → enviar-aviso → Secrets, adicionar
+- [RESOLVIDO em 08/09/2026] Travar quem pode chamar a função de envio: a
+  Edge Function "enviar-aviso" (Supabase, projeto ponto-paragrafo) já veio
+  com a checagem pronta (achado ao buscar o código: `if (APP_SHARED_SECRET
+  && req.headers.get("x-app-secret") !== APP_SHARED_SECRET) return 401` —
+  se o secret não existir, a função ignora a checagem e aceita qualquer
+  chamada). O que faltava e foi feito: app.js agora manda o header
+  x-app-secret em toda chamada (ver NOTIF_APP_SECRET, logo abaixo de
+  NOTIF_ANON_KEY, e o header em enviarAvisoServidor). Testado com curl
+  direto na função com um header errado → respondeu 200 normal,
+  confirmando que o secret AINDA NÃO estava cadastrado no Supabase (a
+  trava existia no código mas estava inativa — nada quebrou com essa
+  mudança). Passo manual que faltava (só a usuária conseguia fazer, é um
+  secret): cadastrado no Supabase → projeto ponto-paragrafo → Edge
+  Functions → enviar-aviso → Secrets:
     APP_SHARED_SECRET = 107874553e13cd887402d09fe415a5641cff9d20fd78bba0
-  (mesmo valor já hardcoded em NOTIF_APP_SECRET no app.js — tem que ser
-  IDÊNTICO, senão toda chamada passa a voltar 401 e os avisos por
-  e-mail/WhatsApp param de funcionar). Depois de cadastrar, testar com
-  "testar aviso agora" pra confirmar que continua enviando normal.
+  (idêntico ao já hardcoded em NOTIF_APP_SECRET no app.js). Usuária
+  confirmou: testou com "testar aviso agora" depois de cadastrar e
+  continuou enviando normal, sem erros — a trava agora está ativa de
+  verdade.
 
 ===========================================
 ESTRUTURA GERAL DO APP — pendências importantes
