@@ -185,15 +185,26 @@ ESTRUTURA GERAL DO APP — pendências importantes
 
 -- Funcionalidades --
 
-- [RESOLVIDO em 04/09/2026] Cadastro de venda de verdade: tela
-  "Registrar Venda" (Vendas → Registrar Venda) implementada — cliente
-  (ou avulso), itens por variação com estoque ao vivo, forma de
-  pagamento, cupom opcional, resumo com desconto/total. Ao confirmar,
-  debita producaoEstoqueState na hora e grava em vendasState de
-  verdade; dashboard, ranking de clientes e histórico já leem isso
-  sozinhos. Testado ponta a ponta em navegador real, sem bugs.
-  Ver app.js: módulo "Registrar Venda — módulo 14"; index.html:
-  data-screen="registrarVenda".
+- [REGREDIU em 08/09/2026 — voltou a ser pendência] Cadastro de venda de
+  verdade: tela "Registrar Venda" (Vendas → Registrar Venda), descrita
+  como resolvida abaixo em 04/09, foi perdida numa sobrescrita acidental
+  de index.html nesta mesma sessão de hoje (arquivo virou só a palavra
+  "placeholder"). Recuperado via `git checkout HEAD` (commit 22dad9c),
+  mas esse commit é anterior à existência dessa tela — ela nunca tinha
+  sido commitada. O card "Registrar Venda" no hub de Vendas voltou a
+  abrir o toast "em breve". A lógica original (descrita abaixo) precisa
+  ser reimplementada do zero; o texto abaixo serve de referência do que
+  já tinha funcionado uma vez.
+
+  [descrição original, RESOLVIDO em 04/09/2026, hoje desfeita]
+  Cadastro de venda de verdade: tela "Registrar Venda" (Vendas →
+  Registrar Venda) implementada — cliente (ou avulso), itens por
+  variação com estoque ao vivo, forma de pagamento, cupom opcional,
+  resumo com desconto/total. Ao confirmar, debita producaoEstoqueState
+  na hora e grava em vendasState de verdade; dashboard, ranking de
+  clientes e histórico já leem isso sozinhos. Testado ponta a ponta em
+  navegador real, sem bugs. Ver app.js: módulo "Registrar Venda —
+  módulo 14"; index.html: data-screen="registrarVenda".
 
 - [RESOLVIDO em 04/09/2026] Backup / exportação dos dados: cartão
   "backup dos dados" na tela "mais" — "exportar backup (.json)" baixa
