@@ -309,38 +309,44 @@ ESTRUTURA GERAL DO APP — pendências importantes
 FEEDBACK NOVO (04/09/2026) — cores brancas/creme, quer marrom
 ===========================================
 
-- Usuária não gostou do botão, da barra de pesquisa e da seta de voltar
+- [RESOLVIDO em 08/09/2026, parcial — ver "NÃO coberto" no fim] Usuária
+  não gostou do botão, da barra de pesquisa e da seta de voltar
   aparecendo brancos/creme — quer marrom. Achado no código: esses três
   elementos (seta de voltar = .iconbtn, barra de busca = .pressed.field,
   e botões tipo "Salvar ajustes como novo padrão" = .btn-ghost) usam
-  background:var(--bg) de propósito — é o token neumórfico de base. As
-  sombras raised/pressed desses elementos (--shadow-d/--shadow-l) foram
-  calibradas pra combinar exatamente com esse tom de --bg — trocar só o
-  background pra marrom sem recalcular a sombra pode fazer o efeito
-  neumórfico (relevo/pressed) sumir ou ficar estranho.
+  background:var(--bg) de propósito — é o token neumórfico de base.
 
-  [RESOLVIDO/DECIDIDO em 08/09/2026] As 3 perguntas em aberto (qual
-  marrom, se era modo claro ou escuro, e o escopo) ficaram mais simples
-  porque o modo claro foi removido do app inteiro nessa mesma sessão —
-  decisão da usuária, não só desta pendência (ver seção própria mais
-  abaixo). Respostas confirmadas com a usuária:
-    (1) qual marrom: hex fixo #442D1C (mesma cor nos dois casos — como
-        não há mais toggle, é sempre esse tom, não var(--primary), que
-        seria outra cor se algum dia voltar a existir mais de um tema).
-    (2) qual tema: deixou de fazer sentido — só existe um agora.
-    (3) escopo: só seta de voltar + busca — não os .iconbtn de "+" nem
-        os .pressed.field de formulário comuns. Selectors identificados
-        que isolam exatamente isso sem pegar outros botões: seta de
-        voltar = todo .iconbtn[data-goto] (os "+" usam [data-action],
-        ficam de fora); busca = só .pressed.field.row (só os 2 campos
-        de busca reais — estoqueSearchInput, clientesSearchInput — têm
-        essa combinação de classes; os outros .pressed.field comuns não
-        têm .row).
-  Ainda falta implementar a mudança de cor em si (a remoção do modo
-  claro que aconteceu no meio do caminho foi só o que destravou a
-  decisão) — próxima sessão: aplicar background:#442D1C fixo nesses
-  dois seletores e recalcular --shadow-d/--shadow-l pra não quebrar o
-  relevo neumórfico contra essa cor sólida (ver aviso acima sobre isso).
+  Decisões confirmadas com a usuária: (1) marrom = hex fixo #442D1C,
+  não var(--primary) — que seria outra cor se algum dia voltar a existir
+  mais de um tema; (2) tema: deixou de fazer sentido depois que o modo
+  claro foi removido do app inteiro na mesma sessão (decisão da usuária,
+  não só desta pendência — ver seção própria); (3) escopo: só seta de
+  voltar + busca, não os .iconbtn de "+" nem os .pressed.field de
+  formulário comuns.
+
+  Implementado em style.css (ver ".iconbtn[data-goto]" e
+  ".pressed.field.row"): [data-goto] isola só a seta de voltar (os "+"
+  usam [data-action], ficam de fora); .row isola só os 2 campos de busca
+  reais — #estoqueSearchInput/#clientesSearchInput. box-shadow não
+  precisou de recálculo (var(--shadow-raised-xs)/var(--shadow-pressed-sm)
+  já são um drop-shadow fixo, sem depender de --bg pra combinar, desde a
+  remoção do modo claro) — só border-color e color/placeholder, que
+  --line/--surface-text*/--text-faint recalculam pra combinar com o
+  fundo creme fixo do Dashboard/Estoque de Insumos/Produção (senão o
+  ícone/texto ficariam escuros sobre um fundo agora também escuro
+  nessas duas telas). Removido também o `style="color:var(--text-faint)"`
+  inline do ícone de lupa nos 2 campos de busca (index.html), que tinha
+  prioridade sobre qualquer regra do style.css — agora o ícone herda a
+  cor do próprio .pressed.field.row. Verificado com Playwright headless
+  em estoqueInsumos (onde o bug aparecia, tela de paleta fixa) e em
+  clientes (tela normal) — sem regressão, sem erros de console.
+
+  NÃO coberto por este fix (fora do escopo que a usuária pediu): os
+  botões .btn-ghost ("Salvar ajustes como novo padrão" e outros do
+  mesmo tipo) continuam usando var(--bg) puro, então ainda aparecem
+  creme/branco. Se a usuária quiser esses também marrom, é o mesmo
+  padrão — só falta decidir se TODOS os .btn-ghost do app entram ou só
+  alguns específicos.
 
 - Percentual "perda X% inclusa" na calculadora de velas (e na
   calculadora de lucro): usuária não entendeu o objetivo — já
@@ -372,7 +378,9 @@ REFERÊNCIAS NO CÓDIGO
   "defaultVendasState"
 - style.css: token de fundo branco/creme usado por seta de voltar, busca
   e botão ghost — buscar por ".iconbtn{", ".pressed{" e ".btn-ghost{"
-  (todos usam background:var(--bg))
+  (todos usam background:var(--bg)). Seta de voltar e busca já têm
+  override pra marrom fixo — buscar por ".iconbtn[data-goto]"; .btn-ghost
+  ainda não (ver pendência "cores brancas/creme, quer marrom").
 - app.js: perda de derretimento (o "% inclusa" da calculadora) — buscar
   por "perdaDerretimento"
 - app.js: fluxo de Encomendas (criar/editar, avançar status, conversão

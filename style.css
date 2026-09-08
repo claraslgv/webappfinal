@@ -293,9 +293,9 @@ input.auth-input:-webkit-autofill{-webkit-text-fill-color:#F3E6CE;transition:bac
   background:#442D1C;
   /* --bg já É #442D1C — sem sombra o rodapé "some" contra o próprio fundo da tela (mesmo
      problema que .raised resolve pros cards: cor igual à página, separado só pelo relevo).
-     box-shadow fixo, não var(--shadow-raised-md): no Dashboard/Estoque de Insumos/Produção
-     esse token resolve pra --shadow-d/--shadow-l calibrados pra fundo creme (ver paleta fixa
-     dessas telas mais abaixo), errado pro fundo sempre-escuro deste rodapé. */
+     box-shadow fixo em vez de var(--shadow-raised-md) — mesma fórmula, só um pouco mais leve
+     (.35 de opacidade em vez de .48), calibrado à parte pro bloco grande do rodapé em vez de
+     reaproveitar o valor pensado pros cards menores. */
   box-shadow:0 6px 18px rgba(0,0,0,.35),inset 0 1px 0 rgba(232,209,167,.08);
   opacity:0;transform:translateY(18px);transition:opacity .6s ease,transform .6s ease;
 }
@@ -320,6 +320,23 @@ input.auth-input:-webkit-autofill{-webkit-text-fill-color:#F3E6CE;transition:bac
 .iconbtn{width:44px;height:44px;border-radius:15px;background:var(--bg);box-shadow:var(--shadow-raised-xs);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--surface-text);flex:none;transition:box-shadow .15s ease,transform .1s ease;}
 .iconbtn svg{width:19px;height:19px;}
 .iconbtn:active{box-shadow:var(--shadow-pressed-sm);transform:scale(.94);}
+/* Pedido da usuária: a seta de voltar e a barra de busca sempre marrom (#442D1C fixo), nunca
+   o creme/branco de var(--bg) — nem mesmo dentro do Dashboard/Estoque de Insumos/Produção,
+   que forçam --bg creme pra paleta de marca fixa dessas telas (sem este bloco, os dois
+   "sumiam" nesse creme). [data-goto] isola só a seta de voltar (os botões "+" usam
+   [data-action], ficam de fora); .row isola só os 2 campos de busca reais —
+   #estoqueSearchInput/#clientesSearchInput — dos demais .pressed.field de formulário comum.
+   Hex fixo em vez de var(--primary): --primary é outra cor caso volte a existir mais de um
+   tema. box-shadow não muda (var(--shadow-raised-xs)/var(--shadow-pressed-sm) já são um
+   drop-shadow escuro fixo, o mesmo em qualquer tela, não dependem de --bg pra combinar).
+   border-color e color/placeholder, sim, precisam de override: --line e --surface-text* /
+   --text-faint SÃO recalculados pelas telas de paleta fixa pra combinar com o --bg creme
+   delas — sem isto, o contorno quase sumiria e o ícone/texto/placeholder ficariam escuros
+   sobre um fundo agora também escuro. */
+.iconbtn[data-goto]{background:#442D1C;border-color:rgba(232,209,167,.30);color:#F3E7D6;}
+.pressed.field.row{background:#442D1C;border-color:rgba(232,209,167,.30);color:#F3E7D6;}
+.pressed.field.row input{color:#F3E7D6;}
+.pressed.field.row input::placeholder{color:rgba(243,231,214,.55);}
 /* .tapicon é sempre um controle (menu de ações, editar, etc.), nunca decoração — por isso usa
    --text-dim (mais escuro/claro que --text-faint conforme o tema) em vez do tom "de legenda",
    senão o próprio botão fica ilegível como algo clicável (era o caso do "···" nos cards de
