@@ -14,7 +14,11 @@
   --primary-soft-2:rgba(68,45,28,.17);
   --shadow-d:#E4D6BE;
   --shadow-l:#FFFFFF;
-  --line:rgba(68,45,28,.12);
+  /* Era rgba(68,45,28,.12) — quase imperceptível contra --bg (~1.1:1), então nenhum card,
+     pill ou input tinha um contorno de verdade: a separação inteira dependia do box-shadow
+     neumórfico, que "some" em telas não calibradas. .28 dá um traço visível e ainda discreto
+     (usado como border-width:1px em .raised/.pressed/.pill/.dock/.field a partir daqui). */
+  --line:rgba(68,45,28,.28);
   --warn:#743014;
   --warn-soft:rgba(116,48,20,.11);
   --good:#5C6B3F;
@@ -25,6 +29,28 @@
   --dock-bg:#FFFDF7;
   --page-bg:#EFE4CC;
   --knob-shadow:rgba(68,45,28,.28);
+  /* Marrom sólido dos cards (.raised/.raised-sm) — pedido explícito pra sair do card
+     creme-sobre-creme (mesma cor do fundo, só com shadow) e virar um bloco de cor de
+     verdade. #84592B é o Toasted Caramel já usado em ".dash-resumo" (a mesma escolha do
+     card "resumo de hoje" no Dashboard), não um tom novo — e de propósito diferente de
+     --primary (#442D1C), senão um elemento em --primary (ex.: .pill.active) sumiria
+     dentro do próprio card. --card-text* reaproveita o creme de ".dash-resumo"
+     (#F3E6CE, ~5:1 contra #84592B — AA) pro texto que mora dentro desses cards; --card-line
+     é a mesma borda sutil translúcida que ".dash-resumo .resumo-row" já usa. */
+  --card-bg:#84592B;
+  --card-text:#F3E6CE;
+  --card-text-dim:rgba(243,230,206,.78);
+  --card-line:rgba(243,230,206,.20);
+  /* Cópia travada de --text/--text-dim/--text-faint, pra quem precisa do texto "de página"
+     mesmo dentro de um .raised/.raised-sm agora marrom. .raised redefine --text/--text-dim/
+     --text-faint localmente (pro texto solto do card virar creme) — mas var() sempre resolve
+     no ponto de uso, não onde foi declarado, então um filho com fundo próprio claro (.field,
+     .pressed-pill, .iconbtn — ex.: a pill "quem mais compra" dentro do card de ranking)
+     herdaria esse creme sobre o PRÓPRIO fundo claro dele, quase ilegível. --surface-text* nunca
+     é redefinido fora daqui, então essas classes usam ele em vez de --text/--text-dim direto. */
+  --surface-text:#2B1B10;
+  --surface-text-dim:#84592B;
+  --surface-text-faint:#7A6852;
   /* Altura mínima do rodapé de marca no fim de cada tela (ver .reveal-footer mais abaixo). */
   --reveal-footer-h:170px;
   /* Sombra "raised" neumórfica dupla (clara/escura) — cada profundidade calculada uma vez
@@ -51,7 +77,10 @@ html[data-theme="dark"]{
   --primary-soft-2:rgba(232,209,167,.24);
   --shadow-d:rgba(0,0,0,.45);
   --shadow-l:rgba(232,209,167,.06);
-  --line:rgba(232,209,167,.14);
+  /* Mesmo motivo do tema claro acima — .14 mal aparecia sobre #442D1C. .30 acompanha o
+     salto de opacidade do tema claro (mesma proporção) pra manter o contorno igualmente
+     visível nos dois temas. */
+  --line:rgba(232,209,167,.30);
   --warn:#C1552F;
   --warn-soft:rgba(193,85,47,.18);
   --good:#C7BE95;
@@ -62,6 +91,17 @@ html[data-theme="dark"]{
   --dock-bg:#5A3D27;
   --page-bg:#2E1D11;
   --knob-shadow:rgba(0,0,0,.5);
+  /* Mesma ideia do tema claro acima: #5A3D27 é o próprio --dock-bg de hoje, um marrom mais
+     claro que o --bg (#442D1C) da página — dá pra distinguir card de fundo mesmo os dois
+     sendo "marrom", e continua diferente de --primary (#E8D1A7, creme) pra não engolir
+     elementos que usam --primary como cor sólida (ex.: .pill.active). */
+  --card-bg:#5A3D27;
+  --card-text:#F3E6CE;
+  --card-text-dim:rgba(243,230,206,.78);
+  --card-line:rgba(243,230,206,.16);
+  --surface-text:#F3E7D6;
+  --surface-text-dim:#E8D1A7;
+  --surface-text-faint:#B99E76;
   --shadow-raised-xxs:0 2px 6px rgba(0,0,0,.35),inset 0 1px 0 rgba(232,209,167,.05);
   --shadow-raised-xs:0 3px 9px rgba(0,0,0,.4),inset 0 1px 0 rgba(232,209,167,.06);
   --shadow-raised-sm:0 4px 12px rgba(0,0,0,.42),inset 0 1px 0 rgba(232,209,167,.07);
@@ -330,21 +370,51 @@ html[data-theme="dark"] .app-frame{box-shadow:0 0 1px rgba(0,0,0,.4);}
 .brandrow{display:flex;align-items:center;gap:9px;}
 .brandmark{width:26px;height:26px;border-radius:8px;background:var(--primary);display:flex;align-items:center;justify-content:center;color:var(--on-primary);font-family:'Abhaya Libre',Georgia,serif;font-style:italic;font-size:15px;flex:none;}
 .brandname{font-size:12.5px;font-weight:600;letter-spacing:.03em;color:var(--text-dim);text-transform:lowercase;}
-.avatar{width:44px;height:44px;border-radius:15px;background:var(--bg);box-shadow:var(--shadow-raised-xs);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--primary);cursor:pointer;transition:box-shadow .15s ease,transform .1s ease;}
+.avatar{width:44px;height:44px;border-radius:15px;background:var(--bg);box-shadow:var(--shadow-raised-xs);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--primary);cursor:pointer;transition:box-shadow .15s ease,transform .1s ease;}
 .avatar:active{box-shadow:var(--shadow-pressed-sm);transform:scale(.94);}
 .backrow{display:flex;align-items:center;gap:12px;padding:26px 20px 2px;}
-.iconbtn{width:44px;height:44px;border-radius:15px;background:var(--bg);box-shadow:var(--shadow-raised-xs);display:flex;align-items:center;justify-content:center;color:var(--text);flex:none;transition:box-shadow .15s ease,transform .1s ease;}
+.iconbtn{width:44px;height:44px;border-radius:15px;background:var(--bg);box-shadow:var(--shadow-raised-xs);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--surface-text);flex:none;transition:box-shadow .15s ease,transform .1s ease;}
 .iconbtn svg{width:19px;height:19px;}
 .iconbtn:active{box-shadow:var(--shadow-pressed-sm);transform:scale(.94);}
-.tapicon{width:40px;height:40px;border-radius:14px;display:flex;align-items:center;justify-content:center;color:var(--text-faint);flex:none;transition:opacity .15s ease,transform .1s ease;}
+/* .tapicon é sempre um controle (menu de ações, editar, etc.), nunca decoração — por isso usa
+   --text-dim (mais escuro/claro que --text-faint conforme o tema) em vez do tom "de legenda",
+   senão o próprio botão fica ilegível como algo clicável (era o caso do "···" nos cards de
+   cliente e da seta de "configurações"). */
+.tapicon{width:40px;height:40px;border-radius:14px;display:flex;align-items:center;justify-content:center;color:var(--text-dim);flex:none;transition:opacity .15s ease,transform .1s ease;}
 .tapicon svg{width:17px;height:17px;}
 .tapicon:active{opacity:.6;transform:scale(.92);}
 .crumb{font-size:12px;color:var(--text-faint);font-weight:500;}
 .pagetitle{font-size:23px;font-weight:700;letter-spacing:-.01em;margin:2px 0 0;}
-.raised{background:var(--bg);border-radius:20px;box-shadow:var(--shadow-raised-md);transition:box-shadow .15s ease,transform .1s ease;}
-.raised-sm{background:var(--bg);border-radius:15px;box-shadow:var(--shadow-raised-sm);transition:box-shadow .15s ease,transform .1s ease;}
-.pressed{background:var(--bg);border-radius:16px;box-shadow:var(--shadow-pressed-sm);transition:box-shadow .15s ease;}
-.pressed-pill{background:var(--bg);border-radius:999px;box-shadow:var(--shadow-pressed-xs);transition:box-shadow .15s ease;}
+/* .pressed/.pressed-pill (inputs, pills) continuam na cor da própria tela — só levaram o
+   border:1px var(--line) antes pra ganhar contorno próprio. .raised/.raised-sm (os "cards")
+   viraram um bloco de cor sólida (--card-bg, ver definição no :root) em vez de reaproveitar
+   --bg: são o elemento "caixa" do app (linha de cliente, linha de insumo, painel de
+   ranking, linha de config em "mais" etc.), então pedem separação por cor de verdade, não
+   só relevo. Reatribuir --text/--text-dim/--text-faint/--line localmente garante que texto,
+   legenda e divisórias soltos dentro do card (a maioria em style inline, tipo
+   color:var(--text-faint)) reeleiam automaticamente o par certo pro fundo escuro — sem
+   precisar caçar cada `style=` dentro de cada card. Filhos que continuam em var(--bg)
+   (.pressed-pill, .iconbtn, .avatar, .field) não usam --bg redefinido aqui de propósito:
+   viram um "chip" claro sobre o card escuro, igual ao emblema/avatar do .dash-hero. O
+   box-shadow também troca pra um drop-shadow simples (mesma fórmula do tema escuro), porque
+   o par claro/escuro difuso do neumorfismo original só faz sentido sobre uma superfície
+   clara. */
+.raised{
+  background:var(--card-bg);border-radius:20px;border:1px solid var(--card-line);
+  box-shadow:0 6px 18px rgba(0,0,0,.28),inset 0 1px 0 rgba(243,230,206,.08);
+  color:var(--card-text);
+  --text:var(--card-text);--text-dim:var(--card-text-dim);--text-faint:var(--card-text-dim);--line:var(--card-line);
+  transition:box-shadow .15s ease,transform .1s ease;
+}
+.raised-sm{
+  background:var(--card-bg);border-radius:15px;border:1px solid var(--card-line);
+  box-shadow:0 4px 12px rgba(0,0,0,.24),inset 0 1px 0 rgba(243,230,206,.07);
+  color:var(--card-text);
+  --text:var(--card-text);--text-dim:var(--card-text-dim);--text-faint:var(--card-text-dim);--line:var(--card-line);
+  transition:box-shadow .15s ease,transform .1s ease;
+}
+.pressed{background:var(--bg);border-radius:16px;box-shadow:var(--shadow-pressed-sm);border:1px solid var(--line);transition:box-shadow .15s ease;}
+.pressed-pill{background:var(--bg);border-radius:999px;box-shadow:var(--shadow-pressed-xs);border:1px solid var(--line);transition:box-shadow .15s ease;}
 .card{padding:20px;margin-bottom:16px;}
 .label{display:block;font-size:10.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);margin:0 0 10px;}
 .row{display:flex;align-items:center;gap:12px;}
@@ -363,16 +433,37 @@ html[data-theme="dark"] .app-frame{box-shadow:0 0 1px rgba(0,0,0,.4);}
 .btn[disabled]{opacity:.45;pointer-events:none;}
 .field{padding:14px 16px;margin-bottom:14px;}
 .field .label{margin-bottom:6px;}
-.field input, .field .val{border:none;background:none;outline:none;font-family:'Montserrat',sans-serif;font-size:14.5px;color:var(--text);width:100%;padding:0;}
+.field input, .field .val{border:none;background:none;outline:none;font-family:'Montserrat',sans-serif;font-size:14.5px;color:var(--surface-text);width:100%;padding:0;}
 .field:focus-within{box-shadow:var(--shadow-pressed-sm),0 0 0 2px var(--primary);}
-.field input::placeholder{color:var(--text-faint);}
-.pill{padding:11px 16px;border-radius:999px;font-size:12.5px;font-weight:600;color:var(--text-dim);white-space:nowrap;cursor:pointer;transition:box-shadow .15s ease,color .15s ease,transform .1s ease;}
-.pill.active{color:var(--primary);background:var(--bg);box-shadow:var(--shadow-raised-xxs);}
+.field input::placeholder{color:var(--surface-text-faint);}
+.pill{padding:11px 16px;border-radius:999px;font-size:12.5px;font-weight:600;color:var(--surface-text-dim);white-space:nowrap;cursor:pointer;border:1px solid transparent;transition:box-shadow .15s ease,color .15s ease,background-color .15s ease,border-color .15s ease,transform .1s ease;}
+/* Antes, ativa e inativa diferiam só por um shadow raised-xxs quase imperceptível — dava
+   pra confundir qual filtro ("quem mais gasta" vs. "quem mais compra") estava selecionado.
+   Preenchimento sólido com --primary é um estado que não depende de sombra pra se ler. */
+.pill.active{color:var(--on-primary);background:var(--primary);border-color:var(--primary);box-shadow:var(--shadow-raised-xxs);}
 .pill:active{transform:scale(.96);}
 .badge{font-size:10px;font-weight:700;padding:3px 8px;border-radius:999px;}
 .badge.warn{background:var(--warn-soft);color:var(--warn);}
 .badge.good{background:var(--good-soft);color:var(--good);}
 .badge.primary{background:var(--primary-soft-2);color:var(--primary);}
+/* --warn-soft/--good-soft/--primary-soft-2 são lavados clarinhos calibrados pra ler sobre
+   --bg (creme ou marrom-escuro-de-página, conforme o tema) — dentro de um .raised/.raised-sm
+   agora marrom (--card-bg), essas mesmas cores quase somem (dois marrons parecidos). Chip
+   translúcido creme + acento mais claro reaproveita a paleta do ".dash-hero .avisos-badge"
+   (já pensada pra "distintivo sobre superfície escura") em vez de inventar um 3º par. */
+.raised .badge.warn,.raised-sm .badge.warn{background:rgba(243,230,206,.18);color:#F6C79B;}
+.raised .badge.good,.raised-sm .badge.good{background:rgba(243,230,206,.18);color:#DCE4B8;}
+.raised .badge.primary,.raised-sm .badge.primary{background:rgba(243,230,206,.22);color:var(--card-text);}
+/* Bolinha de status por canal (#notifStatusList) — reaproveita --good/--warn em vez de badge
+   cheio: a linha já tem a frase inteira ("push: bloqueado..."), então um indicador pequeno
+   basta pra dar leitura de relance sem engordar o bloco com mais uma caixa. Mesmo raciocínio
+   de contraste do badge acima: dentro do card marrom (--card-bg) usa a variante clara. */
+#notifStatusList{display:flex;flex-direction:column;gap:5px;}
+.status-dot{display:inline-block;width:7px;height:7px;border-radius:50%;flex:none;}
+.status-dot.good{background:var(--good);}
+.status-dot.warn{background:var(--warn);}
+.raised .status-dot.good,.raised-sm .status-dot.good{background:#DCE4B8;}
+.raised .status-dot.warn,.raised-sm .status-dot.warn{background:#F6C79B;}
 .avisos-badge{
   position:absolute;top:-4px;right:-4px;background:var(--warn);color:#fff;font-size:9px;font-weight:800;
   width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;
@@ -520,6 +611,56 @@ a{color:var(--primary);}
   --shadow-d:#E4D6BE;--shadow-l:#FFFFFF;--line:rgba(68,45,28,.12);
   --warn:#743014;--warn-soft:rgba(116,48,20,.11);--good:#5C6B3F;--good-soft:rgba(92,107,63,.12);
   --chart-2:#84592B;--chart-3:#9D9167;--on-primary:#E8D1A7;--dock-bg:#FFFDF7;
+  /* --surface-text* (criado pra .pill/.field/.iconbtn não herdarem o creme do card marrom,
+     ver comentário no :root) precisa ser repetido aqui: esta tela força --bg/--text sempre
+     claros, mas --surface-text* por si só continua puxando do tema real (claro/escuro do
+     toggle) se não for redefinido também aqui — em tema escuro, isso vazava o creme escuro
+     pro texto da pill "30 dias"/"personalizado", invisível sobre o próprio fundo claro dela. */
+  --surface-text:#2B1B10;--surface-text-dim:#84592B;--surface-text-faint:#7A6852;
+  background:#E8D1A7;
+}
+/* Volta o Dashboard pro desenho original de várias cores (dash-hero em Spiced Wine,
+   dash-resumo em Toasted Caramel, e os demais cards — urgente/lucro/vendas/receita/
+   produzido/pizza — em creme claro), em vez do card marrom único usado no resto do app.
+   :not(.dash-resumo) preserva o "resumo de hoje", que sempre foi marrom por conta própria,
+   já com sua cor definida direto (não depende de --card-bg). O shadow NÃO usa mais a dupla
+   neumórfica --shadow-d/--shadow-l original (7px 7px .../-7px -7px ... #FFFFFF): esse branco
+   puro, borrado, contra o fundo dourado (#E8D1A7) da própria tela do Dashboard, criava um
+   halo branco brilhante em volta de cada card — visível de longe, não uma sombra discreta.
+   Uma sombra só, escura, embaixo do card (sem a segunda camada clara) dá o mesmo efeito de
+   "elevado" sem esse brilho. */
+.screen[data-screen="dashboard"] .raised:not(.dash-resumo){
+  background:var(--bg);border-color:var(--line);
+  box-shadow:0 10px 24px -8px rgba(68,45,28,.22);
+  color:var(--text);
+  --text:unset;--text-dim:unset;--text-faint:unset;--line:unset;
+}
+.screen[data-screen="dashboard"] .raised-sm:not(.dash-resumo){
+  background:var(--bg);border-color:var(--line);
+  box-shadow:0 6px 16px -6px rgba(68,45,28,.2);
+  color:var(--text);
+  --text:unset;--text-dim:unset;--text-faint:unset;--line:unset;
+}
+.screen[data-screen="dashboard"] .raised .badge.warn,
+.screen[data-screen="dashboard"] .raised-sm .badge.warn{background:var(--warn-soft);color:var(--warn);}
+.screen[data-screen="dashboard"] .raised .badge.good,
+.screen[data-screen="dashboard"] .raised-sm .badge.good{background:var(--good-soft);color:var(--good);}
+.screen[data-screen="dashboard"] .raised .badge.primary,
+.screen[data-screen="dashboard"] .raised-sm .badge.primary{background:var(--primary-soft-2);color:var(--primary);}
+
+/* Estoque de Insumos e Estoque de Produção — mesmo "fundo creme" fixo do dashboard,
+   independente do toggle claro/escuro de "mais" (ver comentário acima). */
+.screen[data-screen="estoqueInsumos"],
+.screen[data-screen="estoqueProducao"]{
+  --bg:#FBF6EC;--text:#2B1B10;--text-dim:#84592B;--text-faint:#7A6852;
+  --primary:#442D1C;--primary-soft:rgba(68,45,28,.10);--primary-soft-2:rgba(68,45,28,.17);
+  --shadow-d:#E4D6BE;--shadow-l:#FFFFFF;--line:rgba(68,45,28,.12);
+  --warn:#743014;--warn-soft:rgba(116,48,20,.11);--good:#5C6B3F;--good-soft:rgba(92,107,63,.12);
+  --chart-2:#84592B;--chart-3:#9D9167;--on-primary:#E8D1A7;--dock-bg:#FFFDF7;
+  /* Mesmo motivo do bloco do Dashboard acima — sem isso, em tema escuro o texto de .field/
+     .pill/.iconbtn nesta tela (ex.: "buscar insumo") herdava o creme do tema escuro, quase
+     invisível sobre o fundo sempre-claro forçado aqui. */
+  --surface-text:#2B1B10;--surface-text-dim:#84592B;--surface-text-faint:#7A6852;
   background:#E8D1A7;
 }
 
@@ -562,15 +703,22 @@ a{color:var(--primary);}
 .dash-hero-day.is-today .dash-hero-day-num{color:#743014;}
 
 /* Card "resumo de hoje" — segundo bloco colorido (Toasted Caramel), mesmo tratamento do
-   hero: fundo sólido + texto creme. Os ícones continuam em chip claro (.raised-sm), que
-   já lê bem sobre a cor — o mesmo contraste do círculo branco de "concluído" na
-   referência — então não precisam de override. */
+   hero: fundo sólido + texto creme. */
 .dash-resumo{background:#84592B;}
 .dash-resumo .label,
 .dash-resumo .dash-meta{color:rgba(243,230,206,.65);}
 .dash-resumo .resumo-row{border-bottom-color:rgba(243,230,206,.18);}
 .dash-resumo .resumo-row-title{color:#F3E6CE;}
 .dash-resumo .resumo-row-detail{color:rgba(243,230,206,.68);}
+/* Chip do ícone (.raised-sm) precisa de override à parte: sem ele, o chip herda
+   background:var(--card-bg) (marrom — no claro é o MESMO tom de .dash-resumo, círculo
+   some por completo; no escuro vira #5A3D27, quase idêntico ao --primary #442D1C que a
+   paleta fixa do dashboard força pro traço do ícone — 1.3:1 de contraste, abaixo do
+   mínimo de 3:1 do WCAG pra elementos gráficos). Troca pro mesmo par já usado no hero
+   pra ícone-sobre-cor-sólida (.dash-hero .avatar/.iconbtn): chip translúcido creme +
+   traço creme sólido — 3.8:1 (claro) e 8:1 (escuro) contra o chip, círculo visível nos
+   dois temas em vez de invisível/quase-invisível. */
+.dash-resumo .resumo-row-icon{background:rgba(243,230,206,.14);color:#F3E6CE;box-shadow:none;}
 
 /* ---------- Layout de computador (>=900px) ----------
    Antes o cartão de celular só ficava um pouco mais largo (640px), flutuando pequeno no
@@ -731,6 +879,32 @@ html[data-preview="mobile"][data-theme="dark"] .app-frame{box-shadow:0 0 1px rgb
   html[data-preview="mobile"] .app-frame{box-shadow:0 30px 70px rgba(42,33,26,.22);}
   html[data-preview="mobile"][data-theme="dark"] .app-frame{box-shadow:0 30px 70px rgba(0,0,0,.55);}
 }
+
+/* ---------- Mostrar/ocultar senha dentro de um .pressed.field comum (fora da tela de auth,
+   que já tem seu próprio .auth-eye cravado nas cores do fundo escuro fixo). Usado pela troca
+   de senha em mais › conta. ---------- */
+.field-eyewrap{position:relative;}
+.field-eyewrap input{padding-right:28px;}
+.field-eye{
+  position:absolute;right:0;top:50%;transform:translateY(-50%);
+  width:22px;height:22px;display:flex;align-items:center;justify-content:center;
+  color:var(--text-faint);cursor:pointer;background:none;border:none;padding:0;
+}
+.field-eye:hover{color:var(--text-dim);}
+.field-eye svg{width:17px;height:17px;}
+
+/* ---------- FAQ (tela "ajuda"): <details>/<summary> nativo em vez de JS — cada pergunta
+   é um .faq-item dentro de um .raised.card; o marcador padrão do <summary> some e vira um
+   chevron (svg .faq-chevron) que gira 90° quando aberto. Herda --text/--text-dim/--text-faint
+   já redefinidos pelo .raised (card marrom), então funciona igual nos dois temas sem cor nova. */
+.faq-item{border-bottom:1px solid var(--line);}
+.faq-item:last-child{border-bottom:none;}
+.faq-item summary{list-style:none;cursor:pointer;padding:14px 2px;font-size:13.5px;font-weight:600;color:var(--text);display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.faq-item summary::-webkit-details-marker{display:none;}
+.faq-item summary::marker{content:"";}
+.faq-item .faq-chevron{flex:none;width:18px;height:18px;color:var(--text-dim);transition:transform .18s ease;}
+.faq-item[open] .faq-chevron{transform:rotate(90deg);}
+.faq-item p{font-size:12.5px;color:var(--text-faint);line-height:1.55;margin:0 2px 14px;}
 
 @media print{
   body{background:#fff;padding:0;}

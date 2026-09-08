@@ -211,8 +211,53 @@
   var contaState = loadContaState();
   var sessaoState = loadSessaoState();
 
+  // ================================================================
+  // Mais → Conta: ver/editar nome e e-mail, trocar a senha da conta local. Reaproveita o
+  // mesmo contaState acima (só o cadastro inicial escrevia nele até agora); não mexe em
+  // sessaoState nem desloga ninguém.
+  // ================================================================
+  function renderContaForm(){
+    var nomeEl = document.getElementById("contaNome");
+    if (nomeEl) nomeEl.value = contaState.nome || "";
+    var emailEl = document.getElementById("contaEmail");
+    if (emailEl) emailEl.value = contaState.email || "";
+    ["contaSenhaAtual", "contaSenhaNova", "contaSenhaNovaConfirm"].forEach(function(id){
+      var el = document.getElementById(id);
+      if (el) { el.value = ""; el.type = "password"; }
+    });
+  }
+
+  function submitContaDadosForm(){
+    var nome = (document.getElementById("contaNome").value || "").trim();
+    var email = (document.getElementById("contaEmail").value || "").trim();
+    if (!nome) { showToast("preencha seu nome."); return; }
+    if (!email || email.indexOf("@") === -1) { showToast("preencha um e-mail válido."); return; }
+    contaState.nome = nome;
+    contaState.email = email;
+    saveContaState();
+    renderDashboard();
+    showToast("dados salvos.");
+  }
+
+  function submitContaSenhaForm(){
+    var atual = document.getElementById("contaSenhaAtual").value || "";
+    var nova = document.getElementById("contaSenhaNova").value || "";
+    var confirma = document.getElementById("contaSenhaNovaConfirm").value || "";
+    if (!atual && !nova && !confirma) { showToast("preencha os 3 campos pra trocar a senha."); return; }
+    if (atual !== contaState.senha) { showToast("senha atual incorreta."); return; }
+    if (nova.length < 6) { showToast("a nova senha precisa ter pelo menos 6 caracteres."); return; }
+    if (nova !== confirma) { showToast("as senhas não coincidem."); return; }
+    contaState.senha = nova;
+    saveContaState();
+    renderContaForm();
+    showToast("senha atualizada.");
+  }
+
   function loadTema(){
-    try { return localStorage.getItem(TEMA_KEY) === "claro" ? "claro" : "escuro"; } catch (e) { return "escuro"; }
+    // Padrão agora é claro (fundo creme) — o escuro continua existindo, só deixou de ser o
+    // tema-padrão de quem abre o app pela 1ª vez. Ver mesmo default no script inline do
+    // <head> de index.html, que aplica o tema antes deste script carregar.
+    try { return localStorage.getItem(TEMA_KEY) === "escuro" ? "escuro" : "claro"; } catch (e) { return "claro"; }
   }
   function applyTema(tema){
     document.documentElement.setAttribute("data-theme", tema === "claro" ? "light" : "dark");
@@ -478,8 +523,9 @@
   // Configurações — módulo 8. Tela única com a receita padrão por vela (os 4 campos que
   // receitaPadraoVariacao() lê acima), a capacidade da jarra e a perda de derretimento
   // (usadas pela Calculadora de Velas) e o preço de venda de cada variação do catálogo
-  // (usado pela Calculadora de Lucro). Não mexe em qual insumo faz qual papel (cera/jarra/
-  // pavio) nem no catálogo em si — só nos valores que os módulos já construídos consomem.
+  // (usado pela Calculadora de Velas pro card de custo/margem). Não mexe em qual insumo
+  // faz qual papel (cera/jarra/pavio) nem no catálogo em si — só nos valores que os
+  // módulos já construídos consomem.
   // ================================================================
   function renderConfiguracoes(){
     var ceraInsumo = findInsumo(configState.ceraInsumoId);
@@ -556,7 +602,6 @@
     saveCatalogoState();
 
     renderCalc();
-    renderCalcLucro();
     renderConfiguracoes();
     showToast("configurações salvas.");
   }
@@ -674,7 +719,7 @@
   // Controle de custos — módulo 12
   // Custo real por vela soma o custo médio de insumo (dos lotes já registrados) com a
   // fatia rateada dos custos fixos, dividida pela produção mensal estimada (rateioBase).
-  // "Lucro líquido real" no Dashboard vem daqui, não da Calculadora de Lucro (que só
+  // "Lucro líquido real" no Dashboard vem daqui, não da Calculadora de Velas (que só
   // calcula a margem de UM lote na hora, sem custo fixo nenhum).
   // ================================================================
   var CUSTOS_KEY = "pp_custos_v1";
@@ -946,6 +991,262 @@
     renderClientesList();
     renderClientesRanking();
     showScreen("clientes");
+  }
+
+  // ================================================================
+  // Registrar Venda — módulo 14. Único jeito de gravar uma venda de verdade: escolhe um
+  // cliente (ou "cliente avulso"), monta a lista de itens debitando na hora do mesmo
+  // producaoEstoqueState que a Produção credita, aplica um cupom já cadastrado (opcional)
+  // e grava tudo em vendasState. Dashboard, ranking de clientes e histórico de compras já
+  // leem essa lista sozinhos pelo clienteId/data — nenhum passo extra precisa acontecer
+  // além de salvar aqui.
+  // ================================================================
+  var vendaFormState = null;
+
+  function defaultVendaFormState(){
+    return {
+      clienteId: null, clienteNome: "Cliente avulso",
+      itens: [], variacaoId: catalogoState.variacoes.length ? catalogoState.variacoes[0].id : null,
+      quantidade: 1, formaPagamento: "pix", cupom: null
+    };
+  }
+
+  function openRegistrarVendaForm(){
+    vendaFormState = defaultVendaFormState();
+    setHidden("vendaClientePicker", true);
+    var searchEl = document.getElementById("vendaClienteSearchInput");
+    if (searchEl) searchEl.value = "";
+    var cupomEl = document.getElementById("vendaCupomInput");
+    if (cupomEl) cupomEl.value = "";
+    document.querySelectorAll('#vendaFormaPills [data-forma]').forEach(function(p){ p.classList.toggle("active", p.dataset.forma === "pix"); });
+    renderRegistrarVenda();
+  }
+
+  // Estoque "disponível" já desconta o que a própria venda em montagem reservou pra essa
+  // variação — senão daria pra empilhar itens além do que existe só olhando o total bruto.
+  function vendaEstoqueDisponivel(variacaoId){
+    var estoqueVela = findEstoqueVela(variacaoId);
+    var disponivel = estoqueVela ? estoqueVela.quantidade : 0;
+    vendaFormState.itens.forEach(function(it){ if (it.variacaoId === variacaoId) disponivel -= it.quantidade; });
+    return disponivel;
+  }
+
+  function vendaVarPillHTML(v){
+    var active = v.id === vendaFormState.variacaoId ? " active" : "";
+    return '<div class="pill' + active + '" style="flex:none;" data-var-id="' + v.id + '">' + escapeHtml(variacaoLabel(v)) + ' · ' + vendaEstoqueDisponivel(v.id) + '</div>';
+  }
+
+  function vendaItemRowHTML(item, idx){
+    var v = findVariacao(item.variacaoId);
+    return '' +
+      '<div class="raised-sm between" style="padding:13px 16px;margin-bottom:10px;">' +
+        '<div style="flex:1;min-width:0;">' +
+          '<div style="font-size:13.5px;font-weight:600;">' + escapeHtml(variacaoLabel(v)) + '</div>' +
+          '<div style="font-size:11.5px;color:var(--text-faint);margin-top:2px;">' + item.quantidade + ' × ' + fmtMoney(item.precoUnit) + '</div>' +
+        '</div>' +
+        '<div class="row" style="gap:12px;">' +
+          '<div style="font-size:13.5px;font-weight:700;">' + fmtMoney(round2(item.quantidade * item.precoUnit)) + '</div>' +
+          '<div class="tapicon" role="button" tabindex="0" aria-label="Remover item · ' + escapeHtml(variacaoLabel(v)) + '" data-action="venda-item-remove" data-idx="' + idx + '" style="width:30px;height:30px;">' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+  }
+
+  function computeVendaSubtotal(){
+    return round2(vendaFormState.itens.reduce(function(sum, it){ return sum + it.quantidade * it.precoUnit; }, 0));
+  }
+  function computeVendaDesconto(subtotal){
+    var cupom = vendaFormState.cupom;
+    if (!cupom) return 0;
+    if (cupom.tipo === "percentual") return round2(subtotal * (cupom.valor / 100));
+    if (cupom.tipo === "fixo") return round2(Math.min(cupom.valor, subtotal));
+    return 0;
+  }
+
+  function renderRegistrarVenda(){
+    if (!vendaFormState) return;
+    setText("vendaClienteLabel", vendaFormState.clienteNome);
+
+    var pillsEl = document.getElementById("vendaVarPills");
+    if (pillsEl) {
+      pillsEl.innerHTML = catalogoState.variacoes.length ? catalogoState.variacoes.map(vendaVarPillHTML).join("") : emptyStateHTML({
+        icon: ICON_VENDAS, title: "nenhuma variação no catálogo", sub: "cadastre uma variação no Catálogo de Produtos primeiro."
+      });
+    }
+    setText("vendaQtdValue", String(vendaFormState.quantidade));
+
+    var itensEl = document.getElementById("vendaItensList");
+    if (itensEl) itensEl.innerHTML = vendaFormState.itens.map(vendaItemRowHTML).join("");
+    setHidden("vendaItensEmpty", vendaFormState.itens.length > 0);
+
+    var subtotal = computeVendaSubtotal();
+    var desconto = computeVendaDesconto(subtotal);
+    var total = round2(subtotal - desconto);
+    setText("vendaResumoSubtotal", fmtMoney(subtotal));
+    setHidden("vendaResumoDescontoRow", desconto <= 0);
+    setText("vendaResumoDesconto", "− " + fmtMoney(desconto));
+    setText("vendaResumoTotal", fmtMoney(total));
+
+    setHidden("vendaCupomAplicadoRow", !vendaFormState.cupom);
+    if (vendaFormState.cupom) setText("vendaCupomCodigoTxt", vendaFormState.cupom.codigo);
+
+    var submitBtn = document.getElementById("vendaSubmitBtn");
+    if (submitBtn) submitBtn.disabled = vendaFormState.itens.length === 0;
+  }
+
+  function vendaClienteToggle(){
+    var picker = document.getElementById("vendaClientePicker");
+    if (!picker) return;
+    var opening = picker.hidden;
+    picker.hidden = !opening;
+    if (opening) {
+      var searchEl = document.getElementById("vendaClienteSearchInput");
+      if (searchEl) { searchEl.value = ""; searchEl.focus(); }
+      renderVendaClienteList("");
+    }
+  }
+
+  function vendaClienteRowHTML(c){
+    return '<div class="raised-sm" role="button" tabindex="0" data-venda-cliente-id="' + c.id + '" style="padding:12px 14px;margin-bottom:9px;">' +
+        '<div style="font-size:13.5px;font-weight:600;">' + escapeHtml(c.nome) + '</div>' +
+        '<div style="font-size:11.5px;color:var(--text-faint);margin-top:2px;">' + escapeHtml(c.telefone || "") + '</div>' +
+      '</div>';
+  }
+
+  function renderVendaClienteList(filtro){
+    var listEl = document.getElementById("vendaClienteList");
+    if (!listEl) return;
+    var termo = (filtro || "").trim().toLowerCase();
+    var avulsoHTML = '<div class="raised-sm" role="button" tabindex="0" data-venda-cliente-id="avulso" style="padding:12px 14px;margin-bottom:9px;"><div style="font-size:13.5px;font-weight:600;">Cliente avulso</div></div>';
+    var itens = clientesState.clientes.filter(function(c){
+      return !termo || c.nome.toLowerCase().indexOf(termo) !== -1 || (c.telefone || "").indexOf(termo) !== -1;
+    });
+    listEl.innerHTML = avulsoHTML + itens.map(vendaClienteRowHTML).join("");
+  }
+
+  function vendaClienteSelecionar(id){
+    if (id === "avulso") {
+      vendaFormState.clienteId = null; vendaFormState.clienteNome = "Cliente avulso";
+    } else {
+      var c = findCliente(id);
+      if (!c) return;
+      vendaFormState.clienteId = c.id; vendaFormState.clienteNome = c.nome;
+    }
+    setHidden("vendaClientePicker", true);
+    renderRegistrarVenda();
+  }
+
+  function vendaVarSelecionar(id){
+    vendaFormState.variacaoId = id;
+    vendaFormState.quantidade = 1;
+    renderRegistrarVenda();
+  }
+
+  function vendaQtdAjustar(delta){
+    var max = Math.max(1, vendaEstoqueDisponivel(vendaFormState.variacaoId));
+    vendaFormState.quantidade = Math.min(max, Math.max(1, vendaFormState.quantidade + delta));
+    renderRegistrarVenda();
+  }
+
+  function vendaItemAdicionar(){
+    var v = findVariacao(vendaFormState.variacaoId);
+    if (!v) { showToast("cadastre uma variação no catálogo antes de vender."); return; }
+    var qtd = vendaFormState.quantidade;
+    var disp = vendaEstoqueDisponivel(v.id);
+    if (disp <= 0) { showToast("sem estoque disponível de " + variacaoLabel(v) + " agora."); return; }
+    if (qtd > disp) { showToast("estoque insuficiente — só há " + disp + " " + variacaoLabel(v) + " disponíveis."); return; }
+    var existente = vendaFormState.itens.filter(function(it){ return it.variacaoId === v.id; })[0];
+    if (existente) existente.quantidade += qtd;
+    else vendaFormState.itens.push({ variacaoId: v.id, quantidade: qtd, precoUnit: v.precoVenda, precoTabela: v.precoVenda });
+    vendaFormState.quantidade = 1;
+    renderRegistrarVenda();
+  }
+
+  function vendaItemRemover(idx){
+    vendaFormState.itens.splice(idx, 1);
+    renderRegistrarVenda();
+  }
+
+  function vendaFormaSelecionar(forma){
+    vendaFormState.formaPagamento = forma;
+    document.querySelectorAll('#vendaFormaPills [data-forma]').forEach(function(p){ p.classList.toggle("active", p.dataset.forma === forma); });
+  }
+
+  function vendaCupomAplicar(){
+    var input = document.getElementById("vendaCupomInput");
+    var codigo = (input.value || "").trim().toUpperCase();
+    if (!codigo) { showToast("digite um código de cupom."); return; }
+    var cupom = cuponsState.cupons.filter(function(c){ return c.codigo.toUpperCase() === codigo; })[0];
+    if (!cupom) { showToast("cupom não encontrado."); return; }
+    if (!cupom.ativo) { showToast("esse cupom está inativo."); return; }
+    var hoje = todayISO();
+    if (cupom.dataInicio && hoje < cupom.dataInicio) { showToast("esse cupom ainda não começou a valer."); return; }
+    if (cupom.dataValidade && hoje > cupom.dataValidade) { showToast("esse cupom está vencido."); return; }
+    if (cupom.limiteUso > 0 && cupom.usosCount >= cupom.limiteUso) { showToast("esse cupom já atingiu o limite de usos."); return; }
+    vendaFormState.cupom = cupom;
+    input.value = cupom.codigo;
+    renderRegistrarVenda();
+    showToast("cupom " + cupom.codigo + " aplicado.");
+  }
+
+  function vendaCupomRemover(){
+    vendaFormState.cupom = null;
+    var input = document.getElementById("vendaCupomInput");
+    if (input) input.value = "";
+    renderRegistrarVenda();
+  }
+
+  function submitVenda(){
+    if (!vendaFormState.itens.length) return;
+    // Revalida o estoque na hora de confirmar — pode ter mudado desde que os itens foram
+    // montados (ex.: um ajuste manual de estoque no meio do caminho).
+    for (var i = 0; i < vendaFormState.itens.length; i++) {
+      var item = vendaFormState.itens[i];
+      var estoqueVela = findEstoqueVela(item.variacaoId);
+      var disponivel = estoqueVela ? estoqueVela.quantidade : 0;
+      if (item.quantidade > disponivel) {
+        showToast("estoque de " + variacaoLabel(findVariacao(item.variacaoId)) + " mudou — só há " + disponivel + " disponíveis agora.");
+        renderRegistrarVenda();
+        return;
+      }
+    }
+
+    var today = todayISO();
+    var subtotal = computeVendaSubtotal();
+    var desconto = computeVendaDesconto(subtotal);
+    var total = round2(subtotal - desconto);
+    var vendaId = uid("vd");
+
+    vendaFormState.itens.forEach(function(item){
+      var estoqueVela = findEstoqueVela(item.variacaoId);
+      estoqueVela.quantidade = round2(Math.max(0, estoqueVela.quantidade - item.quantidade));
+      producaoEstoqueState.movimentacoes.push({ id: uid("pm"), variacaoId: item.variacaoId, tipo: "saida", quantidade: item.quantidade, data: today, motivo: "Venda", vendaId: vendaId });
+    });
+    saveProducaoEstoqueState();
+
+    vendasState.vendas.push({
+      id: vendaId, clienteId: vendaFormState.clienteId, clienteNome: vendaFormState.clienteNome,
+      itens: vendaFormState.itens.map(function(it){ return { variacaoId: it.variacaoId, quantidade: it.quantidade, precoUnit: it.precoUnit, precoTabela: it.precoTabela }; }),
+      formaPagamento: vendaFormState.formaPagamento, data: today, subtotal: subtotal,
+      cupomCodigo: vendaFormState.cupom ? vendaFormState.cupom.codigo : null, cupomDesconto: desconto, total: total,
+      status: "confirmada", origemEncomendaId: null
+    });
+    saveVendasState();
+
+    if (vendaFormState.cupom) {
+      vendaFormState.cupom.usosCount = (vendaFormState.cupom.usosCount || 0) + 1;
+      saveCuponsState();
+    }
+
+    showToast("venda de " + fmtMoney(total) + " registrada.");
+    renderEstoqueHub();
+    renderProducaoList();
+    renderClientesList();
+    renderClientesRanking();
+    renderDashboard();
+    checarNotificacaoAutomatica();
+    showScreen("vendas");
   }
 
   // ================================================================
@@ -1316,7 +1617,7 @@
         '<div class="row" style="gap:10px;">' +
           '<div class="pressed" role="button" tabindex="0" aria-label="Remover uma vela · ' + escapeHtml(nome) + '" data-action="prod-dec" data-var-id="' + v.id + '" style="width:34px;height:34px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--text);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M5 12h14"/></svg></div>' +
           '<div style="font-size:18px;font-weight:700;min-width:30px;text-align:center;">' + qtd + '</div>' +
-          '<div class="raised-sm" role="button" tabindex="0" aria-label="Adicionar uma vela · ' + escapeHtml(nome) + '" data-action="prod-inc" data-var-id="' + v.id + '" style="width:34px;height:34px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--primary);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></div>' +
+          '<div class="raised-sm" role="button" tabindex="0" aria-label="Adicionar uma vela · ' + escapeHtml(nome) + '" data-action="prod-inc" data-var-id="' + v.id + '" style="width:34px;height:34px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--card-text);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></div>' +
         '</div>' +
       '</div>';
   }
@@ -1349,10 +1650,10 @@
   }
 
   // ================================================================
-  // Calculadora de Velas — planeja um lote antes de registrá-lo (o registro em si, que
-  // debita insumo e credita vela pronta, é o módulo 6/"Produção", ainda não construído).
-  // Ajustes por lote (chips +5%/−5%) valem só pra esta simulação; "salvar como novo
-  // padrão" é o único jeito de torná-los permanentes em configState.
+  // Calculadora de Velas — planeja um lote, mostra custo/margem e é quem de fato registra
+  // a produção (módulo 5+6 fundidos numa tela só). Ajustes por lote (chips +5%/−5%) valem
+  // pro cálculo do que será debitado ao registrar; "salvar como novo padrão" é o único
+  // jeito de torná-los permanentes em configState pros próximos lotes.
   // ================================================================
   var calcState = { variacaoId: null, quantidade: 24, ajustes: {} };
 
@@ -1361,34 +1662,50 @@
     return '<div class="pill' + active + '" style="flex:none;" data-var-id="' + v.id + '">' + escapeHtml(variacaoLabel(v)) + '</div>';
   }
 
-  function computeCalcQtd(item){
-    var base = item.qtd * calcState.quantidade;
-    var comPerda = item.perde ? base * (1 + configState.perdaDerretimento / 100) : base;
-    var ajustePct = calcState.ajustes[item.insumoId] || 0;
-    return comPerda * (1 + ajustePct / 100);
-  }
-
-  function calcInsumoRowHTML(insumo, precisa, ajustePct){
-    var falta = round2(precisa - insumo.quantidade);
+  function calcInsumoRowHTML(item){
+    var falta = item.falta;
     var statusHTML = falta > 0
       ? '<div style="font-size:10.5px;color:var(--warn);">falta ' + numToStr(falta) + '</div>'
-      : '<div style="font-size:10.5px;color:var(--text-faint);">tem ' + numToStr(insumo.quantidade) + '</div>';
-    var ajusteTxt = (ajustePct > 0 ? "+" : "") + ajustePct + "%";
+      : '<div style="font-size:10.5px;color:var(--text-faint);">tem ' + numToStr(round2(item.precisa - falta)) + '</div>';
+    var ajusteTxt = (item.ajustePct > 0 ? "+" : "") + item.ajustePct + "%";
     return '' +
       '<div class="between" style="padding:12px 0;border-bottom:1px solid var(--line);">' +
         '<div style="flex:1;min-width:0;">' +
-          '<div style="font-size:13.5px;font-weight:500;">' + escapeHtml(insumo.nome) + '</div>' +
+          '<div style="font-size:13.5px;font-weight:500;">' + escapeHtml(item.nome) + '</div>' +
           '<div class="row" style="gap:4px;margin-top:4px;">' +
-            '<div class="pressed" role="button" tabindex="0" aria-label="Diminuir 5% · ' + escapeHtml(insumo.nome) + '" data-action="calc-adj-dec" data-calc-insumo-id="' + insumo.id + '" style="width:22px;height:22px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--text-faint);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14"/></svg></div>' +
+            '<div class="pressed" role="button" tabindex="0" aria-label="Diminuir 5% · ' + escapeHtml(item.nome) + '" data-action="calc-adj-dec" data-calc-insumo-id="' + item.insumoId + '" style="width:22px;height:22px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--text-faint);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14"/></svg></div>' +
             '<div style="font-size:10.5px;color:var(--text-faint);min-width:30px;text-align:center;">' + ajusteTxt + '</div>' +
-            '<div class="pressed" role="button" tabindex="0" aria-label="Aumentar 5% · ' + escapeHtml(insumo.nome) + '" data-action="calc-adj-inc" data-calc-insumo-id="' + insumo.id + '" style="width:22px;height:22px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--text-faint);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></div>' +
+            '<div class="pressed" role="button" tabindex="0" aria-label="Aumentar 5% · ' + escapeHtml(item.nome) + '" data-action="calc-adj-inc" data-calc-insumo-id="' + item.insumoId + '" style="width:22px;height:22px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--text-faint);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></div>' +
           '</div>' +
         '</div>' +
         '<div style="text-align:right;">' +
-          '<div style="font-size:13.5px;font-weight:700;">' + fmtQty(precisa, insumo.unidade) + '</div>' +
+          '<div style="font-size:13.5px;font-weight:700;">' + fmtQty(item.precisa, item.unidade) + '</div>' +
           statusHTML +
         '</div>' +
       '</div>';
+  }
+
+  // Insumos necessários + custo pro lote inteiro, já com os ajustes por chip aplicados.
+  // Reaproveitada tanto pra renderizar a lista/o card de custo quanto na hora de registrar
+  // de verdade — pra garantir que o que a pessoa vê é exatamente o que vai ser debitado.
+  function computeInsumosLote(v, quantidade, ajustes){
+    ajustes = ajustes || {};
+    var receita = receitaPadraoVariacao(v);
+    var itens = [], custoTotal = 0, insuficiente = false;
+    receita.forEach(function(item){
+      var insumo = findInsumo(item.insumoId);
+      if (!insumo) return;
+      var base = item.qtd * quantidade;
+      var comPerda = item.perde ? base * (1 + configState.perdaDerretimento / 100) : base;
+      var ajustePct = ajustes[item.insumoId] || 0;
+      var precisa = round2(comPerda * (1 + ajustePct / 100));
+      var custoItem = round2(precisa * insumo.custoMedio);
+      var falta = round2(precisa - insumo.quantidade);
+      if (falta > 0) insuficiente = true;
+      custoTotal += custoItem;
+      itens.push({ insumoId: insumo.id, nome: insumo.nome, unidade: insumo.unidade, precisa: precisa, custoItem: custoItem, falta: falta, ajustePct: ajustePct });
+    });
+    return { itens: itens, custoTotal: round2(custoTotal), insuficiente: insuficiente };
   }
 
   function renderCalc(){
@@ -1400,34 +1717,48 @@
     var pillsEl = document.getElementById("calcVarPills");
     if (pillsEl) pillsEl.innerHTML = catalogoState.variacoes.map(calcVarPillHTML).join("");
 
+    var warnEl = document.getElementById("calcWarning");
+    var btnEl = document.getElementById("calcRegistrarBtn");
+
     if (!v) {
       ["calcInsumosList"].forEach(function(id){ var el = document.getElementById(id); if (el) el.innerHTML = emptyStateHTML({
         icon: ICON_PRODUCAO, title: "nenhuma variação no catálogo", sub: "cadastre uma variação no Catálogo de Produtos primeiro."
       }); });
       setHidden("calcSaveWrap", true);
+      setText("calcCustoOut", "—"); setText("calcReceitaOut", "—"); setText("calcMargemOut", "—");
+      if (warnEl) warnEl.hidden = true;
+      if (btnEl) btnEl.setAttribute("disabled", "disabled");
       return;
     }
 
     setText("calcQtdOut", calcState.quantidade);
     setText("calcPerdaNote", "perda " + numToStr(configState.perdaDerretimento) + "% inclusa");
 
-    var receita = receitaPadraoVariacao(v);
-    var hasAjuste = false;
+    var calc = computeInsumosLote(v, calcState.quantidade, calcState.ajustes);
+    var hasAjuste = calc.itens.some(function(item){ return item.ajustePct; });
     var listEl = document.getElementById("calcInsumosList");
-    if (listEl) {
-      listEl.innerHTML = receita.map(function(item){
-        var insumo = findInsumo(item.insumoId);
-        if (!insumo) return "";
-        var precisa = round2(computeCalcQtd(item));
-        var ajustePct = calcState.ajustes[item.insumoId] || 0;
-        if (ajustePct) hasAjuste = true;
-        return calcInsumoRowHTML(insumo, precisa, ajustePct);
-      }).join("");
-    }
+    if (listEl) listEl.innerHTML = calc.itens.map(calcInsumoRowHTML).join("");
 
     setText("calcJarrasOut", calcState.quantidade + " un");
     setText("calcJarraCap", numToStr(configState.jarraCapacidadeMl) + " ml");
     setHidden("calcSaveWrap", !hasAjuste);
+
+    var receita = round2((v.precoVenda || 0) * calcState.quantidade);
+    var margem = round2(receita - calc.custoTotal);
+    setText("calcCustoOut", fmtMoney(calc.custoTotal));
+    setText("calcReceitaOut", fmtMoney(receita));
+    setText("calcMargemOut", fmtMoney(margem));
+
+    if (warnEl && btnEl) {
+      if (calc.insuficiente) {
+        warnEl.textContent = "estoque de insumo insuficiente pra este lote — reduza a quantidade ou registre uma compra.";
+        warnEl.hidden = false;
+        btnEl.setAttribute("disabled", "disabled");
+      } else {
+        warnEl.hidden = true;
+        btnEl.removeAttribute("disabled");
+      }
+    }
   }
 
   function bumpCalcAjuste(insumoId, delta){
@@ -1458,118 +1789,20 @@
     renderCalc();
   }
 
-  // ================================================================
-  // Calculadora de Lucro — módulo 5
-  // Mesma conta de insumos necessários da Calculadora de Velas (receitaPadraoVariacao +
-  // perda de derretimento), mas sem os ajustes por chip — aqui o foco é custo/margem e o
-  // botão que de fato registra a produção, coisa que a Calculadora de Velas só planeja.
-  // A margem mostrada é bruta (preço de venda − custo de insumo, sem custo fixo nenhum) —
-  // o lucro líquido real, já rateado, é o card do Dashboard. Registrar debita os insumos,
-  // credita a vela pronta no Estoque de Produção e cria a entrada em lotesState (Registro
-  // de Produção, módulo 6, abaixo) — não é um histórico paralelo, é a mesma fonte de dado
-  // que a lista de lotes lê.
-  // ================================================================
-  var lucroState = { variacaoId: null, quantidade: 24 };
-
-  // Insumos necessários + custo pro lote inteiro, sem os ajustes por chip da Calculadora
-  // de Velas. Reaproveitada tanto pra renderizar a tela quanto na hora de registrar de
-  // verdade — pra garantir que o que a pessoa vê é exatamente o que vai ser debitado.
-  function computeInsumosLote(v, quantidade){
-    var receita = receitaPadraoVariacao(v);
-    var itens = [], custoTotal = 0, insuficiente = false;
-    receita.forEach(function(item){
-      var insumo = findInsumo(item.insumoId);
-      if (!insumo) return;
-      var base = item.qtd * quantidade;
-      var precisa = round2(item.perde ? base * (1 + configState.perdaDerretimento / 100) : base);
-      var custoItem = round2(precisa * insumo.custoMedio);
-      var falta = round2(precisa - insumo.quantidade);
-      if (falta > 0) insuficiente = true;
-      custoTotal += custoItem;
-      itens.push({ insumoId: insumo.id, nome: insumo.nome, unidade: insumo.unidade, precisa: precisa, custoItem: custoItem, falta: falta });
-    });
-    return { itens: itens, custoTotal: round2(custoTotal), insuficiente: insuficiente };
-  }
-
-  function lucroVarPillHTML(v){
-    var active = v.id === lucroState.variacaoId ? " active" : "";
-    return '<div class="pill' + active + '" style="flex:none;" data-lucro-var-id="' + v.id + '">' + escapeHtml(variacaoLabel(v)) + '</div>';
-  }
-
-  function lucroInsumoRowHTML(item){
-    var statusHTML = item.falta > 0
-      ? '<div style="font-size:10.5px;color:var(--warn);">falta ' + numToStr(item.falta) + ' ' + item.unidade + '</div>'
-      : '<div style="font-size:10.5px;color:var(--text-faint);">' + fmtMoney(item.custoItem) + '</div>';
-    return '' +
-      '<div class="between" style="padding:12px 0;border-bottom:1px solid var(--line);">' +
-        '<div style="font-size:13.5px;font-weight:500;">' + escapeHtml(item.nome) + '</div>' +
-        '<div style="text-align:right;">' +
-          '<div style="font-size:13.5px;font-weight:700;">' + fmtQty(item.precisa, item.unidade) + '</div>' +
-          statusHTML +
-        '</div>' +
-      '</div>';
-  }
-
-  function renderCalcLucro(){
-    if (!lucroState.variacaoId || !findVariacao(lucroState.variacaoId)) {
-      lucroState.variacaoId = catalogoState.variacoes.length ? catalogoState.variacoes[0].id : null;
-    }
-    var v = findVariacao(lucroState.variacaoId);
-
-    var pillsEl = document.getElementById("lucroVarPills");
-    if (pillsEl) pillsEl.innerHTML = catalogoState.variacoes.map(lucroVarPillHTML).join("");
-
-    var warnEl = document.getElementById("lucroWarning");
-    var btnEl = document.getElementById("lucroRegistrarBtn");
-
-    if (!v) {
-      var listElEmpty = document.getElementById("lucroInsumosList");
-      if (listElEmpty) listElEmpty.innerHTML = emptyStateHTML({
-        icon: ICON_PRODUCAO, title: "nenhuma variação no catálogo", sub: "cadastre uma variação no Catálogo de Produtos primeiro."
-      });
-      setText("lucroCustoOut", "—"); setText("lucroReceitaOut", "—"); setText("lucroMargemOut", "—");
-      if (warnEl) warnEl.hidden = true;
-      if (btnEl) btnEl.setAttribute("disabled", "disabled");
-      return;
-    }
-
-    setText("lucroQtdOut", lucroState.quantidade);
-    setText("lucroPerdaNote", "perda " + numToStr(configState.perdaDerretimento) + "% inclusa");
-
-    var calc = computeInsumosLote(v, lucroState.quantidade);
-    var listEl = document.getElementById("lucroInsumosList");
-    if (listEl) listEl.innerHTML = calc.itens.map(lucroInsumoRowHTML).join("");
-
-    var receita = round2((v.precoVenda || 0) * lucroState.quantidade);
-    var margem = round2(receita - calc.custoTotal);
-    setText("lucroCustoOut", fmtMoney(calc.custoTotal));
-    setText("lucroReceitaOut", fmtMoney(receita));
-    setText("lucroMargemOut", fmtMoney(margem));
-
-    if (warnEl && btnEl) {
-      if (calc.insuficiente) {
-        warnEl.textContent = "estoque de insumo insuficiente pra este lote — reduza a quantidade ou registre uma compra.";
-        warnEl.hidden = false;
-        btnEl.setAttribute("disabled", "disabled");
-      } else {
-        warnEl.hidden = true;
-        btnEl.removeAttribute("disabled");
-      }
-    }
-  }
-
   // Registrar produção: debita cada insumo (mesma auditoria de saída do Estoque de
-  // Insumos, motivo "Produção"), credita a vela pronta no Estoque de Produção e cria o
-  // lote em lotesState — os três marcados com o mesmo loteId, pra excluirLote() (módulo 6,
-  // abaixo) saber exatamente o que reverter.
+  // Insumos, motivo "Produção", incluindo os ajustes por chip desta simulação), credita a
+  // vela pronta no Estoque de Produção e cria o lote em lotesState — os três marcados com
+  // o mesmo loteId, pra excluirLote() (módulo 6, abaixo) saber exatamente o que reverter.
+  // A margem mostrada acima é bruta (preço de venda − custo de insumo, sem custo fixo
+  // nenhum) — o lucro líquido real, já rateado, é o card do Dashboard.
   function registrarProducao(){
-    var v = findVariacao(lucroState.variacaoId);
+    var v = findVariacao(calcState.variacaoId);
     if (!v) return;
-    var calc = computeInsumosLote(v, lucroState.quantidade);
+    var calc = computeInsumosLote(v, calcState.quantidade, calcState.ajustes);
     if (calc.insuficiente) return;
     var today = todayISO();
     var loteId = uid("l");
-    var quantidade = lucroState.quantidade;
+    var quantidade = calcState.quantidade;
 
     calc.itens.forEach(function(item){
       var insumo = findInsumo(item.insumoId);
@@ -1594,13 +1827,13 @@
     saveLotesState();
 
     showToast(quantidade + " velas de " + variacaoLabel(v) + " registradas na produção.");
-    lucroState.quantidade = 24;
+    calcState.quantidade = 24;
+    calcState.ajustes = {};
 
     renderEstoqueInsumosList();
     renderEstoqueHub();
     renderProducaoList();
     renderCalc();
-    renderCalcLucro();
     renderRegistroProducao();
     renderDashboard();
     checarNotificacaoAutomatica();
@@ -1644,7 +1877,7 @@
     var listEl = document.getElementById("lotesList");
     if (listEl) {
       listEl.innerHTML = lotes.length ? lotes.map(loteRowHTML).join("") : emptyStateHTML({
-        icon: ICON_PRODUCAO, title: "nenhum lote registrado", sub: "registre uma produção na Calculadora de Lucro pra ver o histórico aqui."
+        icon: ICON_PRODUCAO, title: "nenhum lote registrado", sub: "registre uma produção na Calculadora de Velas pra ver o histórico aqui."
       });
     }
     var n = lotesState.lotes.length;
@@ -1711,7 +1944,6 @@
     renderEstoqueHub();
     renderProducaoList();
     renderCalc();
-    renderCalcLucro();
     renderRegistroProducao();
     renderDashboard();
     checarNotificacaoAutomatica();
@@ -1839,8 +2071,14 @@
       });
       playStackReveal(listEl, ".avisos-row");
     }
+    // Escondido quando zero: o empty state ("tudo certo por aqui") logo abaixo já diz a
+    // mesma coisa de um jeito mais acolhedor — "0 itens..." em cima dele só repetia a
+    // informação duas vezes seguidas.
     var countEl = document.getElementById("reposicaoCount");
-    if (countEl) countEl.textContent = items.length + (items.length === 1 ? " item abaixo do mínimo, em ordem de prioridade" : " itens abaixo do mínimo, em ordem de prioridade");
+    if (countEl) {
+      countEl.hidden = !items.length;
+      countEl.textContent = items.length + (items.length === 1 ? " item abaixo do mínimo, em ordem de prioridade" : " itens abaixo do mínimo, em ordem de prioridade");
+    }
     renderNotifCanal();
   }
 
@@ -1875,24 +2113,46 @@
   }
 
   // ================================================================
-  // Notificação do aviso de reposição — canal (push no app / e-mail / WhatsApp), parte do
-  // módulo 7. Só "push no app" manda de verdade: usa a Web Notification API nativa do
-  // navegador, sem servidor nenhum — combina com a conta deste app já ser só local (módulo
-  // 9, acima). E-mail e WhatsApp precisariam de um backend que este app não tem, então
-  // escolher um desses canais salva a preferência mas o envio real ainda não está
-  // construído — mesmo toast "em breve" já usado pros outros módulos incompletos do app.
+  // Notificação do aviso de reposição — canais (push no app / e-mail / WhatsApp, um ou vários
+  // ao mesmo tempo), parte do módulo 7. "Push no app" usa a Web Notification API nativa do
+  // navegador, sem servidor. E-mail e WhatsApp passam pela Edge Function "enviar-aviso" do
+  // projeto Supabase ponto-paragrafo (Resend pro e-mail, Twilio pro WhatsApp) — até esse
+  // projeto ter as chaves/credenciais configuradas nos secrets, a função responde
+  // { ok:false, pendente:true } e o app mostra "configuração pendente" pro canal.
   // Disparo automático (checarNotificacaoAutomatica) roda só depois de ações que mudam
-  // estoque (sempre dentro do clique que gerou a mudança, pra pedir permissão de
-  // notificação com um gesto do usuário por trás, como os navegadores exigem) e evita
-  // repetir o mesmo aviso: só manda de novo se a lista de itens abaixo do mínimo mudou ou
-  // se ainda não tinha avisado hoje. "Mandar aviso agora" ignora essa checagem.
+  // estoque (sempre dentro do clique que gerou a mudança, pra pedir permissão de push com um
+  // gesto do usuário por trás, como os navegadores exigem) e evita repetir o mesmo aviso: só
+  // manda de novo se o conjunto de itens abaixo do mínimo ou de canais escolhidos mudou desde
+  // o último aviso, ou se ainda não tinha avisado hoje. "Testar aviso agora" ignora essa
+  // checagem e sempre tenta mandar.
   // ================================================================
   var NOTIF_KEY = "pp_notif_v1";
-  function defaultNotifState(){ return { canal: "push", ultimoAvisoData: null, ultimoAvisoAssinatura: "" }; }
+  var NOTIF_FUNCTION_URL = "https://vmqpvlcckcfixsryvfdn.supabase.co/functions/v1/enviar-aviso";
+  var NOTIF_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZtcXB2bGNja2NmaXhzcnl2ZmRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcwODYyNDQsImV4cCI6MjEwMjY2MjI0NH0.JGpqSGXuEM8Rc1s9oo451UCotu4ub1D9JhCJcLiPplM";
+  // Trava opcional (ver pendencias.txt): a Edge Function "enviar-aviso" só exige este
+  // header se o secret APP_SHARED_SECRET estiver configurado no projeto Supabase — sem
+  // ele, o header abaixo é ignorado e nada quebra. Não é segurança forte (o valor mora no
+  // código do cliente, visível a quem inspecionar a página), só filtra chamadas diretas
+  // de terceiros que não passam pelo app. Precisa bater exatamente com o secret cadastrado
+  // em Supabase → Edge Functions → Secrets → APP_SHARED_SECRET.
+  var NOTIF_APP_SECRET = "107874553e13cd887402d09fe415a5641cff9d20fd78bba0";
+
+  function defaultNotifState(){ return { canais: ["push"], email: "", whatsapp: "", ultimoAvisoData: null, ultimoAvisoAssinatura: "" }; }
   function loadNotifState(){
     try {
       var raw = localStorage.getItem(NOTIF_KEY);
-      if (raw) { var parsed = JSON.parse(raw); if (parsed && parsed.canal) return parsed; }
+      if (raw) {
+        var parsed = JSON.parse(raw);
+        if (parsed) {
+          // migra o formato antigo (canal único em string) pro novo (lista de canais)
+          if (parsed.canal && !parsed.canais) parsed.canais = [parsed.canal];
+          if (!Array.isArray(parsed.canais)) parsed.canais = ["push"];
+          if (typeof parsed.email !== "string") parsed.email = "";
+          if (typeof parsed.whatsapp !== "string") parsed.whatsapp = "";
+          delete parsed.canal;
+          return parsed;
+        }
+      }
     } catch (e) {}
     return defaultNotifState();
   }
@@ -1905,69 +2165,137 @@
 
   function renderNotifCanal(){
     document.querySelectorAll('#notifCanalPills [data-canal]').forEach(function(p){
-      p.classList.toggle("active", p.dataset.canal === notifState.canal);
+      p.classList.toggle("active", notifState.canais.indexOf(p.dataset.canal) !== -1);
     });
-    var noteEl = document.getElementById("notifStatusNote");
-    if (!noteEl) return;
-    if (notifState.canal !== "push") {
-      noteEl.textContent = "em breve";
-    } else if (!notifSuportada()) {
-      noteEl.textContent = "não suportado neste navegador";
-    } else if (Notification.permission === "granted") {
-      noteEl.textContent = "ativado";
-    } else if (Notification.permission === "denied") {
-      noteEl.textContent = "bloqueado nas permissões do navegador";
-    } else {
-      noteEl.textContent = 'toque em "mandar aviso agora" pra autorizar';
+
+    // e-mail e WhatsApp dividem uma única caixa "pressed" (em vez de uma caixa cada) — reduz
+    // o empilhamento de blocos quando os 2 canais de contato estão ativos ao mesmo tempo.
+    var temEmail = notifState.canais.indexOf("email") !== -1;
+    var temWhatsapp = notifState.canais.indexOf("whatsapp") !== -1;
+
+    var contatoGroup = document.getElementById("notifContatoGroup");
+    if (contatoGroup) contatoGroup.hidden = !temEmail && !temWhatsapp;
+    var emailField = document.getElementById("notifEmailField");
+    if (emailField) emailField.hidden = !temEmail;
+    var whatsappField = document.getElementById("notifWhatsappField");
+    if (whatsappField) whatsappField.hidden = !temWhatsapp;
+    var contatoDivider = document.getElementById("notifContatoDivider");
+    if (contatoDivider) contatoDivider.hidden = !(temEmail && temWhatsapp);
+
+    var emailInput = document.getElementById("notifEmailInput");
+    if (emailInput && emailInput !== document.activeElement) emailInput.value = notifState.email || "";
+    var whatsappInput = document.getElementById("notifWhatsappInput");
+    if (whatsappInput && whatsappInput !== document.activeElement) whatsappInput.value = notifState.whatsapp || "";
+
+    var listEl = document.getElementById("notifStatusList");
+    if (!listEl) return;
+    // Cada linha carrega um "tipo" (good/warn) pra render de uma bolinha antes do texto —
+    // dá leitura de relance (verde = ok, terracota = precisa de atenção) sem depender só
+    // da frase. A frase continua explicando por extenso, então a cor é reforço, não a
+    // única pista (acessível pra quem não distingue as cores).
+    var linhas = [];
+    if (!notifState.canais.length) linhas.push({tipo:"warn", texto:"nenhum canal selecionado — você não vai receber avisos."});
+    if (notifState.canais.indexOf("push") !== -1) {
+      if (!notifSuportada()) linhas.push({tipo:"warn", texto:"push: não suportado neste navegador."});
+      else if (Notification.permission === "granted") linhas.push({tipo:"good", texto:"push: ativado."});
+      else if (Notification.permission === "denied") linhas.push({tipo:"warn", texto:"push: bloqueado nas permissões do navegador."});
+      else linhas.push({tipo:"warn", texto:'push: toque em "testar aviso agora" pra autorizar.'});
     }
+    if (notifState.canais.indexOf("email") !== -1 && !notifState.email) linhas.push({tipo:"warn", texto:"e-mail: cadastre um endereço acima."});
+    if (notifState.canais.indexOf("whatsapp") !== -1 && !notifState.whatsapp) linhas.push({tipo:"warn", texto:"WhatsApp: cadastre um número acima."});
+    listEl.innerHTML = linhas.map(function(l){
+      return '<div style="display:flex;align-items:center;gap:7px;font-size:11px;color:var(--text-faint);line-height:1.6;">' +
+        '<span class="status-dot ' + l.tipo + '" aria-hidden="true"></span>' + escapeHtml(l.texto) + '</div>';
+    }).join("");
   }
 
-  function setNotifCanal(canal){
-    notifState.canal = canal;
+  function toggleNotifCanal(canal){
+    var idx = notifState.canais.indexOf(canal);
+    if (idx === -1) notifState.canais.push(canal); else notifState.canais.splice(idx, 1);
     saveNotifState();
     renderNotifCanal();
   }
 
-  // Manda o aviso pelo canal escolhido. forcar=true ignora a checagem de "já avisei hoje
-  // com esses mesmos itens" (usado pelo botão "mandar aviso agora"); sem forcar, só avisa
-  // quando o conjunto de itens abaixo do mínimo é diferente do que já foi avisado hoje.
-  function dispararAviso(items, forcar){
-    if (!items.length) { if (forcar) showToast("nada abaixo do mínimo agora — nenhum aviso a mandar."); return; }
-    var assinatura = items.map(function(i){ return i.nome; }).join("|");
-    var hoje = todayISO();
-    if (!forcar && notifState.ultimoAvisoData === hoje && notifState.ultimoAvisoAssinatura === assinatura) return;
+  function setNotifContato(campo, valor){
+    notifState[campo] = valor;
+    saveNotifState();
+    renderNotifCanal();
+  }
 
-    if (notifState.canal !== "push") {
-      showToast("em breve — aviso por " + (notifState.canal === "email" ? "e-mail" : "WhatsApp") + " ainda está sendo construído.");
-      if (!forcar) return;
-      notifState.ultimoAvisoData = hoje;
-      notifState.ultimoAvisoAssinatura = assinatura;
-      saveNotifState();
-      return;
-    }
-
-    if (!notifSuportada()) { showToast("este navegador não suporta notificações push."); return; }
-
+  function dispararPush(items, forcar){
+    if (!notifSuportada()) { if (forcar) showToast("este navegador não suporta notificações push."); return; }
     if (Notification.permission === "default") {
       Notification.requestPermission().then(function(perm){
         renderNotifCanal();
-        if (perm === "granted") dispararAviso(items, forcar);
+        if (perm === "granted") enviarPush(items, forcar);
         else if (forcar) showToast("permissão de notificação negada.");
       });
       return;
     }
-    if (Notification.permission === "denied") { showToast("notificações bloqueadas nas permissões do navegador."); return; }
+    if (Notification.permission === "denied") { if (forcar) showToast("notificações bloqueadas nas permissões do navegador."); return; }
+    enviarPush(items, forcar);
+  }
 
+  function enviarPush(items, forcar){
     var top = items[0];
     var corpo = items.length === 1
       ? (top.nome + " está abaixo do mínimo.")
       : (top.nome + " e mais " + (items.length - 1) + (items.length - 1 === 1 ? " item" : " itens") + " abaixo do mínimo.");
     try { new Notification(".parágrafo · aviso de reposição", { body: corpo }); } catch (e) {}
-    if (forcar) showToast("notificação enviada.");
+    if (forcar) showToast("notificação push enviada.");
+  }
 
+  // Manda o aviso pra Edge Function "enviar-aviso" (e-mail e/ou WhatsApp, conforme os canais
+  // escolhidos). forcar=true mostra um toast com o resultado de cada canal (usado por "testar
+  // aviso agora"); sem forcar, o disparo automático não incomoda o usuário com toast — só o
+  // push (que já é a própria notificação) e a lista de status do painel refletem o resultado.
+  function enviarAvisoServidor(items, canais, forcar){
+    fetch(NOTIF_FUNCTION_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": "Bearer " + NOTIF_ANON_KEY, "apikey": NOTIF_ANON_KEY, "x-app-secret": NOTIF_APP_SECRET },
+      body: JSON.stringify({
+        canais: canais,
+        email: notifState.email,
+        whatsapp: notifState.whatsapp,
+        items: items.map(function(i){ return { nome: i.nome, atual: i.atual, minimo: i.minimo, unidade: i.unidade }; })
+      })
+    }).then(function(resp){ return resp.json().then(function(data){ return { status: resp.status, data: data }; }); })
+      .then(function(res){
+        if (!forcar) return;
+        var partes = canais.map(function(c){
+          var r = res.data && res.data.resultado && res.data.resultado[c];
+          var rotulo = c === "email" ? "e-mail" : "WhatsApp";
+          if (!r) return rotulo + ": erro";
+          if (r.ok) return rotulo + ": enviado";
+          if (r.pendente) return rotulo + ": configuração pendente";
+          return rotulo + ": falhou";
+        });
+        showToast(partes.join(" · "));
+      })
+      .catch(function(){
+        if (forcar) showToast("não consegui falar com o servidor de notificação.");
+      });
+  }
+
+  // Manda o aviso pelos canais escolhidos. forcar=true ignora a checagem de "já avisei hoje
+  // com esses mesmos itens/canais" (usado por "testar aviso agora"); sem forcar, só avisa
+  // quando o conjunto de itens abaixo do mínimo (ou de canais escolhidos) é diferente do que
+  // já foi avisado hoje.
+  function dispararAviso(items, forcar){
+    if (!items.length) { if (forcar) showToast("nada abaixo do mínimo agora — nenhum aviso a mandar."); return; }
+    var canais = notifState.canais || [];
+    if (!canais.length) { if (forcar) showToast("selecione ao menos um canal de notificação."); return; }
+
+    var assinatura = canais.slice().sort().join(",") + "::" + items.map(function(i){ return i.nome; }).join("|");
+    var hoje = todayISO();
+    if (!forcar && notifState.ultimoAvisoData === hoje && notifState.ultimoAvisoAssinatura === assinatura) return;
     notifState.ultimoAvisoData = hoje;
     notifState.ultimoAvisoAssinatura = assinatura;
     saveNotifState();
+
+    if (canais.indexOf("push") !== -1) dispararPush(items, forcar);
+    var canaisServidor = canais.filter(function(c){ return c === "email" || c === "whatsapp"; });
+    if (canaisServidor.length) enviarAvisoServidor(items, canaisServidor, forcar);
   }
 
   function checarNotificacaoAutomatica(){
@@ -2171,14 +2499,19 @@
   var ESTOQUE_SCREENS = {
     estoque: true, estoqueInsumos: true, insumoForm: true, insumoDetalhe: true,
     insumoMovimentar: true, estoqueProducao: true, estoqueCalculadora: true,
-    estoqueCalculadoraLucro: true, registroProducao: true, loteDetalhe: true,
-    configuracoes: true
+    registroProducao: true, loteDetalhe: true
+  };
+  // Telas que vivem sob a pasta "Mais" (a página dos três pontinhos) — "configurações"
+  // mudou de casa (era uma sub-tela do Estoque, ver ESTOQUE_SCREENS acima) porque faz mais
+  // sentido como ajuste geral do app, não só de produção.
+  var MAIS_SCREENS = {
+    mais: true, configuracoes: true, conta: true, ajuda: true
   };
   // Telas que vivem sob a pasta "Vendas" — só a tela-hub por enquanto; as sub-telas
   // (registrar venda, encomendas, histórico, custos, cupons) entram aqui conforme
   // forem construídas, no mesmo esquema do ESTOQUE_SCREENS acima.
   var VENDAS_SCREENS = {
-    vendas: true
+    vendas: true, registrarVenda: true
   };
   // Telas do módulo 13 (Controle de Clientes) — cadastro/lista, formulário e detalhe.
   var CLIENTES_SCREENS = {
@@ -2188,13 +2521,14 @@
     "dashDock", "reposicaoDock", "maisDock",
     "estoqueDock", "estoqueInsumosDock", "insumoFormDock", "insumoDetalheDock",
     "insumoMovimentarDock", "estoqueProducaoDock", "estoqueCalculadoraDock",
-    "estoqueCalculadoraLucroDock", "registroProducaoDock", "loteDetalheDock",
-    "configuracoesDock", "vendasDock",
-    "clientesDock", "clienteFormDock", "clienteDetalheDock"
+    "registroProducaoDock", "loteDetalheDock",
+    "configuracoesDock", "vendasDock", "registrarVendaDock",
+    "clientesDock", "clienteFormDock", "clienteDetalheDock",
+    "contaDock", "ajudaDock"
   ];
   function refreshAllDocks(activeScreenName){
     var key = "inicio";
-    if (activeScreenName === "mais") key = "mais";
+    if (MAIS_SCREENS[activeScreenName]) key = "mais";
     else if (ESTOQUE_SCREENS[activeScreenName]) key = "estoque";
     else if (VENDAS_SCREENS[activeScreenName]) key = "vendas";
     else if (CLIENTES_SCREENS[activeScreenName]) key = "clientes";
@@ -2202,6 +2536,65 @@
       var el = document.getElementById(id);
       if (el) el.innerHTML = dockHTML(key);
     });
+  }
+
+  // ================================================================
+  // Backup / exportação dos dados — tela "mais". Insumos, produção, vendas, clientes e
+  // configurações vivem só no localStorage deste navegador (ver pendências do app); isto
+  // dá um jeito de tirar uma cópia em .json e de restaurar depois, no mesmo aparelho ou em
+  // outro. Conta/senha e sessão ficam de fora de propósito — restaurar um backup não deve
+  // mexer em quem está logado neste aparelho, só nos dados do negócio.
+  // ================================================================
+  var BACKUP_KEYS = {
+    estoque: ESTOQUE_KEY, catalogo: CATALOGO_KEY, producaoEstoque: PRODUCAO_ESTOQUE_KEY,
+    config: CONFIG_KEY, lotes: LOTES_KEY, cupons: CUPONS_KEY, vendas: VENDAS_KEY,
+    custos: CUSTOS_KEY, clientes: CLIENTES_KEY
+  };
+
+  function exportarBackup(){
+    var dados = {};
+    Object.keys(BACKUP_KEYS).forEach(function(nome){
+      try {
+        var raw = localStorage.getItem(BACKUP_KEYS[nome]);
+        if (raw) dados[nome] = JSON.parse(raw);
+      } catch (e) {}
+    });
+    var payload = { app: "ponto-paragrafo", versao: 1, exportadoEm: new Date().toISOString(), dados: dados };
+    var blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json;charset=utf-8;" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = "backup-ponto-paragrafo-" + todayISO() + ".json";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast("backup exportado.");
+  }
+
+  function importarBackupFile(file){
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(){
+      var parsed;
+      try { parsed = JSON.parse(String(reader.result)); } catch (e) {
+        showToast("esse arquivo não é um backup válido (.json)."); return;
+      }
+      if (!parsed || typeof parsed.dados !== "object") {
+        showToast("esse arquivo não é um backup válido do .parágrafo."); return;
+      }
+      var nomes = Object.keys(BACKUP_KEYS).filter(function(nome){ return parsed.dados[nome] !== undefined; });
+      if (!nomes.length) { showToast("esse backup não tem nenhum dado reconhecido."); return; }
+      if (!window.confirm("Restaurar este backup substitui TODOS os dados atuais (insumos, produção, vendas, clientes, configurações) pelos do arquivo. Essa ação não pode ser desfeita. Continuar?")) return;
+
+      nomes.forEach(function(nome){
+        try { localStorage.setItem(BACKUP_KEYS[nome], JSON.stringify(parsed.dados[nome])); } catch (e) {}
+      });
+      showToast("backup restaurado — recarregando…");
+      window.setTimeout(function(){ window.location.reload(); }, 900);
+    };
+    reader.onerror = function(){ showToast("não deu pra ler esse arquivo."); };
+    reader.readAsText(file);
   }
 
   // ================================================================
@@ -2299,6 +2692,18 @@
     var gotoConfig = e.target.closest('[data-goto="configuracoes"]');
     if (gotoConfig) { renderConfiguracoes(); showScreen("configuracoes"); return; }
 
+    var gotoConta = e.target.closest('[data-goto="conta"]');
+    if (gotoConta) { renderContaForm(); showScreen("conta"); return; }
+
+    var contaSalvarDados = e.target.closest('[data-action="conta-salvar-dados"]');
+    if (contaSalvarDados) { submitContaDadosForm(); return; }
+
+    var contaSalvarSenha = e.target.closest('[data-action="conta-salvar-senha"]');
+    if (contaSalvarSenha) { submitContaSenhaForm(); return; }
+
+    var gotoRegistrarVenda = e.target.closest('[data-goto="registrarVenda"]');
+    if (gotoRegistrarVenda) { openRegistrarVendaForm(); showScreen("registrarVenda"); return; }
+
     var gotoEl = e.target.closest("[data-goto]");
     if (gotoEl) { showScreen(gotoEl.dataset.goto); return; }
 
@@ -2306,7 +2711,7 @@
     if (goReposicao) { renderReposicaoPanel(); showScreen("reposicao"); return; }
 
     var notifCanalPill = e.target.closest("#notifCanalPills [data-canal]");
-    if (notifCanalPill) { setNotifCanal(notifCanalPill.dataset.canal); return; }
+    if (notifCanalPill) { toggleNotifCanal(notifCanalPill.dataset.canal); return; }
 
     var notifTestar = e.target.closest('[data-action="notif-testar"]');
     if (notifTestar) { dispararAviso(computeReposicaoItems(), true); return; }
@@ -2390,18 +2795,8 @@
     var calcSavePadrao = e.target.closest('[data-action="calc-save-padrao"]');
     if (calcSavePadrao) { saveCalcAjustesComoPadrao(); return; }
 
-    // ---- Calculadora de Lucro ----
-    var lucroVarPill = e.target.closest("#lucroVarPills [data-lucro-var-id]");
-    if (lucroVarPill) { lucroState.variacaoId = lucroVarPill.dataset.lucroVarId; renderCalcLucro(); return; }
-
-    var lucroQtdInc = e.target.closest('[data-action="lucro-qtd-inc"]');
-    if (lucroQtdInc) { lucroState.quantidade += 1; renderCalcLucro(); return; }
-
-    var lucroQtdDec = e.target.closest('[data-action="lucro-qtd-dec"]');
-    if (lucroQtdDec) { lucroState.quantidade = Math.max(1, lucroState.quantidade - 1); renderCalcLucro(); return; }
-
-    var lucroRegistrar = e.target.closest('[data-action="lucro-registrar"]');
-    if (lucroRegistrar) { if (!lucroRegistrar.hasAttribute("disabled")) registrarProducao(); return; }
+    var calcRegistrar = e.target.closest('[data-action="calc-registrar"]');
+    if (calcRegistrar) { if (!calcRegistrar.hasAttribute("disabled")) registrarProducao(); return; }
 
     // ---- Registro de Produção ----
     var loteRow = e.target.closest("[data-lote-id]");
@@ -2442,6 +2837,47 @@
 
     var clienteFormRemove = e.target.closest('[data-action="cliente-form-remove"]');
     if (clienteFormRemove) { removeCliente(); return; }
+
+    // ---- Registrar Venda ----
+    var vendaClienteToggleBtn = e.target.closest('[data-action="venda-cliente-toggle"]');
+    if (vendaClienteToggleBtn) { vendaClienteToggle(); return; }
+
+    var vendaClienteRow = e.target.closest('[data-venda-cliente-id]');
+    if (vendaClienteRow) { vendaClienteSelecionar(vendaClienteRow.dataset.vendaClienteId); return; }
+
+    var vendaVarPill = e.target.closest('#vendaVarPills [data-var-id]');
+    if (vendaVarPill) { vendaVarSelecionar(vendaVarPill.dataset.varId); return; }
+
+    var vendaQtdIncBtn = e.target.closest('[data-action="venda-qtd-inc"]');
+    if (vendaQtdIncBtn) { vendaQtdAjustar(1); return; }
+
+    var vendaQtdDecBtn = e.target.closest('[data-action="venda-qtd-dec"]');
+    if (vendaQtdDecBtn) { vendaQtdAjustar(-1); return; }
+
+    var vendaItemAddBtn = e.target.closest('[data-action="venda-item-add"]');
+    if (vendaItemAddBtn) { vendaItemAdicionar(); return; }
+
+    var vendaItemRemoveBtn = e.target.closest('[data-action="venda-item-remove"]');
+    if (vendaItemRemoveBtn) { vendaItemRemover(parseInt(vendaItemRemoveBtn.dataset.idx, 10)); return; }
+
+    var vendaFormaPill = e.target.closest('#vendaFormaPills [data-forma]');
+    if (vendaFormaPill) { vendaFormaSelecionar(vendaFormaPill.dataset.forma); return; }
+
+    var vendaCupomAplicarBtn = e.target.closest('[data-action="venda-cupom-aplicar"]');
+    if (vendaCupomAplicarBtn) { vendaCupomAplicar(); return; }
+
+    var vendaCupomRemoverBtn = e.target.closest('[data-action="venda-cupom-remover"]');
+    if (vendaCupomRemoverBtn) { vendaCupomRemover(); return; }
+
+    var vendaSubmitBtn = e.target.closest('[data-action="venda-submit"]');
+    if (vendaSubmitBtn) { if (!vendaSubmitBtn.hasAttribute("disabled")) submitVenda(); return; }
+
+    // ---- Backup dos dados ----
+    var backupExportarBtn = e.target.closest('[data-action="backup-exportar"]');
+    if (backupExportarBtn) { exportarBackup(); return; }
+
+    var backupImportarBtn = e.target.closest('[data-action="backup-importar"]');
+    if (backupImportarBtn) { var fileInput = document.getElementById("backupImportInput"); if (fileInput) fileInput.click(); return; }
   });
 
   document.addEventListener("input", function(e){
@@ -2451,6 +2887,13 @@
     if (e.target.id === "estoqueSearchInput") { renderEstoqueInsumosList(); return; }
     if (e.target.id === "movQtdEntrada" || e.target.id === "movPreco" || e.target.id === "movQtdSaida") { updateMovPreview(); return; }
     if (e.target.id === "clientesSearchInput") { renderClientesList(); return; }
+    if (e.target.id === "notifEmailInput") { setNotifContato("email", e.target.value.trim()); return; }
+    if (e.target.id === "notifWhatsappInput") { setNotifContato("whatsapp", e.target.value.trim()); return; }
+    if (e.target.id === "vendaClienteSearchInput") { renderVendaClienteList(e.target.value); return; }
+  });
+
+  document.addEventListener("change", function(e){
+    if (e.target.id === "backupImportInput") { importarBackupFile(e.target.files && e.target.files[0]); e.target.value = ""; return; }
   });
 
   // ================================================================
@@ -2486,7 +2929,6 @@
   renderEstoqueInsumosList();
   renderProducaoList();
   renderCalc();
-  renderCalcLucro();
   renderRegistroProducao();
   renderNotifCanal();
   renderClientesList();

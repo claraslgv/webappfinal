@@ -1,0 +1,280 @@
+PENDÊNCIAS — painel "avisos de reposição" / notificações automáticas
+Atualizado em 08/09/2026
+
+Ordem de trabalho combinada: design primeiro, funcionalidades depois.
+
+===========================================
+DESIGN (resolver primeiro)
+===========================================
+
+- [RESOLVIDO em 08/09/2026] Visual dos pills de canal quando mais de um
+  está selecionado (ex.: Push + E-mail + WhatsApp marcados juntos): antes
+  o estado "active" usava só sombra leve + cor do texto, hoje
+  .pill.active (style.css) usa preenchimento sólido com --primary +
+  border-color + texto invertido (--on-primary), em vez de depender de
+  sombra. Testado no app real (claro e escuro) com 1, 2 e os 3 pills
+  ativos ao mesmo tempo — em ambos os temas dá pra ver de relance quais
+  estão marcados (ativo = pill sólido de cor forte; inativo = chip claro/
+  neutro, contraste alto nos dois sentidos conforme o tema).
+
+- [RESOLVIDO em 08/09/2026] Hierarquia visual do card "notificar por" com
+  os 2 campos de contato ativos: e-mail e WhatsApp agora dividem uma
+  única caixa "pressed" (#notifContatoGroup, com uma linha divisória
+  entre os dois campos só quando os dois estão visíveis) em vez de uma
+  caixa "pressed" inteira pra cada um — antes, com os 3 canais ativos, o
+  card empilhava rótulo + 3 pills + 2 caixas com sombra/borda própria
+  cada uma + lista de status + botão, e lia como vários cartões dentro
+  de um cartão. Os rótulos de cada campo também foram encurtados ("e-mail
+  pra receber os avisos" → "e-mail", "WhatsApp pra receber os avisos" →
+  "WhatsApp"), já que o nome do canal já aparece na pill logo acima e o
+  rodapé do card já explica quando os avisos são mandados — repetir a
+  frase inteira em cada campo só engordava o bloco sem dar informação
+  nova. Testado com push sozinho, cada canal de contato sozinho e os 3
+  juntos, em claro e escuro (o card em si é sempre num tom marrom fixo
+  --card-bg, independente do tema do app — isso é esperado, não bug).
+  Ver index.html: #notifContatoGroup / #notifContatoDivider; app.js:
+  renderNotifCanal().
+
+- [RESOLVIDO em 08/09/2026] Tratamento visual da lista de status por
+  canal: cada linha de #notifStatusList agora tem uma bolinha (.status-dot,
+  7px) antes do texto — verde (--good, variante clara #DCE4B8 sobre o
+  card marrom) quando "ativado", terracota (--warn, variante clara
+  #F6C79B) nos demais casos (bloqueado, não suportado, precisa cadastrar
+  endereço/número, aguardando autorização, nenhum canal selecionado).
+  Reaproveita os mesmos tokens já usados em .badge.good/.badge.warn (não
+  criou paleta nova). A frase continua explicando por extenso, então a
+  cor é reforço visual, não a única pista — acessível pra quem não
+  distingue cores. Testado com harness estático usando o style.css real
+  (Chrome headless, screenshots) cobrindo as 6 combinações de estado
+  (nenhum canal, push em cada status, e-mail/whatsapp faltando, combo
+  dos 3), em claro e escuro — bolinha verde e terracota bem distintas
+  nos dois temas sobre o --card-bg fixo do card. Ver style.css:
+  #notifStatusList / .status-dot; app.js: renderNotifCanal().
+
+- [RESOLVIDO em 08/09/2026] Texto de rodapé do card quebrando feio em
+  telas menores: o texto original ("...use o botão acima só pra testar
+  o envio.") virava uma linha órfã de uma palavra só ("envio.") sozinha
+  embaixo em ~360px de largura (medida bem comum de celular) e esticava
+  pra 5 linhas em 320px. Novo texto: "avisos são enviados automaticamente
+  quando um insumo ou vela pronta fica abaixo do mínimo — o botão acima
+  é só pra testar." — mais curto (tirou a repetição "use o botão... pra
+  testar o envio", já que o botão logo acima já diz "testar aviso
+  agora"), sem órfã em nenhuma largura testada (320/360/375/390/430px).
+  Testado com harness estático usando o style.css real (Chrome headless,
+  simulando cada largura via wrapper de largura fixa em vez de depender
+  da viewport do navegador, que neste ambiente trava num piso de
+  ~500px). Ver index.html: rodapé do card "notificar por", logo após
+  o botão "testar aviso agora".
+
+- [RESOLVIDO em 08/09/2026] Conjunto todo da tela "avisos de reposição"
+  revisado com o conceito novo (aviso automático, sem depender de
+  clique). Achado: o card "notificar por" (config de canais) ocupava o
+  topo inteiro (~340px), empurrando a lista de itens abaixo do mínimo —
+  o motivo real de alguém abrir essa tela — pra depois da dobra; ainda
+  lia como "primeiro configure, depois veja o que precisa de atenção",
+  o oposto do conceito novo. Opções foram levantadas com a usuária
+  (reordenar / colapsar o card / manter como está) — decidiu por
+  reordenar: contador + lista agora vêm logo abaixo do título, e o card
+  "notificar por" desceu pra depois da lista, como configuração
+  secundária. De quebra, no estado vazio ("tudo certo por aqui") o
+  contador "0 itens abaixo do mínimo" foi escondido — repetia a mesma
+  informação do empty state duas vezes seguidas logo no topo da tela,
+  o que ficou mais evidente com a lista subindo pra primeira posição.
+  Testado com harness estático (style.css real) nos 4 cenários (com
+  itens / vazio × claro / escuro). Ver index.html: ordem dos blocos
+  dentro de data-screen="reposicao"; app.js: renderReposicaoPanel()
+  (#reposicaoCount agora com hidden quando zero itens).
+
+===========================================
+FUNCIONALIDADES (depois do design)
+===========================================
+
+- [RESOLVIDO em 08/09/2026] E-mail real (Resend): domínio
+  pontoparagrafo.com.br verificado na Resend (registros DNS de
+  SPF/DKIM/DMARC adicionados no provedor do domínio), API key gerada e
+  os dois secrets configurados no Supabase (projeto ponto-paragrafo →
+  Edge Functions → Secrets): RESEND_API_KEY e RESEND_FROM. Pegadinha
+  que travou a primeira tentativa: o secret da key tinha sido salvo como
+  "resend_api_key" (minúsculo) — Deno.env.get é case-sensitive, então a
+  Edge Function não achava a variável e todo envio de e-mail voltava
+  "pendente". Corrigido apagando e recriando o secret com o nome exato
+  RESEND_API_KEY. Testado ponta a ponta: chamada direta à Edge Function
+  "enviar-aviso" com canais:["email"] retornou {"ok":true} e o e-mail
+  chegou de verdade na caixa de teste. Falta só o canal WhatsApp
+  (Twilio, ver item abaixo) pros dois canais reais funcionarem.
+
+- [DECIDIDO em 08/09/2026: NÃO FAZER] WhatsApp real (Twilio): usuária
+  decidiu não configurar depois de entender os custos — Twilio "Pay as
+  you go" exige cartão de crédito cadastrado, cobra aluguel do número
+  (~US$1-2/mês) + por conversa iniciada (poucos centavos cada), e o
+  "free trial" (sem cartão) não serve pra ativar um WhatsApp Business
+  Sender de verdade com template aprovado pela Meta, só pra testar em
+  sandbox. Decisão: manter só e-mail (Resend, já funcionando) e push
+  como canais reais; WhatsApp fica indisponível no app (a função
+  "enviar-aviso" já trata isso sozinha — sem os secrets TWILIO_*, esse
+  canal responde "pendente"/"configuração pendente", não quebra nada).
+  Se decidir reconsiderar no futuro, os passos originais eram:
+  1. Criar conta Twilio (plano "Pay as you go", com cartão)
+  2. Ativar um WhatsApp Business Sender
+  3. Submeter um template de mensagem pra aprovação da Meta — obrigatório
+     porque o aviso é uma mensagem iniciada pela empresa (leva de 1 a
+     alguns dias)
+  4. No Supabase → Edge Functions → Secrets, adicionar:
+       TWILIO_ACCOUNT_SID
+       TWILIO_AUTH_TOKEN
+       TWILIO_WHATSAPP_FROM   (ex.: whatsapp:+14155238886)
+       TWILIO_TEMPLATE_SID    (Content SID do template aprovado)
+
+- [RESOLVIDO em 08/09/2026, falta 1 passo manual seu] Travar quem pode
+  chamar a função de envio: a Edge Function "enviar-aviso" (Supabase,
+  projeto ponto-paragrafo) já veio com a checagem pronta (achado ao
+  buscar o código: `if (APP_SHARED_SECRET && req.headers.get("x-app-secret")
+  !== APP_SHARED_SECRET) return 401` — se o secret não existir, a função
+  ignora a checagem e aceita qualquer chamada, como hoje). O que faltava
+  e foi feito: app.js agora manda o header x-app-secret em toda chamada
+  (ver NOTIF_APP_SECRET, logo abaixo de NOTIF_ANON_KEY, e o header em
+  enviarAvisoServidor). Testado com curl direto na função com um header
+  errado → respondeu 200 normal, confirmando que o secret AINDA NÃO está
+  cadastrado no Supabase (a trava existe no código mas está inativa —
+  nada quebrou com essa mudança).
+  PASSO QUE FALTA (só o usuário consegue fazer, é um secret, não dá pra
+  automatizar por aqui): no Supabase → projeto ponto-paragrafo → Edge
+  Functions → enviar-aviso → Secrets, adicionar
+    APP_SHARED_SECRET = 107874553e13cd887402d09fe415a5641cff9d20fd78bba0
+  (mesmo valor já hardcoded em NOTIF_APP_SECRET no app.js — tem que ser
+  IDÊNTICO, senão toda chamada passa a voltar 401 e os avisos por
+  e-mail/WhatsApp param de funcionar). Depois de cadastrar, testar com
+  "testar aviso agora" pra confirmar que continua enviando normal.
+
+===========================================
+ESTRUTURA GERAL DO APP — pendências importantes
+(adicionado em 04/09/2026, varredura do app inteiro, não só o painel de avisos)
+===========================================
+
+-- Design --
+
+- Tela "mais" (menu final, data-screen="mais") hoje só tem alternância
+  de tema + sair da conta. Não tem espaço desenhado pra configurações de
+  conta, backup/exportação de dados ou ajuda — vale pensar no que entra
+  ali antes de qualquer implementação.
+
+- As pastas "Vendas" (registrar venda, encomendas, histórico, controle
+  de custos, cupons) e o card "relatório completo" do dashboard ainda
+  são só atalhos que abrem um toast "em breve" (procure "em breve" no
+  index.html pra ver a lista completa) — nenhuma dessas telas tem
+  desenho ainda.
+
+- [RESOLVIDO em 08/09/2026] Ícones do card "resumo de hoje" no dashboard
+  sem contraste: usuária gostou dos ícones (produção/insumos/vendas) mas
+  reportou que a cor não contrastava. Causa: o círculo de fundo do ícone
+  (.resumo-row-icon, classe .raised-sm) herdava background:var(--card-bg)
+  — no tema claro é o MESMO marrom do próprio card (#84592B), círculo
+  invisível; no escuro vira #5A3D27, quase idêntico ao --primary
+  (#442D1C) que a paleta fixa do dashboard força pro traço do ícone —
+  medido 1.3:1 de contraste no escuro e 2.1:1 no claro, os dois abaixo do
+  mínimo de 3:1 do WCAG 2.1 AA pra elementos gráficos. Troca: mesmo par
+  já usado no hero pra ícone-sobre-cor-sólida (.dash-hero .avatar/
+  .iconbtn) — chip translúcido creme (rgba(243,230,206,.14)) + traço
+  creme sólido (#F3E6CE) em vez de --card-bg/--primary — resultando em
+  3.8:1 (claro) e 8:1 (escuro) contra o chip, círculo visível nos dois
+  temas. Contraste calculado manualmente (luminância relativa WCAG) nos
+  dois pares antes e depois da troca; sem harness de screenshot disponível
+  nesta sessão (node/npx ausentes) — vale confirmar visualmente no app
+  real na próxima vez que abrir. Ver style.css: .dash-resumo
+  .resumo-row-icon.
+
+-- Funcionalidades --
+
+- [RESOLVIDO em 04/09/2026] Cadastro de venda de verdade: tela
+  "Registrar Venda" (Vendas → Registrar Venda) implementada — cliente
+  (ou avulso), itens por variação com estoque ao vivo, forma de
+  pagamento, cupom opcional, resumo com desconto/total. Ao confirmar,
+  debita producaoEstoqueState na hora e grava em vendasState de
+  verdade; dashboard, ranking de clientes e histórico já leem isso
+  sozinhos. Testado ponta a ponta em navegador real, sem bugs.
+  Ver app.js: módulo "Registrar Venda — módulo 14"; index.html:
+  data-screen="registrarVenda".
+
+- [RESOLVIDO em 04/09/2026] Backup / exportação dos dados: cartão
+  "backup dos dados" na tela "mais" — "exportar backup (.json)" baixa
+  um arquivo com insumos, catálogo, produção, lotes, cupons, vendas,
+  custos e clientes (conta/senha/sessão ficam de fora de propósito);
+  "restaurar backup" lê o arquivo, confirma antes de sobrescrever
+  (ação destrutiva) e recarrega o app com os dados restaurados.
+  Testado ponta a ponta, sem bugs. Ver app.js: "Backup / exportação
+  dos dados" (BACKUP_KEYS, exportarBackup, importarBackupFile).
+
+- Sincronização entre dispositivos: o projeto Supabase ponto-paragrafo
+  já tem uma tabela "estado" (jsonb por usuário) criada, mas nada no
+  app.js usa ela ainda — hoje o app funciona só num navegador por vez.
+  Se o plano é usar em mais de um aparelho (celular da loja + computador,
+  por exemplo), essa sincronização precisa ser implementada — ou a
+  tabela removida, se não for mais o plano.
+
+- Segurança da senha da conta: a senha da conta local fica salva em
+  texto puro no localStorage (pp_conta_v1), legível por qualquer um com
+  acesso ao navegador/devtools do aparelho. Mesmo sendo uma conta só
+  local, vale pelo menos um hash antes de guardar.
+
+- PWA / instalável: o app já é desenhado como um "app" (layout mobile
+  fixo, navegação por dock), mas falta manifest.json + ícones +
+  service worker pra virar de fato instalável na tela inicial do
+  celular e funcionar offline — hoje é só uma página comum aberta no
+  navegador.
+
+- Adicionar calendário no dashboard.
+
+===========================================
+FEEDBACK NOVO (04/09/2026) — cores brancas/creme, quer marrom
+===========================================
+
+- Usuária não gostou do botão, da barra de pesquisa e da seta de voltar
+  aparecendo brancos/creme — quer marrom. Achado no código: esses três
+  elementos (seta de voltar = .iconbtn, barra de busca = .pressed.field,
+  e botões tipo "Salvar ajustes como novo padrão" = .btn-ghost) usam
+  background:var(--bg) de propósito — é o token neumórfico de base
+  (#FBF6EC no modo claro, quase branco; já é marrom #442D1C no modo
+  escuro). As sombras raised/pressed desses elementos (--shadow-d/
+  --shadow-l) foram calibradas pra combinar exatamente com esse tom de
+  --bg — trocar só o background pra marrom sem recalcular a sombra pode
+  fazer o efeito neumórfico (relevo/pressed) sumir ou ficar estranho.
+  Antes de mexer, decidir com a usuária: (1) qual marrom (ex.: --primary
+  #442D1C, ou um novo tom), (2) se é modo claro que ela está vendo (no
+  escuro, que é o padrão do app, esses elementos já saem marrom), e
+  (3) o escopo — só seta de voltar + busca, ou todo elemento que hoje
+  usa var(--bg) como superfície (isso inclui vários .iconbtn de "+"
+  espalhados pelo app, não só o de voltar).
+
+- Percentual "perda X% inclusa" na calculadora de velas (e na
+  calculadora de lucro): usuária não entendeu o objetivo — já
+  respondido no chat, mas registrando aqui pra próxima sessão não
+  repetir a explicação. É a "perda de derretimento" (configState.
+  perdaDerretimento, padrão 4%, editável em Configurações de produção
+  via #cfgPerdaDerretimento) — infla a quantidade de insumo necessária
+  pra cada item que "perde" no derretimento (item.perde), porque na
+  prática se perde um pouco de cera/material no processo. Sem isso, a
+  lista "insumos que serão usados" mostraria só a conta simples
+  (quantidade × receita padrão), que fica menor do que o insumo real
+  gasto na produção. Avaliar se vale deixar mais claro na UI (ex.:
+  tooltip explicando "perda de derretimento" em vez de só a nota
+  "perda 4% inclusa").
+
+===========================================
+REFERÊNCIAS NO CÓDIGO
+===========================================
+
+- app.js: painel de notificação e disparo automático — buscar por
+  "Notificação do aviso de reposição"
+- index.html: card "notificar por" — buscar por "notificar por"
+- Supabase: projeto ponto-paragrafo (id vmqpvlcckcfixsryvfdn),
+  Edge Function "enviar-aviso", tabela "estado" (ainda não usada pelo app)
+- index.html: pastas "em breve" de Vendas — buscar por
+  data-action="toast-em-breve"
+- index.html: tela "mais" — buscar por data-screen="mais"
+- app.js: leitura/cálculo de vendas sem tela de cadastro — buscar por
+  "defaultVendasState"
+- style.css: token de fundo branco/creme usado por seta de voltar, busca
+  e botão ghost — buscar por ".iconbtn{", ".pressed{" e ".btn-ghost{"
+  (todos usam background:var(--bg))
+- app.js: perda de derretimento (o "% inclusa" da calculadora) — buscar
+  por "perdaDerretimento"

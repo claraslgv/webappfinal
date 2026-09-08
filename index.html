@@ -347,7 +347,10 @@
           <div class="skel-block" style="height:64px;"></div>
         </div>
 
-        <div class="raised card">
+        <div style="font-size:12.5px;color:var(--text-faint);margin-bottom:16px;" id="reposicaoCount">—</div>
+        <div id="reposicaoList"></div>
+
+        <div class="raised card" style="margin-top:6px;">
           <div class="between" style="margin-bottom:10px;">
             <div class="label" style="margin:0;">notificar por</div>
             <div style="font-size:10.5px;color:var(--text-faint);" id="notifStatusNote">—</div>
@@ -357,11 +360,24 @@
             <div class="pressed-pill pill" data-canal="email" style="padding:9px 15px;">E-mail</div>
             <div class="pressed-pill pill" data-canal="whatsapp" style="padding:9px 15px;">WhatsApp</div>
           </div>
-          <button class="btn btn-ghost" style="width:100%;" data-action="notif-testar">Mandar aviso agora</button>
+          <div class="pressed" id="notifContatoGroup" style="margin-bottom:14px;" hidden>
+            <div class="field" id="notifEmailField" style="margin-bottom:0;" hidden>
+              <div class="label">e-mail</div>
+              <input type="email" id="notifEmailInput" placeholder="voce@email.com" />
+            </div>
+            <div id="notifContatoDivider" style="height:1px;background:var(--line);margin:0 16px;" hidden></div>
+            <div class="field" id="notifWhatsappField" style="margin-bottom:0;" hidden>
+              <div class="label">WhatsApp</div>
+              <input type="tel" id="notifWhatsappInput" placeholder="(11) 99999-9999" />
+            </div>
+          </div>
+          <div id="notifStatusList" style="margin-bottom:14px;"></div>
+          <button class="btn btn-ghost" style="width:100%;" data-action="notif-testar">testar aviso agora</button>
+          <div style="font-size:11px;color:var(--text-faint);line-height:1.5;margin-top:12px;">avisos são enviados
+            automaticamente quando um insumo ou vela pronta fica abaixo do mínimo — o botão acima é só pra testar.
+          </div>
         </div>
 
-        <div style="font-size:12.5px;color:var(--text-faint);margin-bottom:16px;" id="reposicaoCount">—</div>
-        <div id="reposicaoList"></div>
         <div class="reveal-footer" aria-hidden="true">
           <span class="reveal-footer-mark">.parágrafo</span>
         </div>
@@ -1486,6 +1502,32 @@
           <div class="skel-block" style="height:74px;"></div>
           <div class="skel-block" style="height:46px;border-radius:15px;"></div>
         </div>
+        <div class="raised card between dash-tap" role="button" tabindex="0" data-goto="configuracoes"
+          aria-label="Abrir Configurações" style="margin-bottom:14px;">
+          <div>
+            <div style="font-size:14px;font-weight:600;">configurações</div>
+            <div style="font-size:11.5px;color:var(--text-faint);margin-top:2px;">receita padrão, jarra e preços de
+              venda</div>
+          </div>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round" style="width:20px;height:20px;flex:none;color:var(--text-dim);">
+            <path d="m9 6 6 6-6 6" />
+          </svg>
+        </div>
+
+        <div class="raised card between dash-tap" role="button" tabindex="0" data-goto="conta"
+          aria-label="Abrir conta" style="margin-bottom:14px;">
+          <div>
+            <div style="font-size:14px;font-weight:600;">conta</div>
+            <div style="font-size:11.5px;color:var(--text-faint);margin-top:2px;">nome, e-mail e senha de acesso
+            </div>
+          </div>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round" style="width:20px;height:20px;flex:none;color:var(--text-dim);">
+            <path d="m9 6 6 6-6 6" />
+          </svg>
+        </div>
+
         <div class="raised card between" role="button" tabindex="0" data-action="toggle-tema"
           aria-label="Alternar tema claro/escuro">
           <div>
@@ -1499,12 +1541,205 @@
             </div>
           </div>
         </div>
+
+        <div class="raised card" style="margin-top:14px;margin-bottom:14px;">
+          <div style="font-size:14px;font-weight:600;margin-bottom:2px;">backup dos dados</div>
+          <div style="font-size:11.5px;color:var(--text-faint);margin-bottom:14px;">insumos, produção, vendas,
+            clientes e configurações vivem só neste navegador — exporte de vez em quando pra não perder tudo se o
+            navegador limpar os dados ou você trocar de aparelho.</div>
+          <button class="btn btn-ghost" data-action="backup-exportar" style="width:100%;margin-bottom:10px;">exportar
+            backup (.json)</button>
+          <button class="btn btn-text" data-action="backup-importar" style="width:100%;">restaurar backup</button>
+          <input type="file" id="backupImportInput" accept="application/json,.json" hidden />
+        </div>
+
+        <div class="raised card between dash-tap" role="button" tabindex="0" data-goto="ajuda"
+          aria-label="Abrir ajuda" style="margin-bottom:14px;">
+          <div>
+            <div style="font-size:14px;font-weight:600;">ajuda</div>
+            <div style="font-size:11.5px;color:var(--text-faint);margin-top:2px;">perguntas frequentes sobre o app
+            </div>
+          </div>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round" style="width:20px;height:20px;flex:none;color:var(--text-dim);">
+            <path d="m9 6 6 6-6 6" />
+          </svg>
+        </div>
+
         <button class="btn btn-ghost" data-action="logout" style="width:100%;margin-top:8px;">sair da conta</button>
         <div class="reveal-footer" aria-hidden="true">
           <span class="reveal-footer-mark">.parágrafo</span>
         </div>
       </div>
       <div class="dock" id="maisDock" role="navigation" aria-label="Navegação principal"></div>
+    </div>
+
+    <!-- ---------- Mais → Conta: nome/e-mail e trocar senha da conta local ---------- -->
+    <div class="screen" data-screen="conta" hidden>
+      <div class="backrow">
+        <div class="iconbtn" role="button" tabindex="0" data-goto="mais" aria-label="Voltar a mais">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"
+            stroke-linejoin="round">
+            <path d="m15 6-6 6 6 6" />
+          </svg>
+        </div>
+        <div>
+          <div class="crumb">mais</div>
+          <div class="pagetitle" style="font-size:19px;">conta</div>
+        </div>
+      </div>
+      <div class="content">
+        <div class="label">seus dados</div>
+        <div class="raised card">
+          <div class="pressed field" style="margin-bottom:12px;">
+            <div class="label">nome</div>
+            <input type="text" id="contaNome" placeholder="seu nome" autocomplete="name" />
+          </div>
+          <div class="pressed field">
+            <div class="label">e-mail</div>
+            <input type="email" id="contaEmail" placeholder="voce@email.com" autocomplete="email" />
+          </div>
+        </div>
+        <button class="btn btn-primary" data-action="conta-salvar-dados" style="width:100%;margin:14px 0 24px;">salvar
+          dados</button>
+
+        <div class="label">trocar senha</div>
+        <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;margin:-6px 4px 14px;">A senha da conta
+          fica salva só neste aparelho. Preencha os três campos abaixo pra trocar.</div>
+        <div class="raised card">
+          <div class="pressed field" style="margin-bottom:12px;">
+            <div class="label">senha atual</div>
+            <div class="field-eyewrap">
+              <input type="password" id="contaSenhaAtual" placeholder="••••••••" autocomplete="current-password" />
+              <button type="button" class="field-eye" data-toggle-senha="contaSenhaAtual" aria-label="Mostrar senha">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"
+                  stroke-linejoin="round">
+                  <path d="M1.5 12S5 5.5 12 5.5 22.5 12 22.5 12 19 18.5 12 18.5 1.5 12 1.5 12z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="pressed field" style="margin-bottom:12px;">
+            <div class="label">nova senha</div>
+            <div class="field-eyewrap">
+              <input type="password" id="contaSenhaNova" placeholder="mínimo 6 caracteres" autocomplete="new-password" />
+              <button type="button" class="field-eye" data-toggle-senha="contaSenhaNova" aria-label="Mostrar senha">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"
+                  stroke-linejoin="round">
+                  <path d="M1.5 12S5 5.5 12 5.5 22.5 12 22.5 12 19 18.5 12 18.5 1.5 12 1.5 12z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="pressed field">
+            <div class="label">confirmar nova senha</div>
+            <div class="field-eyewrap">
+              <input type="password" id="contaSenhaNovaConfirm" placeholder="repita a nova senha"
+                autocomplete="new-password" />
+              <button type="button" class="field-eye" data-toggle-senha="contaSenhaNovaConfirm"
+                aria-label="Mostrar senha">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"
+                  stroke-linejoin="round">
+                  <path d="M1.5 12S5 5.5 12 5.5 22.5 12 22.5 12 19 18.5 12 18.5 1.5 12 1.5 12z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+        <button class="btn btn-ghost" data-action="conta-salvar-senha" style="width:100%;margin:14px 0 12px;">salvar
+          nova senha</button>
+
+        <div class="reveal-footer" aria-hidden="true">
+          <span class="reveal-footer-mark">.parágrafo</span>
+        </div>
+      </div>
+      <div class="dock" id="contaDock" role="navigation" aria-label="Navegação principal"></div>
+    </div>
+
+    <!-- ---------- Mais → Ajuda: perguntas frequentes sobre o app ---------- -->
+    <div class="screen" data-screen="ajuda" hidden>
+      <div class="backrow">
+        <div class="iconbtn" role="button" tabindex="0" data-goto="mais" aria-label="Voltar a mais">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"
+            stroke-linejoin="round">
+            <path d="m15 6-6 6 6 6" />
+          </svg>
+        </div>
+        <div>
+          <div class="crumb">mais</div>
+          <div class="pagetitle" style="font-size:19px;">ajuda</div>
+        </div>
+      </div>
+      <div class="content">
+        <div class="label">perguntas frequentes</div>
+        <div class="raised card" style="padding:6px 20px;">
+          <details class="faq-item">
+            <summary>como funciona o aviso de reposição?
+              <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="m9 6 6 6-6 6" />
+              </svg>
+            </summary>
+            <p>quando um insumo ou uma vela pronta fica abaixo do mínimo cadastrado, o app avisa sozinho — sem
+              precisar clicar em nada — pelos canais marcados em Reposição › notificar por (push, e-mail e/ou
+              WhatsApp). o botão "testar aviso agora" só serve pra conferir se os canais estão funcionando.</p>
+          </details>
+          <details class="faq-item">
+            <summary>o que é a "perda de derretimento"?
+              <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="m9 6 6 6-6 6" />
+              </svg>
+            </summary>
+            <p>é o percentual de cera/material que se perde de verdade no processo de derreter. o app usa esse
+              número (padrão 4%, ajustável em configurações) pra somar um pouco a mais na conta de insumos de cada
+              item que "perde" no derretimento — assim a lista de insumos usados fica mais próxima do gasto real de
+              produção, não só da receita simples.</p>
+          </details>
+          <details class="faq-item">
+            <summary>onde ficam guardados os meus dados?
+              <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="m9 6 6 6-6 6" />
+              </svg>
+            </summary>
+            <p>insumos, produção, vendas, clientes e configurações ficam salvos só neste navegador, neste aparelho —
+              o app ainda não sincroniza entre celular e computador. por isso vale exportar um backup de vez em
+              quando (tela mais › backup dos dados).</p>
+          </details>
+          <details class="faq-item">
+            <summary>como faço backup ou levo os dados pra outro aparelho?
+              <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="m9 6 6 6-6 6" />
+              </svg>
+            </summary>
+            <p>em mais › backup dos dados, toque em "exportar backup (.json)" pra baixar um arquivo com tudo (menos
+              conta/senha, que ficam de fora de propósito). guarde esse arquivo em lugar seguro. pra trazer os dados
+              de volta — neste aparelho ou em outro — use "restaurar backup" e escolha o arquivo exportado.</p>
+          </details>
+          <details class="faq-item">
+            <summary>esqueci minha senha, e agora?
+              <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="m9 6 6 6-6 6" />
+              </svg>
+            </summary>
+            <p>como a conta é só local, não existe recuperação por e-mail. se ainda estiver logada, troque a senha
+              em mais › conta. se tiver saído da conta e esquecido a senha, o jeito é criar uma conta nova neste
+              aparelho — isso substitui o acesso salvo aqui, mas não apaga os dados do negócio, que ficam guardados
+              à parte (e podem ser recuperados por um backup, se você tiver um).</p>
+          </details>
+        </div>
+
+        <div class="reveal-footer" aria-hidden="true">
+          <span class="reveal-footer-mark">.parágrafo</span>
+        </div>
+      </div>
+      <div class="dock" id="ajudaDock" role="navigation" aria-label="Navegação principal"></div>
     </div>
 
   </div>
