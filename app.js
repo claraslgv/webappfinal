@@ -3658,7 +3658,7 @@
     }).join("");
     wrap.innerHTML =
       '<div style="display:flex;align-items:center;gap:20px;">' +
-        '<div style="width:100px;height:100px;flex:none;border-radius:50%;background:conic-gradient(' + stops.join(",") + ');box-shadow:var(--shadow-raised-xs);"></div>' +
+        '<div style="width:100px;height:100px;flex:none;border-radius:50%;background:conic-gradient(' + stops.join(",") + ');"></div>' +
         '<div style="display:flex;flex-direction:column;gap:9px;flex:1;">' + legend + '</div>' +
       '</div>';
   }

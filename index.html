@@ -264,7 +264,7 @@
           aria-label="Ver todos os avisos, em ordem de prioridade" hidden
           style="padding:13px 16px;display:flex;align-items:center;gap:11px;margin-bottom:18px;">
           <div class="badge warn" style="flex:none;">urgente</div>
-          <div style="flex:1;font-size:12.5px;line-height:1.4;" id="dashUrgentText">—</div>
+          <div style="flex:1;font-size:13px;line-height:1.4;" id="dashUrgentText">—</div>
           <div id="dashUrgentMore" hidden
             style="display:flex;align-items:center;gap:3px;flex:none;color:var(--text-faint);font-size:11px;font-weight:600;">
             <span id="dashUrgentMoreCount"></span><svg viewBox="0 0 24 24" width="13" height="13" fill="none"
@@ -301,11 +301,11 @@
           </div>
         </div>
 
-        <div class="raised card dash-tap dash-area-lucro" style="background:var(--primary);margin-bottom:12px;">
+        <div class="raised raised-emphasis card dash-tap dash-area-lucro" style="background:var(--primary);margin-bottom:12px;">
           <div
             style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--on-primary);opacity:.7;margin-bottom:8px;">
             lucro líquido real</div>
-          <div style="font-size:30px;font-weight:800;letter-spacing:-.01em;color:var(--on-primary);"
+          <div style="font-size:28px;font-weight:800;letter-spacing:-.01em;color:var(--on-primary);"
             id="dashLucroLiquido">R$ 0,00</div>
           <div style="font-size:11px;color:var(--on-primary);opacity:.6;margin-top:6px;" id="dashLucroSub"></div>
         </div>
@@ -313,12 +313,12 @@
         <div class="dash-area-metrics" style="display:flex;gap:12px;margin-bottom:12px;">
           <div class="raised-sm dash-tap" style="padding:16px;flex:1;">
             <div class="label" style="margin-bottom:8px;">total de vendas</div>
-            <div style="font-size:18px;font-weight:700;letter-spacing:-.01em;" id="dashTotalVendas">R$ 0,00</div>
+            <div style="font-size:19px;font-weight:700;letter-spacing:-.01em;" id="dashTotalVendas">R$ 0,00</div>
             <div style="font-size:11px;color:var(--text-faint);margin-top:6px;">no período · antes de cupons</div>
           </div>
           <div class="raised-sm dash-tap" style="padding:16px;flex:1;">
             <div class="label" style="margin-bottom:8px;">receita real</div>
-            <div style="font-size:18px;font-weight:700;letter-spacing:-.01em;" id="dashReceitaReal">R$ 0,00</div>
+            <div style="font-size:19px;font-weight:700;letter-spacing:-.01em;" id="dashReceitaReal">R$ 0,00</div>
             <div style="font-size:11px;color:var(--text-faint);margin-top:6px;">− cupons, − estornos</div>
           </div>
         </div>
@@ -328,12 +328,12 @@
             <div class="label" style="margin-bottom:4px;">produzido</div>
             <div style="font-size:11px;color:var(--text-faint);" id="dashProduzidoSub">—</div>
           </div>
-          <div style="font-size:18px;font-weight:700;letter-spacing:-.01em;" id="dashProduzidoQtd">0 velas</div>
+          <div style="font-size:19px;font-weight:700;letter-spacing:-.01em;" id="dashProduzidoQtd">0 velas</div>
         </div>
 
         <div class="row dash-tap dash-area-report" role="button" tabindex="0" data-goto="relatorioCompleto"
           aria-label="Ver relatório completo do período"
-          style="justify-content:center;gap:6px;padding:2px 0 6px;margin-bottom:6px;color:var(--primary);font-size:12.5px;font-weight:600;">
+          style="justify-content:center;gap:6px;padding:2px 0 6px;margin-bottom:6px;color:var(--primary);font-size:13px;font-weight:600;">
           ver relatório completo do período
           <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"
             stroke-linecap="round" stroke-linejoin="round">
@@ -367,7 +367,7 @@
         </div>
         <div>
           <div class="crumb">início</div>
-          <div class="pagetitle" style="font-size:19px;">avisos de reposição</div>
+          <div class="pagetitle">avisos de reposição</div>
         </div>
       </div>
       <div class="content">
@@ -379,13 +379,13 @@
           <div class="skel-block" style="height:64px;"></div>
         </div>
 
-        <div style="font-size:12.5px;color:var(--text-faint);margin-bottom:16px;" id="reposicaoCount">—</div>
+        <div style="font-size:13px;color:var(--text-faint);margin-bottom:16px;" id="reposicaoCount">—</div>
         <div id="reposicaoList"></div>
 
         <div class="raised card" style="margin-top:6px;">
           <div class="between" style="margin-bottom:10px;">
             <div class="label" style="margin:0;">notificar por</div>
-            <div style="font-size:10.5px;color:var(--text-faint);" id="notifStatusNote">—</div>
+            <div style="font-size:11px;color:var(--text-faint);" id="notifStatusNote">—</div>
           </div>
           <div class="row" id="notifCanalPills" style="gap:9px;flex-wrap:wrap;margin-bottom:14px;">
             <div class="pressed-pill pill active" data-canal="push" style="padding:9px 15px;">Push no app</div>
@@ -430,7 +430,7 @@
         </div>
         <div>
           <div class="crumb">início</div>
-          <div class="pagetitle" style="font-size:19px;">calendário</div>
+          <div class="pagetitle">calendário</div>
         </div>
       </div>
       <div class="content">
@@ -462,7 +462,7 @@
         <div class="raised card" style="margin-top:20px;">
           <div class="between" style="margin-bottom:12px;">
             <div class="label" style="margin:0;">recap do dia</div>
-            <div style="font-size:10.5px;color:var(--text-faint);" id="calendarioRecapData">—</div>
+            <div style="font-size:11px;color:var(--text-faint);" id="calendarioRecapData">—</div>
           </div>
           <div id="calendarioRecapList"></div>
         </div>
@@ -485,7 +485,7 @@
         </div>
         <div>
           <div class="crumb">início</div>
-          <div class="pagetitle" style="font-size:19px;">estoque</div>
+          <div class="pagetitle">estoque</div>
         </div>
       </div>
       <div class="content">
@@ -589,7 +589,7 @@
           </div>
           <div>
             <div class="crumb">estoque</div>
-            <div class="pagetitle" style="font-size:19px;">insumos</div>
+            <div class="pagetitle">insumos</div>
           </div>
         </div>
         <div class="iconbtn" role="button" tabindex="0" data-action="insumo-add" aria-label="Cadastrar insumo">
@@ -619,7 +619,7 @@
 
         <div id="estoqueInsumosList"></div>
 
-        <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;margin-top:10px;text-align:center;">custo
+        <div class="hint" style="margin-top:10px;text-align:center;">custo
           médio ponderado — atualiza sozinho a cada entrada de compra.</div>
 
         <div class="reveal-footer" aria-hidden="true">
@@ -639,7 +639,7 @@
         </div>
         <div>
           <div class="crumb">estoque de insumos</div>
-          <div class="pagetitle" style="font-size:19px;" id="insumoFormTitle">Novo insumo</div>
+          <div class="pagetitle" id="insumoFormTitle">Novo insumo</div>
         </div>
       </div>
       <div class="content">
@@ -670,13 +670,13 @@
             <div class="label">quantidade inicial</div>
             <div class="row">
               <input type="text" id="insumoFormQtd" placeholder="0" style="flex:1;" />
-              <div style="font-size:14.5px;font-weight:600;color:var(--text-faint);" id="insumoFormQtdUnit">kg</div>
+              <div style="font-size:14px;font-weight:600;color:var(--text-faint);" id="insumoFormQtdUnit">kg</div>
             </div>
           </div>
           <div class="pressed field">
             <div class="label">custo estimado inicial (por unidade)</div>
             <div class="row">
-              <div style="font-size:14.5px;font-weight:600;color:var(--text-faint);">R$</div>
+              <div style="font-size:14px;font-weight:600;color:var(--text-faint);">R$</div>
               <input type="text" id="insumoFormCusto" placeholder="0,00" style="flex:1;" />
             </div>
           </div>
@@ -686,14 +686,14 @@
           <div class="raised card">
             <div class="between" style="padding:10px 0;border-bottom:1px solid var(--line);">
               <span style="font-size:13px;color:var(--text-faint);">em estoque</span>
-              <span style="font-size:13.5px;font-weight:700;" id="insumoFormInfoQtd">—</span>
+              <span class="stat" id="insumoFormInfoQtd">—</span>
             </div>
             <div class="between" style="padding:10px 0 0;">
               <span style="font-size:13px;color:var(--text-faint);">custo médio ponderado</span>
-              <span style="font-size:13.5px;font-weight:700;" id="insumoFormInfoCusto">—</span>
+              <span class="stat" id="insumoFormInfoCusto">—</span>
             </div>
           </div>
-          <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;margin:-6px 4px 18px;">Quantidade e custo
+          <div class="hint" style="margin:-6px 4px 18px;">Quantidade e custo
             só mudam por movimentações — registre uma entrada ou saída pra ajustá-los.</div>
         </div>
 
@@ -701,11 +701,11 @@
           <div class="label">mínimo desejado (opcional)</div>
           <div class="row">
             <input type="text" id="insumoFormMinimo" placeholder="0" style="flex:1;" />
-            <div style="font-size:14.5px;font-weight:600;color:var(--text-faint);" id="insumoFormMinUnit">kg</div>
+            <div style="font-size:14px;font-weight:600;color:var(--text-faint);" id="insumoFormMinUnit">kg</div>
           </div>
         </div>
 
-        <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;margin:2px 4px 22px;" id="insumoFormHint">
+        <div class="hint" style="margin:2px 4px 22px;" id="insumoFormHint">
           O custo por unidade começa como a estimativa acima e passa a ser o <strong
             style="color:var(--text-dim);">custo médio ponderado</strong> assim que a primeira compra for registrada.
         </div>
@@ -730,7 +730,7 @@
           </div>
           <div>
             <div class="crumb">estoque de insumos</div>
-            <div class="pagetitle" style="font-size:19px;" id="insumoDetalheNome">—</div>
+            <div class="pagetitle" id="insumoDetalheNome">—</div>
           </div>
         </div>
         <div class="row" style="gap:8px;">
@@ -759,14 +759,14 @@
             <div class="label" style="margin:0;">em estoque</div>
             <div class="badge warn" id="insumoDetalheBadge" hidden>abaixo do mínimo</div>
           </div>
-          <div style="font-size:26px;font-weight:700;margin-bottom:14px;" id="insumoDetalheQtd">—</div>
+          <div style="font-size:24px;font-weight:700;margin-bottom:14px;" id="insumoDetalheQtd">—</div>
           <div class="between" style="padding:11px 0;border-top:1px solid var(--line);">
             <span style="font-size:13px;color:var(--text-faint);">custo médio ponderado</span>
-            <span style="font-size:13.5px;font-weight:700;" id="insumoDetalheCusto">—</span>
+            <span class="stat" id="insumoDetalheCusto">—</span>
           </div>
           <div class="between" style="padding:11px 0 0;">
             <span style="font-size:13px;color:var(--text-faint);">mínimo desejado</span>
-            <span style="font-size:13.5px;font-weight:600;color:var(--text-dim);" id="insumoDetalheMinimo">—</span>
+            <span class="stat dim" id="insumoDetalheMinimo">—</span>
           </div>
         </div>
 
@@ -781,13 +781,13 @@
         </div>
 
         <div id="insumoDetalheHistEmpty"
-          style="font-size:12.5px;color:var(--text-faint);text-align:center;padding:18px 0;" hidden>Nenhuma
+          style="font-size:13px;color:var(--text-faint);text-align:center;padding:18px 0;" hidden>Nenhuma
           movimentação ainda.</div>
         <div class="raised card" id="insumoDetalheHistCard">
           <div id="insumoDetalheHistList"></div>
         </div>
 
-        <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;margin-top:6px;text-align:center;">Cada
+        <div class="hint" style="margin-top:6px;text-align:center;">Cada
           entrada e saída fica registrada aqui, com data, quantidade e valor, para auditoria.</div>
 
         <div class="reveal-footer" aria-hidden="true">
@@ -807,7 +807,7 @@
         </div>
         <div>
           <div class="crumb" id="movCrumb">—</div>
-          <div class="pagetitle" style="font-size:19px;">nova movimentação</div>
+          <div class="pagetitle">nova movimentação</div>
         </div>
       </div>
       <div class="content">
@@ -829,13 +829,13 @@
             <div class="label">quantidade comprada</div>
             <div class="row">
               <input type="text" id="movQtdEntrada" placeholder="0" style="flex:1;" />
-              <div style="font-size:14.5px;font-weight:600;color:var(--text-faint);" id="movUnitEntrada">kg</div>
+              <div style="font-size:14px;font-weight:600;color:var(--text-faint);" id="movUnitEntrada">kg</div>
             </div>
           </div>
           <div class="pressed field">
             <div class="label">preço pago</div>
             <div class="row">
-              <div style="font-size:14.5px;font-weight:600;color:var(--text-faint);">R$</div>
+              <div style="font-size:14px;font-weight:600;color:var(--text-faint);">R$</div>
               <input type="text" id="movPreco" placeholder="0,00" style="flex:1;" />
             </div>
           </div>
@@ -846,7 +846,7 @@
             <div class="label">quantidade usada</div>
             <div class="row">
               <input type="text" id="movQtdSaida" placeholder="0" style="flex:1;" />
-              <div style="font-size:14.5px;font-weight:600;color:var(--text-faint);" id="movUnitSaida">kg</div>
+              <div style="font-size:14px;font-weight:600;color:var(--text-faint);" id="movUnitSaida">kg</div>
             </div>
           </div>
           <div class="label" style="margin:2px 4px 8px;">motivo</div>
@@ -859,18 +859,18 @@
 
         <div class="pressed field">
           <div class="label">data</div>
-          <div class="val" style="font-size:14.5px;font-weight:600;" id="movData">—</div>
+          <div class="val" style="font-size:14px;font-weight:600;" id="movData">—</div>
         </div>
 
         <div class="raised card">
           <div class="label" id="movPreviewLabel">depois desta entrada</div>
           <div class="between" style="padding:10px 0;border-bottom:1px solid var(--line);">
             <span style="font-size:13px;color:var(--text-faint);">estoque</span>
-            <span style="font-size:13.5px;font-weight:700;" id="movPreviewQtd">—</span>
+            <span class="stat" id="movPreviewQtd">—</span>
           </div>
           <div class="between" style="padding:10px 0 0;" id="movPreviewCustoRow">
             <span style="font-size:13px;color:var(--text-faint);">custo médio ponderado</span>
-            <span style="font-size:13.5px;font-weight:700;color:var(--good);" id="movPreviewCusto">—</span>
+            <span class="stat good" id="movPreviewCusto">—</span>
           </div>
         </div>
         <div style="font-size:12px;color:var(--warn);font-weight:600;margin:-8px 4px 14px;text-align:center;"
@@ -878,7 +878,7 @@
 
         <button class="btn btn-primary" data-action="mov-submit" style="width:100%;margin-bottom:14px;"
           id="movSubmitBtn">Registrar entrada</button>
-        <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;text-align:center;">O custo médio
+        <div class="hint" style="text-align:center;">O custo médio
           ponderado é recalculado automaticamente a cada compra registrada.</div>
       </div>
       <div class="dock" id="insumoMovimentarDock" role="navigation" aria-label="Navegação principal"></div>
@@ -895,7 +895,7 @@
         </div>
         <div>
           <div class="crumb">estoque</div>
-          <div class="pagetitle" style="font-size:19px;">produção</div>
+          <div class="pagetitle">produção</div>
         </div>
       </div>
       <div class="content">
@@ -908,7 +908,7 @@
 
         <div id="producaoList"></div>
 
-        <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;margin-top:10px;text-align:center;">
+        <div class="hint" style="margin-top:10px;text-align:center;">
           Velas prontas, por variação do catálogo. Pra renomear uma variação, use o Catálogo de Produtos.</div>
 
         <div class="reveal-footer" aria-hidden="true">
@@ -929,7 +929,7 @@
         </div>
         <div>
           <div class="crumb">estoque</div>
-          <div class="pagetitle" style="font-size:19px;">calculadora de velas</div>
+          <div class="pagetitle">calculadora de velas</div>
         </div>
       </div>
       <div class="content">
@@ -965,7 +965,7 @@
         <div class="raised card">
           <div class="between" style="margin-bottom:4px;">
             <div class="label" style="margin:0;">insumos que serão usados</div>
-            <div style="font-size:10.5px;color:var(--text-faint);" id="calcPerdaNote">perda 4% inclusa</div>
+            <div style="font-size:11px;color:var(--text-faint);" id="calcPerdaNote">perda 4% inclusa</div>
           </div>
           <div id="calcInsumosList"></div>
         </div>
@@ -974,11 +974,11 @@
           <div class="between">
             <div>
               <div class="label" style="margin:0 0 4px;">jarras necessárias</div>
-              <div style="font-size:20px;font-weight:700;" id="calcJarrasOut">24 un</div>
+              <div style="font-size:19px;font-weight:700;" id="calcJarrasOut">24 un</div>
             </div>
             <div style="text-align:right;">
               <div class="label" style="margin:0 0 4px;">capacidade da jarra</div>
-              <div style="font-size:13.5px;font-weight:600;color:var(--text-dim);" id="calcJarraCap">180 ml</div>
+              <div class="stat dim" id="calcJarraCap">180 ml</div>
             </div>
           </div>
         </div>
@@ -1008,7 +1008,7 @@
         </div>
         <div>
           <div class="crumb">estoque</div>
-          <div class="pagetitle" style="font-size:19px;">calculadora de lucro</div>
+          <div class="pagetitle">calculadora de lucro</div>
         </div>
       </div>
       <div class="content">
@@ -1045,23 +1045,23 @@
         <div class="raised card">
           <div class="between" style="margin-bottom:4px;">
             <div class="label" style="margin:0;">insumos que serão debitados</div>
-            <div style="font-size:10.5px;color:var(--text-faint);" id="lucroPerdaNote">perda 4% inclusa</div>
+            <div style="font-size:11px;color:var(--text-faint);" id="lucroPerdaNote">perda 4% inclusa</div>
           </div>
           <div id="lucroInsumosList"></div>
         </div>
 
         <div class="raised card" style="background:var(--primary);">
           <div class="between" style="padding:10px 0;border-bottom:1px solid rgba(255,255,255,.16);">
-            <span style="font-size:12.5px;color:var(--on-primary);opacity:.75;">custo estimado do lote</span>
+            <span style="font-size:13px;color:var(--on-primary);opacity:.75;">custo estimado do lote</span>
             <span style="font-size:14px;font-weight:700;color:var(--on-primary);" id="lucroCustoOut">—</span>
           </div>
           <div class="between" style="padding:10px 0;border-bottom:1px solid rgba(255,255,255,.16);">
-            <span style="font-size:12.5px;color:var(--on-primary);opacity:.75;">receita da venda</span>
+            <span style="font-size:13px;color:var(--on-primary);opacity:.75;">receita da venda</span>
             <span style="font-size:14px;font-weight:700;color:var(--on-primary);" id="lucroReceitaOut">—</span>
           </div>
           <div class="between" style="padding:12px 0 0;">
-            <span style="font-size:12.5px;color:var(--on-primary);opacity:.75;">margem bruta</span>
-            <span style="font-size:20px;font-weight:800;color:var(--on-primary);" id="lucroMargemOut">—</span>
+            <span style="font-size:13px;color:var(--on-primary);opacity:.75;">margem bruta</span>
+            <span style="font-size:19px;font-weight:800;color:var(--on-primary);" id="lucroMargemOut">—</span>
           </div>
         </div>
         <div style="font-size:11px;color:var(--text-faint);line-height:1.5;text-align:center;margin:-8px 4px 18px;">
@@ -1073,7 +1073,7 @@
 
         <button class="btn btn-primary" data-action="lucro-registrar" style="width:100%;margin-bottom:14px;"
           id="lucroRegistrarBtn">Registrar produção</button>
-        <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;text-align:center;">Registrar debita os
+        <div class="hint" style="text-align:center;">Registrar debita os
           insumos, credita as velas prontas no Estoque de Produção e cria a entrada correspondente no Registro de
           Produção.</div>
 
@@ -1096,7 +1096,7 @@
           </div>
           <div>
             <div class="crumb">estoque</div>
-            <div class="pagetitle" style="font-size:19px;">registro de produção</div>
+            <div class="pagetitle">registro de produção</div>
           </div>
         </div>
         <div class="row" style="gap:8px;">
@@ -1127,7 +1127,7 @@
 
         <div id="lotesList"></div>
 
-        <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;margin-top:10px;text-align:center;">
+        <div class="hint" style="margin-top:10px;text-align:center;">
           Cada lote é criado pela Calculadora de Lucro, ao registrar uma produção. Toque num lote pra ver os insumos
           usados ou excluir o registro.</div>
 
@@ -1149,7 +1149,7 @@
         </div>
         <div>
           <div class="crumb">registro de produção</div>
-          <div class="pagetitle" style="font-size:19px;" id="loteDetalheTitulo">—</div>
+          <div class="pagetitle" id="loteDetalheTitulo">—</div>
         </div>
       </div>
       <div class="content">
@@ -1161,23 +1161,23 @@
         <div class="raised card">
           <div class="between" style="padding:10px 0;border-bottom:1px solid var(--line);">
             <span style="font-size:13px;color:var(--text-faint);">data</span>
-            <span style="font-size:13.5px;font-weight:700;" id="loteDetalheData">—</span>
+            <span class="stat" id="loteDetalheData">—</span>
           </div>
           <div class="between" style="padding:10px 0;border-bottom:1px solid var(--line);">
             <span style="font-size:13px;color:var(--text-faint);">quantidade produzida</span>
-            <span style="font-size:13.5px;font-weight:700;" id="loteDetalheQtd">—</span>
+            <span class="stat" id="loteDetalheQtd">—</span>
           </div>
           <div class="between" style="padding:10px 0;border-bottom:1px solid var(--line);">
             <span style="font-size:13px;color:var(--text-faint);">custo do lote</span>
-            <span style="font-size:13.5px;font-weight:700;" id="loteDetalheCusto">—</span>
+            <span class="stat" id="loteDetalheCusto">—</span>
           </div>
           <div class="between" style="padding:10px 0;border-bottom:1px solid var(--line);">
             <span style="font-size:13px;color:var(--text-faint);">receita da venda</span>
-            <span style="font-size:13.5px;font-weight:700;" id="loteDetalheReceita">—</span>
+            <span class="stat" id="loteDetalheReceita">—</span>
           </div>
           <div class="between" style="padding:10px 0 0;">
             <span style="font-size:13px;color:var(--text-faint);">margem bruta</span>
-            <span style="font-size:13.5px;font-weight:700;color:var(--good);" id="loteDetalheMargem">—</span>
+            <span class="stat good" id="loteDetalheMargem">—</span>
           </div>
         </div>
 
@@ -1188,7 +1188,7 @@
 
         <button class="btn btn-text" data-action="lote-excluir"
           style="width:100%;margin-top:10px;color:var(--warn);">Excluir registro</button>
-        <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;text-align:center;margin-top:4px;">
+        <div class="hint" style="text-align:center;margin-top:4px;">
           Excluir reverte automaticamente o débito de insumos e o crédito de velas prontas deste lote, pra não deixar
           o estoque desalinhado.</div>
 
@@ -1210,7 +1210,7 @@
         </div>
         <div>
           <div class="crumb">estoque</div>
-          <div class="pagetitle" style="font-size:19px;">configurações</div>
+          <div class="pagetitle">configurações</div>
         </div>
       </div>
       <div class="content">
@@ -1221,57 +1221,57 @@
         </div>
 
         <div class="label">receita padrão por vela</div>
-        <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;margin:-6px 4px 14px;">Quanto de cada
+        <div class="hint" style="margin:-6px 4px 14px;">Quanto de cada
           insumo entra numa vela — usado pela Calculadora de Velas, pela Calculadora de Lucro e pelo Registro de
           Produção.</div>
         <div class="raised card">
           <div class="pressed field" style="margin-bottom:12px;">
             <div class="label" id="cfgCeraLabel">cera por vela</div>
             <div class="row"><input type="text" id="cfgCeraPorVela" placeholder="0" style="flex:1;" />
-              <div style="font-size:14.5px;font-weight:600;color:var(--text-faint);" id="cfgCeraUnit">kg</div>
+              <div style="font-size:14px;font-weight:600;color:var(--text-faint);" id="cfgCeraUnit">kg</div>
             </div>
           </div>
           <div class="pressed field" style="margin-bottom:12px;">
             <div class="label">essência por vela</div>
             <div class="row"><input type="text" id="cfgEssenciaPorVela" placeholder="0" style="flex:1;" />
-              <div style="font-size:14.5px;font-weight:600;color:var(--text-faint);" id="cfgEssenciaUnit">ml</div>
+              <div style="font-size:14px;font-weight:600;color:var(--text-faint);" id="cfgEssenciaUnit">ml</div>
             </div>
           </div>
           <div class="pressed field" style="margin-bottom:12px;">
             <div class="label" id="cfgJarraLabel">jarra por vela</div>
             <div class="row"><input type="text" id="cfgJarraPorVela" placeholder="0" style="flex:1;" />
-              <div style="font-size:14.5px;font-weight:600;color:var(--text-faint);" id="cfgJarraUnit">un</div>
+              <div style="font-size:14px;font-weight:600;color:var(--text-faint);" id="cfgJarraUnit">un</div>
             </div>
           </div>
           <div class="pressed field">
             <div class="label" id="cfgPavioLabel">pavio por vela</div>
             <div class="row"><input type="text" id="cfgPavioPorVela" placeholder="0" style="flex:1;" />
-              <div style="font-size:14.5px;font-weight:600;color:var(--text-faint);" id="cfgPavioUnit">un</div>
+              <div style="font-size:14px;font-weight:600;color:var(--text-faint);" id="cfgPavioUnit">un</div>
             </div>
           </div>
         </div>
 
         <div class="label" style="margin-top:20px;">jarra e perda de derretimento</div>
-        <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;margin:-6px 4px 14px;">Usadas pela
+        <div class="hint" style="margin:-6px 4px 14px;">Usadas pela
           Calculadora de Velas pra saber quantas jarras um lote precisa e quanto de cera/essência realmente sai da
           panela.</div>
         <div class="raised card">
           <div class="pressed field" style="margin-bottom:12px;">
             <div class="label">capacidade da jarra</div>
             <div class="row"><input type="text" id="cfgJarraCapacidade" placeholder="0" style="flex:1;" />
-              <div style="font-size:14.5px;font-weight:600;color:var(--text-faint);">ml</div>
+              <div style="font-size:14px;font-weight:600;color:var(--text-faint);">ml</div>
             </div>
           </div>
           <div class="pressed field">
             <div class="label">perda de derretimento</div>
             <div class="row"><input type="text" id="cfgPerdaDerretimento" placeholder="0" style="flex:1;" />
-              <div style="font-size:14.5px;font-weight:600;color:var(--text-faint);">%</div>
+              <div style="font-size:14px;font-weight:600;color:var(--text-faint);">%</div>
             </div>
           </div>
         </div>
 
         <div class="label" style="margin-top:20px;">preço de venda por variação</div>
-        <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;margin:-6px 4px 14px;">Usado pela
+        <div class="hint" style="margin:-6px 4px 14px;">Usado pela
           Calculadora de Lucro pra estimar a margem de cada lote antes de produzir.</div>
         <div class="raised card" id="cfgPrecosCard">
           <div id="cfgPrecosList"></div>
@@ -1279,7 +1279,7 @@
 
         <button class="btn btn-primary" data-action="config-save" style="width:100%;margin:20px 0 12px;">Salvar
           configurações</button>
-        <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;text-align:center;">As mudanças valem a
+        <div class="hint" style="text-align:center;">As mudanças valem a
           partir de agora — lotes já registrados não são recalculados.</div>
 
         <div class="reveal-footer" aria-hidden="true">
@@ -1300,7 +1300,7 @@
         </div>
         <div>
           <div class="crumb">início</div>
-          <div class="pagetitle" style="font-size:19px;">vendas</div>
+          <div class="pagetitle">vendas</div>
         </div>
       </div>
       <div class="content">
@@ -1386,7 +1386,7 @@
         </div>
         <div>
           <div class="crumb">vendas</div>
-          <div class="pagetitle" style="font-size:19px;">registrar venda</div>
+          <div class="pagetitle">registrar venda</div>
         </div>
       </div>
       <div class="content">
@@ -1399,7 +1399,7 @@
         <div class="label" style="margin: 2px 4px 8px;">cliente</div>
         <div class="raised-sm between" role="button" tabindex="0" data-action="venda-cliente-toggle"
           aria-label="Trocar cliente" style="padding:14px 16px;margin-bottom:16px;">
-          <div style="font-size:14.5px;font-weight:600;" id="vendaClienteLabel">Cliente avulso</div>
+          <div style="font-size:14px;font-weight:600;" id="vendaClienteLabel">Cliente avulso</div>
           <svg class="folder-card-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
             stroke-linecap="round" stroke-linejoin="round">
             <path d="m9 6 6 6-6 6" />
@@ -1427,7 +1427,7 @@
                 <path d="M5 12h14" />
               </svg>
             </div>
-            <div style="font-size:18px;font-weight:700;min-width:26px;text-align:center;" id="vendaQtdValue">1</div>
+            <div style="font-size:19px;font-weight:700;min-width:26px;text-align:center;" id="vendaQtdValue">1</div>
             <div class="raised-sm" role="button" tabindex="0" aria-label="Aumentar quantidade" data-action="venda-qtd-inc"
               style="width:34px;height:34px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--card-text);">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
@@ -1476,16 +1476,16 @@
 
         <div class="raised-sm" style="padding:16px;margin-bottom:16px;">
           <div class="between" style="margin-bottom:8px;">
-            <div style="font-size:12.5px;color:var(--text-faint);">subtotal</div>
-            <div style="font-size:13.5px;font-weight:600;" id="vendaResumoSubtotal">R$ 0,00</div>
+            <div style="font-size:13px;color:var(--text-faint);">subtotal</div>
+            <div style="font-size:14px;font-weight:600;" id="vendaResumoSubtotal">R$ 0,00</div>
           </div>
           <div class="between" id="vendaResumoDescontoRow" hidden style="margin-bottom:8px;">
-            <div style="font-size:12.5px;color:var(--text-faint);">desconto</div>
-            <div style="font-size:13.5px;font-weight:600;color:var(--good);" id="vendaResumoDesconto">− R$ 0,00</div>
+            <div style="font-size:13px;color:var(--text-faint);">desconto</div>
+            <div class="stat dim good" id="vendaResumoDesconto">− R$ 0,00</div>
           </div>
           <div class="between">
             <div style="font-size:14px;font-weight:700;">total</div>
-            <div style="font-size:20px;font-weight:800;" id="vendaResumoTotal">R$ 0,00</div>
+            <div style="font-size:19px;font-weight:800;" id="vendaResumoTotal">R$ 0,00</div>
           </div>
         </div>
 
@@ -1507,7 +1507,7 @@
           </div>
           <div>
             <div class="crumb">vendas</div>
-            <div class="pagetitle" style="font-size:19px;">encomendas</div>
+            <div class="pagetitle">encomendas</div>
           </div>
         </div>
         <div class="iconbtn" role="button" tabindex="0" data-action="encomenda-add" aria-label="Nova encomenda">
@@ -1552,7 +1552,7 @@
         </div>
         <div>
           <div class="crumb">encomendas</div>
-          <div class="pagetitle" style="font-size:19px;" id="encomendaFormTitle">nova encomenda</div>
+          <div class="pagetitle" id="encomendaFormTitle">nova encomenda</div>
         </div>
       </div>
       <div class="content">
@@ -1565,7 +1565,7 @@
         <div class="label" style="margin: 2px 4px 8px;">cliente</div>
         <div class="raised-sm between" role="button" tabindex="0" data-action="encomenda-cliente-toggle"
           aria-label="Trocar cliente" style="padding:14px 16px;margin-bottom:16px;">
-          <div style="font-size:14.5px;font-weight:600;" id="encomendaClienteLabel">Cliente avulso</div>
+          <div style="font-size:14px;font-weight:600;" id="encomendaClienteLabel">Cliente avulso</div>
           <svg class="folder-card-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
             stroke-linecap="round" stroke-linejoin="round">
             <path d="m9 6 6 6-6 6" />
@@ -1593,7 +1593,7 @@
                 <path d="M5 12h14" />
               </svg>
             </div>
-            <div style="font-size:18px;font-weight:700;min-width:26px;text-align:center;" id="encomendaQtdValue">1</div>
+            <div style="font-size:19px;font-weight:700;min-width:26px;text-align:center;" id="encomendaQtdValue">1</div>
             <div class="raised-sm" role="button" tabindex="0" aria-label="Aumentar quantidade" data-action="encomenda-qtd-inc"
               style="width:34px;height:34px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--card-text);">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
@@ -1631,7 +1631,7 @@
 
         <div class="raised-sm between" style="padding:16px;margin:8px 0 16px;">
           <div style="font-size:14px;font-weight:700;">total</div>
-          <div style="font-size:20px;font-weight:800;" id="encomendaFormTotal">R$ 0,00</div>
+          <div style="font-size:19px;font-weight:800;" id="encomendaFormTotal">R$ 0,00</div>
         </div>
 
         <button class="btn btn-primary" id="encomendaFormSaveBtn" data-action="encomenda-form-save" style="width:100%;margin-bottom:12px;"
@@ -1655,7 +1655,7 @@
           </div>
           <div>
             <div class="crumb">encomendas</div>
-            <div class="pagetitle" style="font-size:19px;" id="encomendaDetalheCliente">—</div>
+            <div class="pagetitle" id="encomendaDetalheCliente">—</div>
           </div>
         </div>
         <div class="tapicon" role="button" tabindex="0" aria-label="Editar encomenda" data-action="encomenda-detalhe-edit"
@@ -1679,11 +1679,11 @@
           </div>
           <div class="between" style="padding:11px 0;border-bottom:1px solid var(--line);">
             <span style="font-size:13px;color:var(--text-faint);">entrega prevista</span>
-            <span style="font-size:13.5px;font-weight:600;color:var(--text-dim);" id="encomendaDetalheData">sem data prevista</span>
+            <span class="stat dim" id="encomendaDetalheData">sem data prevista</span>
           </div>
           <div class="between" style="padding:11px 0 0;" id="encomendaDetalheObsRow" hidden>
             <span style="font-size:13px;color:var(--text-faint);">observações</span>
-            <span style="font-size:13.5px;font-weight:600;color:var(--text-dim);text-align:right;max-width:60%;"
+            <span style="font-size:14px;font-weight:600;color:var(--text-dim);text-align:right;max-width:60%;"
               id="encomendaDetalheObs">—</span>
           </div>
         </div>
@@ -1692,8 +1692,8 @@
         <div class="raised card" id="encomendaDetalheItensCard">
           <div id="encomendaDetalheItensList"></div>
           <div class="between" style="padding:11px 0 0;margin-top:4px;">
-            <span style="font-size:13.5px;font-weight:700;">total</span>
-            <span style="font-size:15px;font-weight:800;" id="encomendaDetalheTotal">R$ 0,00</span>
+            <span class="stat">total</span>
+            <span style="font-size:16px;font-weight:800;" id="encomendaDetalheTotal">R$ 0,00</span>
           </div>
         </div>
 
@@ -1701,7 +1701,7 @@
           <div class="label" style="margin-top:16px;">lote vinculado (opcional)</div>
           <div class="raised-sm between" role="button" tabindex="0" data-action="encomenda-lote-toggle"
             aria-label="Vincular lote" style="padding:14px 16px;margin-bottom:8px;">
-            <div style="font-size:13.5px;font-weight:600;" id="encomendaDetalheLoteLabel">nenhum lote vinculado</div>
+            <div style="font-size:14px;font-weight:600;" id="encomendaDetalheLoteLabel">nenhum lote vinculado</div>
             <svg class="folder-card-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
               stroke-linecap="round" stroke-linejoin="round">
               <path d="m9 6 6 6-6 6" />
@@ -1727,7 +1727,7 @@
         <button class="btn btn-primary" id="encomendaAvancarBtn" data-action="encomenda-avancar-status"
           style="width:100%;margin-top:14px;">iniciar produção</button>
 
-        <div style="font-size:11.5px;color:var(--good);line-height:1.5;text-align:center;margin-top:10px;" id="encomendaConvertidaNota" hidden>
+        <div style="font-size:12px;color:var(--good);line-height:1.5;text-align:center;margin-top:10px;" id="encomendaConvertidaNota" hidden>
           entregue — já virou uma venda confirmada, contabilizada no histórico do cliente.</div>
 
         <button class="btn btn-text" data-action="encomenda-excluir"
@@ -1751,7 +1751,7 @@
         </div>
         <div>
           <div class="crumb">vendas</div>
-          <div class="pagetitle" style="font-size:19px;">histórico de vendas</div>
+          <div class="pagetitle">histórico de vendas</div>
         </div>
       </div>
       <div class="content">
@@ -1785,11 +1785,11 @@
         <div style="display:flex;gap:12px;margin-bottom:20px;">
           <div class="raised-sm" style="padding:14px 16px;flex:1;">
             <div class="label" style="margin-bottom:8px;">vendido</div>
-            <div style="font-size:18px;font-weight:700;letter-spacing:-.01em;" id="historicoVendasTotal">R$ 0,00</div>
+            <div style="font-size:19px;font-weight:700;letter-spacing:-.01em;" id="historicoVendasTotal">R$ 0,00</div>
           </div>
           <div class="raised-sm" style="padding:14px 16px;flex:1;">
             <div class="label" style="margin-bottom:8px;">confirmadas</div>
-            <div style="font-size:18px;font-weight:700;letter-spacing:-.01em;" id="historicoVendasQtd">0</div>
+            <div style="font-size:19px;font-weight:700;letter-spacing:-.01em;" id="historicoVendasQtd">0</div>
           </div>
         </div>
 
@@ -1816,7 +1816,7 @@
           </div>
           <div>
             <div class="crumb">vendas</div>
-            <div class="pagetitle" style="font-size:19px;">cupons</div>
+            <div class="pagetitle">cupons</div>
           </div>
         </div>
         <div class="iconbtn" role="button" tabindex="0" data-action="cupom-add" aria-label="Novo cupom">
@@ -1854,7 +1854,7 @@
         </div>
         <div>
           <div class="crumb">cupons</div>
-          <div class="pagetitle" style="font-size:19px;" id="cupomFormTitle">novo cupom</div>
+          <div class="pagetitle" id="cupomFormTitle">novo cupom</div>
         </div>
       </div>
       <div class="content">
@@ -1925,7 +1925,7 @@
         </div>
         <div>
           <div class="crumb">vendas</div>
-          <div class="pagetitle" style="font-size:19px;">controle de custos</div>
+          <div class="pagetitle">controle de custos</div>
         </div>
       </div>
       <div class="content">
@@ -1941,7 +1941,7 @@
           <div
             style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--on-primary);opacity:.7;margin-bottom:8px;">
             custo real por vela</div>
-          <div style="font-size:30px;font-weight:800;letter-spacing:-.01em;color:var(--on-primary);"
+          <div style="font-size:28px;font-weight:800;letter-spacing:-.01em;color:var(--on-primary);"
             id="custosCustoRealVela">R$ 0,00</div>
           <div style="font-size:11px;color:var(--on-primary);opacity:.6;margin-top:6px;">insumo + custo fixo rateado
           </div>
@@ -1950,12 +1950,12 @@
         <div style="display:flex;gap:12px;margin-bottom:12px;">
           <div class="raised-sm" style="padding:16px;flex:1;">
             <div class="label" style="margin-bottom:8px;">custo de insumo</div>
-            <div style="font-size:18px;font-weight:700;letter-spacing:-.01em;" id="custosInsumoPorVela">R$ 0,00</div>
+            <div style="font-size:19px;font-weight:700;letter-spacing:-.01em;" id="custosInsumoPorVela">R$ 0,00</div>
             <div style="font-size:11px;color:var(--text-faint);margin-top:6px;">média dos lotes registrados</div>
           </div>
           <div class="raised-sm" style="padding:16px;flex:1;">
             <div class="label" style="margin-bottom:8px;">custo fixo</div>
-            <div style="font-size:18px;font-weight:700;letter-spacing:-.01em;" id="custosFixoPorVela">R$ 0,00</div>
+            <div style="font-size:19px;font-weight:700;letter-spacing:-.01em;" id="custosFixoPorVela">R$ 0,00</div>
             <div style="font-size:11px;color:var(--text-faint);margin-top:6px;" id="custosFixoPorVelaSub">rateado
             </div>
           </div>
@@ -1966,20 +1966,20 @@
             <div class="label" style="margin-bottom:4px;">lucro líquido real</div>
             <div style="font-size:11px;color:var(--text-faint);" id="custosLucroPeriodoLabel">últimos 7 dias</div>
           </div>
-          <div style="font-size:18px;font-weight:700;letter-spacing:-.01em;" id="custosLucroLiquido">R$ 0,00</div>
+          <div style="font-size:19px;font-weight:700;letter-spacing:-.01em;" id="custosLucroLiquido">R$ 0,00</div>
         </div>
-        <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;margin:-14px 4px 20px;text-align:center;">
+        <div class="hint" style="margin:-14px 4px 20px;text-align:center;">
           mesmo período do Dashboard — pra mudar, ajuste os dias por lá.</div>
 
         <div class="label">margem por variação</div>
-        <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;margin:-6px 4px 14px;">Preço de venda
+        <div class="hint" style="margin:-6px 4px 14px;">Preço de venda
           cadastrado menos o custo real por vela acima.</div>
         <div class="raised card" style="margin-bottom:20px;">
           <div id="custosMargemList"></div>
         </div>
 
         <div class="label">custos fixos mensais</div>
-        <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;margin:-6px 4px 14px;">Somados, dão o
+        <div class="hint" style="margin:-6px 4px 14px;">Somados, dão o
           "custo fixo" acima, rateado pela produção mensal estimada.</div>
         <div class="raised card">
           <div id="custosFixosList"></div>
@@ -1991,13 +1991,13 @@
           <div class="label">produção mensal estimada (rateio)</div>
           <div class="row">
             <input type="text" id="custosRateioBase" placeholder="0" style="flex:1;" />
-            <div style="font-size:14.5px;font-weight:600;color:var(--text-faint);">velas/mês</div>
+            <div style="font-size:14px;font-weight:600;color:var(--text-faint);">velas/mês</div>
           </div>
         </div>
 
         <button class="btn btn-primary" data-action="custos-salvar" style="width:100%;margin:20px 0 12px;">Salvar
           custos fixos</button>
-        <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;text-align:center;">total de custos
+        <div class="hint" style="text-align:center;">total de custos
           fixos: <span id="custosFixoTotalTxt">R$ 0,00</span> por mês.</div>
 
         <div class="reveal-footer" aria-hidden="true">
@@ -2018,7 +2018,7 @@
         </div>
         <div>
           <div class="crumb">início</div>
-          <div class="pagetitle" style="font-size:19px;">relatório completo</div>
+          <div class="pagetitle">relatório completo</div>
         </div>
       </div>
       <div class="content">
@@ -2029,24 +2029,24 @@
           <div class="skel-block" style="height:110px;"></div>
         </div>
 
-        <div style="font-size:11.5px;color:var(--text-faint);margin:-4px 0 18px;" id="relatorioPeriodoLabel">últimos 7 dias</div>
+        <div style="font-size:12px;color:var(--text-faint);margin:-4px 0 18px;" id="relatorioPeriodoLabel">últimos 7 dias</div>
 
         <div class="label">vendido por variação</div>
-        <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;margin:-6px 4px 14px;">Antes de cupons — mesma
+        <div class="hint" style="margin:-6px 4px 14px;">Antes de cupons — mesma
           base do card "total de vendas" do Dashboard.</div>
         <div class="raised card" style="margin-bottom:20px;">
           <div id="relatorioVariacaoList"></div>
         </div>
 
         <div class="label">por forma de pagamento</div>
-        <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;margin:-6px 4px 14px;">Já com cupons
+        <div class="hint" style="margin:-6px 4px 14px;">Já com cupons
           descontados — o que de fato entrou no período.</div>
         <div class="raised card" style="margin-bottom:20px;">
           <div id="relatorioFormaPagamentoList"></div>
         </div>
 
         <div class="label">cupons usados</div>
-        <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;margin:-6px 4px 14px;">Quanto cada cupom
+        <div class="hint" style="margin:-6px 4px 14px;">Quanto cada cupom
           descontou no período.</div>
         <div class="raised card">
           <div id="relatorioCuponsList"></div>
@@ -2071,7 +2071,7 @@
           </div>
           <div>
             <div class="crumb">início</div>
-            <div class="pagetitle" style="font-size:19px;">Clientes</div>
+            <div class="pagetitle">Clientes</div>
           </div>
         </div>
         <div class="iconbtn" role="button" tabindex="0" data-action="cliente-add" aria-label="Cadastrar cliente">
@@ -2112,7 +2112,7 @@
 
         <div id="clientesList"></div>
 
-        <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;margin-top:10px;text-align:center;">o ID
+        <div class="hint" style="margin-top:10px;text-align:center;">o ID
           de cada cliente é gerado automaticamente pelo sistema ao cadastrar.</div>
 
         <div class="reveal-footer" aria-hidden="true">
@@ -2132,7 +2132,7 @@
         </div>
         <div>
           <div class="crumb">clientes</div>
-          <div class="pagetitle" style="font-size:19px;" id="clienteFormTitle">Novo cliente</div>
+          <div class="pagetitle" id="clienteFormTitle">Novo cliente</div>
         </div>
       </div>
       <div class="content">
@@ -2162,7 +2162,7 @@
           <input type="text" id="clienteFormEndereco" placeholder="rua, número, bairro" />
         </div>
 
-        <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;margin:2px 4px 22px;">O ID do cliente é
+        <div class="hint" style="margin:2px 4px 22px;">O ID do cliente é
           gerado automaticamente pelo sistema — não precisa definir.</div>
 
         <button class="btn btn-primary" data-action="cliente-form-save" style="width:100%;margin-bottom:12px;">Salvar
@@ -2185,7 +2185,7 @@
           </div>
           <div>
             <div class="crumb">clientes</div>
-            <div class="pagetitle" style="font-size:19px;" id="clienteDetalheNome">—</div>
+            <div class="pagetitle" id="clienteDetalheNome">—</div>
           </div>
         </div>
         <div class="tapicon" role="button" tabindex="0" aria-label="Editar cliente" data-action="cliente-detalhe-edit"
@@ -2205,15 +2205,15 @@
         <div class="raised card">
           <div class="between" style="padding:0 0 11px;border-bottom:1px solid var(--line);">
             <span style="font-size:13px;color:var(--text-faint);">telefone</span>
-            <span style="font-size:13.5px;font-weight:700;" id="clienteDetalheTelefone">—</span>
+            <span class="stat" id="clienteDetalheTelefone">—</span>
           </div>
           <div class="between" style="padding:11px 0;border-bottom:1px solid var(--line);">
             <span style="font-size:13px;color:var(--text-faint);">e-mail</span>
-            <span style="font-size:13.5px;font-weight:600;color:var(--text-dim);" id="clienteDetalheEmail">—</span>
+            <span class="stat dim" id="clienteDetalheEmail">—</span>
           </div>
           <div class="between" style="padding:11px 0 0;" id="clienteDetalheEnderecoRow" hidden>
             <span style="font-size:13px;color:var(--text-faint);">endereço</span>
-            <span style="font-size:13.5px;font-weight:600;color:var(--text-dim);text-align:right;max-width:60%;"
+            <span style="font-size:14px;font-weight:600;color:var(--text-dim);text-align:right;max-width:60%;"
               id="clienteDetalheEndereco">—</span>
           </div>
         </div>
@@ -2221,11 +2221,11 @@
         <div class="row" style="gap:12px;margin:16px 0 20px;">
           <div class="raised-sm" style="padding:14px 16px;flex:1;">
             <div class="label" style="margin-bottom:6px;">compras</div>
-            <div style="font-size:18px;font-weight:700;" id="clienteDetalheCompras">0</div>
+            <div style="font-size:19px;font-weight:700;" id="clienteDetalheCompras">0</div>
           </div>
           <div class="raised-sm" style="padding:14px 16px;flex:1;">
             <div class="label" style="margin-bottom:6px;">total gasto</div>
-            <div style="font-size:18px;font-weight:700;" id="clienteDetalheGasto">R$ 0,00</div>
+            <div style="font-size:19px;font-weight:700;" id="clienteDetalheGasto">R$ 0,00</div>
           </div>
         </div>
 
@@ -2235,13 +2235,13 @@
         </div>
 
         <div id="clienteDetalheHistEmpty"
-          style="font-size:12.5px;color:var(--text-faint);text-align:center;padding:18px 0;" hidden>Nenhuma compra
+          style="font-size:13px;color:var(--text-faint);text-align:center;padding:18px 0;" hidden>Nenhuma compra
           registrada ainda.</div>
         <div class="raised card" id="clienteDetalheHistCard">
           <div id="clienteDetalheHistList"></div>
         </div>
 
-        <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;margin-top:6px;text-align:center;">O
+        <div class="hint" style="margin-top:6px;text-align:center;">O
           histórico soma automaticamente as vendas confirmadas ligadas a este cliente.</div>
 
         <div class="reveal-footer" aria-hidden="true">
@@ -2261,7 +2261,7 @@
         </div>
         <div>
           <div class="crumb">início</div>
-          <div class="pagetitle" style="font-size:19px;">mais</div>
+          <div class="pagetitle">mais</div>
         </div>
       </div>
       <div class="content">
@@ -2273,7 +2273,7 @@
           aria-label="Abrir Configurações" style="margin-bottom:14px;">
           <div>
             <div style="font-size:14px;font-weight:600;">configurações</div>
-            <div style="font-size:11.5px;color:var(--text-faint);margin-top:2px;">receita padrão, jarra e preços de
+            <div style="font-size:12px;color:var(--text-faint);margin-top:2px;">receita padrão, jarra e preços de
               venda</div>
           </div>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -2286,7 +2286,7 @@
           aria-label="Abrir conta" style="margin-bottom:14px;">
           <div>
             <div style="font-size:14px;font-weight:600;">conta</div>
-            <div style="font-size:11.5px;color:var(--text-faint);margin-top:2px;">nome, e-mail e senha de acesso
+            <div style="font-size:12px;color:var(--text-faint);margin-top:2px;">nome, e-mail e senha de acesso
             </div>
           </div>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -2297,7 +2297,7 @@
 
         <div class="raised card" style="margin-top:14px;margin-bottom:14px;">
           <div style="font-size:14px;font-weight:600;margin-bottom:2px;">backup dos dados</div>
-          <div style="font-size:11.5px;color:var(--text-faint);margin-bottom:14px;">insumos, produção, vendas,
+          <div style="font-size:12px;color:var(--text-faint);margin-bottom:14px;">insumos, produção, vendas,
             clientes e configurações vivem só neste navegador — exporte de vez em quando pra não perder tudo se o
             navegador limpar os dados ou você trocar de aparelho.</div>
           <button class="btn btn-ghost" data-action="backup-exportar" style="width:100%;margin-bottom:10px;">exportar
@@ -2310,7 +2310,7 @@
           aria-label="Abrir ajuda" style="margin-bottom:14px;">
           <div>
             <div style="font-size:14px;font-weight:600;">ajuda</div>
-            <div style="font-size:11.5px;color:var(--text-faint);margin-top:2px;">perguntas frequentes sobre o app
+            <div style="font-size:12px;color:var(--text-faint);margin-top:2px;">perguntas frequentes sobre o app
             </div>
           </div>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -2338,7 +2338,7 @@
         </div>
         <div>
           <div class="crumb">mais</div>
-          <div class="pagetitle" style="font-size:19px;">conta</div>
+          <div class="pagetitle">conta</div>
         </div>
       </div>
       <div class="content">
@@ -2359,17 +2359,17 @@
           dados</button>
 
         <div class="label">sincronização entre aparelhos</div>
-        <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;margin:-6px 4px 14px;">Entrar com esta
+        <div class="hint" style="margin:-6px 4px 14px;">Entrar com esta
           conta em outro aparelho já baixa os dados salvos aqui. Use o botão abaixo quando quiser subir uma
           atualização no meio do dia, sem esperar sair da conta.</div>
         <div class="raised-sm between" style="padding:14px 16px;margin-bottom:14px;">
-          <div style="font-size:11.5px;color:var(--text-faint);" id="contaSyncInfo">nunca sincronizado neste aparelho.</div>
+          <div style="font-size:12px;color:var(--text-faint);" id="contaSyncInfo">nunca sincronizado neste aparelho.</div>
         </div>
         <button class="btn btn-ghost" data-action="conta-sincronizar" style="width:100%;margin-bottom:24px;">sincronizar
           agora</button>
 
         <div class="label">trocar senha</div>
-        <div style="font-size:11.5px;color:var(--text-faint);line-height:1.5;margin:-6px 4px 14px;">Preencha os três
+        <div class="hint" style="margin:-6px 4px 14px;">Preencha os três
           campos abaixo pra trocar — a nova senha vale em qualquer aparelho onde você entrar com esta conta.</div>
         <div class="raised card">
           <div class="pressed field" style="margin-bottom:12px;">
@@ -2435,7 +2435,7 @@
         </div>
         <div>
           <div class="crumb">mais</div>
-          <div class="pagetitle" style="font-size:19px;">ajuda</div>
+          <div class="pagetitle">ajuda</div>
         </div>
       </div>
       <div class="content">

@@ -4,7 +4,7 @@
    `html[data-theme="dark"]` de antes e agora são os únicos valores, direto no :root.
    A técnica de sombra usada aqui (drop-shadow único bem definido + friso interno sutil,
    em vez de um par claro/escuro neumórfico) segue sendo a mesma — nenhuma regra abaixo
-   precisa saber disso, só consome --shadow-raised-* / --shadow-pressed-*. */
+   precisa saber disso, só consome --shadow-raised / --shadow-pressed. */
 :root{
   --bg:#442D1C;
   --text:#F3E7D6;
@@ -48,13 +48,36 @@
   --surface-text-faint:#B99E76;
   /* Altura mínima do rodapé de marca no fim de cada tela (ver .reveal-footer mais abaixo). */
   --reveal-footer-h:170px;
-  /* Sombra "raised" — cada profundidade calculada uma vez aqui, reaproveitada por todo o app. */
-  --shadow-raised-xxs:0 2px 6px rgba(0,0,0,.35),inset 0 1px 0 rgba(232,209,167,.05);
-  --shadow-raised-xs:0 3px 9px rgba(0,0,0,.4),inset 0 1px 0 rgba(232,209,167,.06);
-  --shadow-raised-sm:0 4px 12px rgba(0,0,0,.42),inset 0 1px 0 rgba(232,209,167,.07);
-  --shadow-raised-md:0 6px 18px rgba(0,0,0,.48),inset 0 1px 0 rgba(232,209,167,.08);
-  --shadow-pressed-xs:inset 0 2px 6px rgba(0,0,0,.5),inset 0 -1px 0 rgba(232,209,167,.04);
-  --shadow-pressed-sm:inset 0 3px 8px rgba(0,0,0,.55),inset 0 -1px 0 rgba(232,209,167,.05);
+  /* Elevação: só 2 tratamentos no total, não 4 níveis de "raised" + 2 de "pressed" como
+     antes. Aquele leque inteiro era aplicado em quase todo elemento — card, pill, campo,
+     botão, dock, ícone — e com tudo "em destaque" ao mesmo tempo, nada de fato se destacava:
+     o cérebro tinha que decidir sozinho, sem ajuda visual, qual bloco importava mais, o que
+     cansava mais do que ajudava (pedido da usuária, 09/09/2026). Agora --shadow-raised é
+     reservado pro que precisa de destaque REAL (o dock, sempre fixo por cima do conteúdo, e
+     o card de lucro líquido via .raised-emphasis — ver mais abaixo) e --shadow-pressed só
+     pro afundo de campo/input (sinaliza "isto é editável", não é elevação decorativa). Todo
+     o resto que antes tinha relevo (a maioria: .raised/.raised-sm comuns, avatar, iconbtn,
+     btn-ghost, pill ativa, step-dot, ícone de estado vazio, dia selecionado do calendário)
+     virou plano — sem box-shadow, só cor de fundo/borda pra se diferenciar da página. */
+  --shadow-raised:0 6px 16px rgba(0,0,0,.42),inset 0 1px 0 rgba(232,209,167,.07);
+  --shadow-pressed:inset 0 2px 6px rgba(0,0,0,.5),inset 0 -1px 0 rgba(232,209,167,.04);
+  /* ---------- Escala tipográfica ----------
+     8 degraus fixos pra todo o app, em vez dos ~23 tamanhos soltos (9px a 30px) que existiam
+     antes espalhados em style="" por index.html. Cada classe/estilo abaixo referencia uma
+     dessas variáveis — nenhum novo font-size deveria ser inventado fora desta lista.
+     2xs/xs: legendas e rótulos em uppercase (.label, .badge, dias do calendário).
+     sm/base: texto secundário e texto padrão de corpo/input — a maior parte do app.
+     md: subtítulos com um pouco mais de peso (.quote, títulos de esvaziado).
+     lg: título de página (.pagetitle).
+     xl/2xl: números grandes de destaque (saudação do dashboard, mês do calendário). */
+  --text-2xs:11px;
+  --text-xs:12px;
+  --text-sm:13px;
+  --text-base:14px;
+  --text-md:16px;
+  --text-lg:19px;
+  --text-xl:24px;
+  --text-2xl:28px;
 }
 /* ---------- Gradiente de boas-vindas (mesh de blobs) — referência: exemplo de footer
    animado do motion.dev, cores trocadas pra paleta da marca (Golden Batter, Spiced Wine,
@@ -198,7 +221,7 @@ body{background:var(--page-bg);display:flex;align-items:flex-start;justify-conte
 }
 .auth-check-row[aria-pressed="true"] .auth-checkbox{background:#E8D1A7;color:#442D1C;border-color:#E8D1A7;}
 .auth-check-label{font:300 13.5px/1 'Montserrat',sans-serif;color:rgba(232,209,167,.72);}
-.auth-error{font-size:12.5px;color:#F2B79A;font-weight:600;line-height:1.5;}
+.auth-error{font-size:var(--text-sm);color:#F2B79A;font-weight:600;line-height:1.5;}
 .auth-submit{
   width:100%;margin-top:4px;padding:17px 20px;border:none;border-radius:999px;background:#E8D1A7;
   color:#442D1C;font:500 14px/1 'Montserrat',sans-serif;letter-spacing:.12em;text-transform:uppercase;
@@ -291,11 +314,12 @@ input.auth-input:-webkit-autofill{-webkit-text-fill-color:#F3E6CE;transition:bac
   margin-top:20px;min-height:var(--reveal-footer-h);border-radius:24px;
   display:flex;align-items:center;justify-content:center;
   background:#442D1C;
-  /* --bg já É #442D1C — sem sombra o rodapé "some" contra o próprio fundo da tela (mesmo
-     problema que .raised resolve pros cards: cor igual à página, separado só pelo relevo).
-     box-shadow fixo em vez de var(--shadow-raised-md) — mesma fórmula, só um pouco mais leve
-     (.35 de opacidade em vez de .48), calibrado à parte pro bloco grande do rodapé em vez de
-     reaproveitar o valor pensado pros cards menores. */
+  /* --bg já É #442D1C — sem sombra o rodapé "some" contra o próprio fundo da tela. Continua
+     com sombra própria (só o dock e o card de lucro líquido usam --shadow-raised — ver
+     comentário no :root) porque, ao contrário dos cards comuns, o rodapé não tem NENHUMA
+     diferença de cor pra se separar da tela: box-shadow fixo, mesma fórmula do
+     --shadow-raised mas um pouco mais leve (.35 de opacidade em vez de .42), calibrado à
+     parte pro bloco grande do rodapé em vez de reaproveitar o valor pensado pro dock. */
   box-shadow:0 6px 18px rgba(0,0,0,.35),inset 0 1px 0 rgba(232,209,167,.08);
   opacity:0;transform:translateY(18px);transition:opacity .6s ease,transform .6s ease;
 }
@@ -312,14 +336,14 @@ input.auth-input:-webkit-autofill{-webkit-text-fill-color:#F3E6CE;transition:bac
 }
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:26px 20px 4px;}
 .brandrow{display:flex;align-items:center;gap:9px;}
-.brandmark{width:26px;height:26px;border-radius:8px;background:var(--primary);display:flex;align-items:center;justify-content:center;color:var(--on-primary);font-family:'Abhaya Libre',Georgia,serif;font-style:italic;font-size:15px;flex:none;}
-.brandname{font-size:12.5px;font-weight:600;letter-spacing:.03em;color:var(--text-dim);text-transform:lowercase;}
-.avatar{width:44px;height:44px;border-radius:15px;background:var(--bg);box-shadow:var(--shadow-raised-xs);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--primary);cursor:pointer;transition:box-shadow .15s ease,transform .1s ease;}
-.avatar:active{box-shadow:var(--shadow-pressed-sm);transform:scale(.94);}
+.brandmark{width:26px;height:26px;border-radius:8px;background:var(--primary);display:flex;align-items:center;justify-content:center;color:var(--on-primary);font-family:'Abhaya Libre',Georgia,serif;font-style:italic;font-size:var(--text-md);flex:none;}
+.brandname{font-size:var(--text-sm);font-weight:600;letter-spacing:.03em;color:var(--text-dim);text-transform:lowercase;}
+.avatar{width:44px;height:44px;border-radius:15px;background:var(--bg);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:var(--text-sm);font-weight:700;color:var(--primary);cursor:pointer;transition:transform .1s ease;}
+.avatar:active{transform:scale(.94);}
 .backrow{display:flex;align-items:center;gap:12px;padding:26px 20px 2px;}
-.iconbtn{width:44px;height:44px;border-radius:15px;background:var(--bg);box-shadow:var(--shadow-raised-xs);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--surface-text);flex:none;transition:box-shadow .15s ease,transform .1s ease;}
+.iconbtn{width:44px;height:44px;border-radius:15px;background:var(--bg);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--surface-text);flex:none;transition:transform .1s ease;}
 .iconbtn svg{width:19px;height:19px;}
-.iconbtn:active{box-shadow:var(--shadow-pressed-sm);transform:scale(.94);}
+.iconbtn:active{transform:scale(.94);}
 /* Pedido da usuária: a seta de voltar e a barra de busca sempre marrom (#442D1C fixo), nunca
    o creme/branco de var(--bg) — nem mesmo dentro do Dashboard/Estoque de Insumos/Produção,
    que forçam --bg creme pra paleta de marca fixa dessas telas (sem este bloco, os dois
@@ -327,9 +351,10 @@ input.auth-input:-webkit-autofill{-webkit-text-fill-color:#F3E6CE;transition:bac
    [data-action], ficam de fora); .row isola só os 2 campos de busca reais —
    #estoqueSearchInput/#clientesSearchInput — dos demais .pressed.field de formulário comum.
    Hex fixo em vez de var(--primary): --primary é outra cor caso volte a existir mais de um
-   tema. box-shadow não muda (var(--shadow-raised-xs)/var(--shadow-pressed-sm) já são um
-   drop-shadow escuro fixo, o mesmo em qualquer tela, não dependem de --bg pra combinar).
-   border-color e color/placeholder, sim, precisam de override: --line e --surface-text* /
+   tema. .iconbtn[data-goto] não tem box-shadow (é plano, ver comentário do :root) — só
+   .pressed.field.row carrega um, e esse var(--shadow-pressed) já é um drop-shadow escuro
+   fixo, o mesmo em qualquer tela, não depende de --bg pra combinar, então não precisa de
+   override. border-color e color/placeholder, sim, precisam de override: --line e --surface-text* /
    --text-faint SÃO recalculados pelas telas de paleta fixa pra combinar com o --bg creme
    delas — sem isto, o contorno quase sumiria e o ícone/texto/placeholder ficariam escuros
    sobre um fundo agora também escuro. */
@@ -344,40 +369,56 @@ input.auth-input:-webkit-autofill{-webkit-text-fill-color:#F3E6CE;transition:bac
 .tapicon{width:40px;height:40px;border-radius:14px;display:flex;align-items:center;justify-content:center;color:var(--text-dim);flex:none;transition:opacity .15s ease,transform .1s ease;}
 .tapicon svg{width:17px;height:17px;}
 .tapicon:active{opacity:.6;transform:scale(.92);}
-.crumb{font-size:12px;color:var(--text-faint);font-weight:500;}
-.pagetitle{font-size:23px;font-weight:700;letter-spacing:-.01em;margin:2px 0 0;}
+.crumb{font-size:var(--text-xs);color:var(--text-faint);font-weight:500;}
+/* 19px (--text-lg), não os 23px de antes — todo uso em index.html sobrescrevia este valor
+   inline pra 19px, então o 23px nunca aparecia de fato; a classe agora só declara o que
+   realmente é usado, sem precisar de style="" repetido em cada tela. */
+.pagetitle{font-size:var(--text-lg);font-weight:700;letter-spacing:-.01em;margin:2px 0 0;}
 /* .pressed/.pressed-pill (inputs, pills) continuam na cor da própria tela — só levaram o
    border:1px var(--line) antes pra ganhar contorno próprio. .raised/.raised-sm (os "cards")
    viraram um bloco de cor sólida (--card-bg, ver definição no :root) em vez de reaproveitar
    --bg: são o elemento "caixa" do app (linha de cliente, linha de insumo, painel de
    ranking, linha de config em "mais" etc.), então pedem separação por cor de verdade, não
-   só relevo. Reatribuir --text/--text-dim/--text-faint/--line localmente garante que texto,
+   por relevo — por isso são PLANOS por padrão, sem box-shadow (pedido da usuária, ver
+   comentário do :root sobre --shadow-raised/--shadow-pressed): a cor sólida já basta pra
+   separar o card da página, sombra nenhuma dessas dezenas de cards adicionaria informação
+   real. Reatribuir --text/--text-dim/--text-faint/--line localmente garante que texto,
    legenda e divisórias soltos dentro do card (a maioria em style inline, tipo
    color:var(--text-faint)) reeleiam automaticamente o par certo pro fundo escuro — sem
    precisar caçar cada `style=` dentro de cada card. Filhos que continuam em var(--bg)
    (.pressed-pill, .iconbtn, .avatar, .field) não usam --bg redefinido aqui de propósito:
-   viram um "chip" claro sobre o card escuro, igual ao emblema/avatar do .dash-hero. O
-   box-shadow também troca pra um drop-shadow simples (mesma fórmula usada no resto do app),
-   porque o par claro/escuro difuso do neumorfismo original só faz sentido sobre uma
-   superfície clara. */
+   viram um "chip" claro sobre o card escuro, igual ao emblema/avatar do .dash-hero. */
 .raised{
   background:var(--card-bg);border-radius:20px;border:1px solid var(--card-line);
-  box-shadow:0 6px 18px rgba(0,0,0,.28),inset 0 1px 0 rgba(243,230,206,.08);
   color:var(--card-text);
   --text:var(--card-text);--text-dim:var(--card-text-dim);--text-faint:var(--card-text-dim);--line:var(--card-line);
   transition:box-shadow .15s ease,transform .1s ease;
 }
 .raised-sm{
   background:var(--card-bg);border-radius:15px;border:1px solid var(--card-line);
-  box-shadow:0 4px 12px rgba(0,0,0,.24),inset 0 1px 0 rgba(243,230,206,.07);
   color:var(--card-text);
   --text:var(--card-text);--text-dim:var(--card-text-dim);--text-faint:var(--card-text-dim);--line:var(--card-line);
   transition:box-shadow .15s ease,transform .1s ease;
 }
-.pressed{background:var(--bg);border-radius:16px;box-shadow:var(--shadow-pressed-sm);border:1px solid var(--line);transition:box-shadow .15s ease;}
-.pressed-pill{background:var(--bg);border-radius:999px;box-shadow:var(--shadow-pressed-xs);border:1px solid var(--line);transition:box-shadow .15s ease;}
+/* Único card do app que quebra a regra "conteúdo plano" acima: o "lucro líquido real" do
+   Dashboard é o número mais importante da tela (o resumo financeiro do período todo), pedia
+   destaque de verdade em vez de se misturar com métricas secundárias (vendas, produzido) —
+   por isso é o único .raised que soma var(--shadow-raised) por cima do próprio card já
+   diferenciado por cor. Não é reaproveitável como "card importante" genérico: cada novo uso
+   precisa ser deliberado, senão volta-se a ter vários elementos "em destaque" ao mesmo tempo,
+   exatamente o problema que motivou tirar sombra do resto dos cards. */
+.raised-emphasis{box-shadow:var(--shadow-raised);}
+.pressed{background:var(--bg);border-radius:16px;box-shadow:var(--shadow-pressed);border:1px solid var(--line);transition:box-shadow .15s ease;}
+.pressed-pill{background:var(--bg);border-radius:999px;box-shadow:var(--shadow-pressed);border:1px solid var(--line);transition:box-shadow .15s ease;}
 .card{padding:20px;margin-bottom:16px;}
-.label{display:block;font-size:10.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);margin:0 0 10px;}
+.label{display:block;font-size:var(--text-2xs);font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);margin:0 0 10px;}
+/* ---------- .stat / .hint — dois padrões que se repetiam dezenas de vezes como style=""
+   idêntico em index.html (valor numérico em destaque dentro de um card; texto de rodapé
+   explicativo). Viram classe única em vez de inline repetido; modificadores só trocam a cor. */
+.stat{font-size:var(--text-base);font-weight:700;}
+.stat.dim{font-weight:600;color:var(--text-dim);}
+.stat.good{color:var(--good);}
+.hint{font-size:var(--text-xs);color:var(--text-faint);line-height:1.5;}
 .row{display:flex;align-items:center;gap:12px;}
 .between{display:flex;align-items:center;justify-content:space-between;}
 .row[role="button"],
@@ -385,33 +426,36 @@ input.auth-input:-webkit-autofill{-webkit-text-fill-color:#F3E6CE;transition:bac
 .row[role="button"]:active{opacity:.6;}
 .raised[role="button"]:active{transform:scale(.99);}
 .btn{border:none;font-family:'Montserrat',sans-serif;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:box-shadow .15s ease,transform .1s ease,opacity .15s ease;}
-.btn-primary{background:var(--primary);color:var(--on-primary);border-radius:16px;padding:16px;font-size:15px;box-shadow:0 10px 22px -8px rgba(0,0,0,.4);}
+.btn-primary{background:var(--primary);color:var(--on-primary);border-radius:16px;padding:16px;font-size:var(--text-md);box-shadow:0 10px 22px -8px rgba(0,0,0,.4);}
 .btn-primary:active{box-shadow:0 5px 12px -6px rgba(0,0,0,.4);transform:scale(.98) translateY(1px);}
 /* Decisão da usuária (08/09/2026): TODOS os .btn-ghost do app em marrom fixo #442D1C,
    mesmo padrão do .iconbtn[data-goto]/.pressed.field.row acima — em vez de escopar só os
    que caem hoje dentro de Dashboard/Estoque de Insumos/Produção (nenhum .btn-ghost estático
    mora nessas 3 telas no momento, então essa opção não mudaria nada visível agora). Hex fixo
    em vez de var(--bg)/var(--text) pelo mesmo motivo de sempre: blinda qualquer tela de
-   paleta fixa atual ou futura sem precisar decidir de novo caso a caso. box-shadow não muda
-   (var(--shadow-raised-sm)/var(--shadow-pressed-sm) já são um drop-shadow fixo, não dependem
-   de --bg pra combinar). */
-.btn-ghost{background:#442D1C;color:#F3E7D6;border-radius:16px;padding:14px;font-size:13.5px;box-shadow:var(--shadow-raised-sm);}
-.btn-ghost:active{box-shadow:var(--shadow-pressed-sm);transform:scale(.98);}
-.btn-text{background:none;color:var(--warn);font-size:13.5px;font-weight:600;padding:6px 0;}
+   paleta fixa atual ou futura sem precisar decidir de novo caso a caso. Ganhou border:1px
+   var(--line) em vez de sombra (09/09/2026, junto da redução de elevação do :root): a cor
+   fixa de fundo é igual à da página no tema padrão, então precisa de ALGUMA separação —
+   antes vinha de var(--shadow-raised-sm), agora vem só do contorno, como o resto dos
+   elementos planos. */
+.btn-ghost{background:#442D1C;color:#F3E7D6;border-radius:16px;padding:14px;font-size:var(--text-base);border:1px solid rgba(232,209,167,.30);}
+.btn-ghost:active{opacity:.7;transform:scale(.98);}
+.btn-text{background:none;color:var(--warn);font-size:var(--text-base);font-weight:600;padding:6px 0;}
 .btn-text:active{opacity:.6;}
 .btn[disabled]{opacity:.45;pointer-events:none;}
 .field{padding:14px 16px;margin-bottom:14px;}
 .field .label{margin-bottom:6px;}
-.field input, .field .val{border:none;background:none;outline:none;font-family:'Montserrat',sans-serif;font-size:14.5px;color:var(--surface-text);width:100%;padding:0;}
-.field:focus-within{box-shadow:var(--shadow-pressed-sm),0 0 0 2px var(--primary);}
+.field input, .field .val{border:none;background:none;outline:none;font-family:'Montserrat',sans-serif;font-size:var(--text-base);color:var(--surface-text);width:100%;padding:0;}
+.field:focus-within{box-shadow:var(--shadow-pressed),0 0 0 2px var(--primary);}
 .field input::placeholder{color:var(--surface-text-faint);}
-.pill{padding:11px 16px;border-radius:999px;font-size:12.5px;font-weight:600;color:var(--surface-text-dim);white-space:nowrap;cursor:pointer;border:1px solid transparent;transition:box-shadow .15s ease,color .15s ease,background-color .15s ease,border-color .15s ease,transform .1s ease;}
+.pill{padding:11px 16px;border-radius:999px;font-size:var(--text-sm);font-weight:600;color:var(--surface-text-dim);white-space:nowrap;cursor:pointer;border:1px solid transparent;transition:color .15s ease,background-color .15s ease,border-color .15s ease,transform .1s ease;}
 /* Antes, ativa e inativa diferiam só por um shadow raised-xxs quase imperceptível — dava
    pra confundir qual filtro ("quem mais gasta" vs. "quem mais compra") estava selecionado.
-   Preenchimento sólido com --primary é um estado que não depende de sombra pra se ler. */
-.pill.active{color:var(--on-primary);background:var(--primary);border-color:var(--primary);box-shadow:var(--shadow-raised-xxs);}
+   Preenchimento sólido com --primary é um estado que não depende de sombra pra se ler — por
+   isso a pill ativa também é plana agora (sem box-shadow nenhum): a cor sólida já é o sinal. */
+.pill.active{color:var(--on-primary);background:var(--primary);border-color:var(--primary);}
 .pill:active{transform:scale(.96);}
-.badge{font-size:10px;font-weight:700;padding:3px 8px;border-radius:999px;}
+.badge{font-size:var(--text-2xs);font-weight:700;padding:3px 8px;border-radius:999px;}
 .badge.warn{background:var(--warn-soft);color:var(--warn);}
 .badge.good{background:var(--good-soft);color:var(--good);}
 .badge.primary{background:var(--primary-soft-2);color:var(--primary);}
@@ -434,10 +478,10 @@ input.auth-input:-webkit-autofill{-webkit-text-fill-color:#F3E6CE;transition:bac
 .raised .status-dot.good,.raised-sm .status-dot.good{background:#DCE4B8;}
 .raised .status-dot.warn,.raised-sm .status-dot.warn{background:#F6C79B;}
 .avisos-badge{
-  position:absolute;top:-4px;right:-4px;background:var(--warn);color:#fff;font-size:9px;font-weight:800;
+  position:absolute;top:-4px;right:-4px;background:var(--warn);color:#fff;font-size:var(--text-2xs);font-weight:800;
   width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;
 }
-.dash-meta{font-size:11px;color:var(--text-faint);}
+.dash-meta{font-size:var(--text-2xs);color:var(--text-faint);}
 
 /* Cada linha da lista "avisos de reposição" (ver reposicaoRowHTML/playAvisosStackReveal em
    app.js) — referência: componente <ListNotificationsStack> do motion.dev/ui/lists (baralho
@@ -454,8 +498,8 @@ input.auth-input:-webkit-autofill{-webkit-text-fill-color:#F3E6CE;transition:bac
 .resumo-row{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--line);}
 .resumo-row.resumo-row-last{border-bottom:none;}
 .resumo-row-icon{width:32px;height:32px;border-radius:11px;display:flex;align-items:center;justify-content:center;color:var(--primary);flex:none;}
-.resumo-row-title{font-size:13px;font-weight:600;}
-.resumo-row-detail{font-size:11.5px;color:var(--text-faint);margin-top:1px;}
+.resumo-row-title{font-size:var(--text-sm);font-weight:600;}
+.resumo-row-detail{font-size:var(--text-xs);color:var(--text-faint);margin-top:1px;}
 
 /* ---------- Dock inferior: cluster de botões circulares coloridos (referência visual:
    dock do app "Bloom"), substitui a antiga barra de abas com ícone+texto. Fica horizontal
@@ -466,33 +510,36 @@ input.auth-input:-webkit-autofill{-webkit-text-fill-color:#F3E6CE;transition:bac
 .dock{
   position:sticky;bottom:0;z-index:3;display:flex;align-items:center;justify-content:space-between;
   gap:8px;margin:0 14px calc(14px + env(safe-area-inset-bottom));padding:10px 14px;
-  border-radius:28px;background:var(--dock-bg);box-shadow:var(--shadow-raised-md);
+  border-radius:28px;background:var(--dock-bg);box-shadow:var(--shadow-raised);
 }
+/* Botões individuais SEM sombra própria (só transform/ring) — o dock acima já é um dos dois
+   elementos com elevação real do app (ver comentário do :root); cada círculo tendo TAMBÉM
+   seu próprio drop-shadow por baixo era elevação em dobro pro mesmo bloco. */
 .dockitem{
   position:relative;flex:none;width:46px;height:46px;border-radius:50%;border:none;padding:0;
   display:flex;align-items:center;justify-content:center;cursor:pointer;
-  box-shadow:0 6px 14px -6px rgba(0,0,0,.4);transition:transform .15s ease,box-shadow .15s ease;
+  transition:transform .15s ease,box-shadow .15s ease;
 }
 .dockitem svg{width:19px;height:19px;}
 .dockitem.dockitem-lg{width:56px;height:56px;}
 .dockitem.dockitem-lg svg{width:23px;height:23px;}
 .dockitem:active{transform:scale(.92);}
-.dockitem.active{transform:scale(1.08);box-shadow:0 6px 14px -6px rgba(0,0,0,.4),0 0 0 3px var(--dock-bg),0 0 0 5px var(--on-primary,var(--primary));}
+.dockitem.active{transform:scale(1.08);box-shadow:0 0 0 3px var(--dock-bg),0 0 0 5px var(--on-primary,var(--primary));}
 .dockitem[aria-disabled="true"]{opacity:.45;}
 
 .stepper{display:flex;align-items:center;gap:8px;padding:0 20px 18px;}
-.step-dot{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex:none;}
+.step-dot{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:var(--text-2xs);font-weight:700;flex:none;}
 .step-dot.done{background:var(--primary);color:var(--on-primary);}
-.step-dot.active{background:var(--bg);color:var(--primary);box-shadow:var(--shadow-pressed-xs);border:1.5px solid var(--primary);}
-.step-dot.pending{background:var(--bg);color:var(--text-faint);box-shadow:var(--shadow-raised-xxs);}
+.step-dot.active{background:var(--bg);color:var(--primary);border:1.5px solid var(--primary);}
+.step-dot.pending{background:var(--bg);color:var(--text-faint);border:1px solid var(--line);}
 .step-line{flex:1;height:2px;background:var(--line);}
 .step-line.done{background:var(--primary);opacity:.4;}
 .emptystate{text-align:center;padding:34px 16px 18px;}
-.emptystate-icon{width:52px;height:52px;border-radius:18px;background:var(--bg);box-shadow:var(--shadow-raised-sm);display:flex;align-items:center;justify-content:center;color:var(--text-faint);margin:0 auto 16px;}
+.emptystate-icon{width:52px;height:52px;border-radius:18px;background:var(--bg);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--text-faint);margin:0 auto 16px;}
 .emptystate-icon svg{width:22px;height:22px;}
-.emptystate-title{font-size:13.5px;font-weight:700;color:var(--text-dim);margin-bottom:6px;}
-.emptystate-sub{font-size:12px;color:var(--text-faint);line-height:1.5;max-width:260px;margin:0 auto;}
-.quote{font-family:'Abhaya Libre',Georgia,serif;font-style:italic;font-size:16px;line-height:1.4;color:var(--text-dim);}
+.emptystate-title{font-size:var(--text-base);font-weight:700;color:var(--text-dim);margin-bottom:6px;}
+.emptystate-sub{font-size:var(--text-xs);color:var(--text-faint);line-height:1.5;max-width:260px;margin:0 auto;}
+.quote{font-family:'Abhaya Libre',Georgia,serif;font-style:italic;font-size:var(--text-md);line-height:1.4;color:var(--text-dim);}
 .divider{height:1px;background:var(--line);margin:14px 0;}
 a{color:var(--primary);}
 
@@ -515,7 +562,7 @@ a{color:var(--primary);}
    :active de toque, senão o toque normal ficaria "mole" o tempo todo. */
 .folder-card.stack-revealing{transition:transform .55s cubic-bezier(.34,1.56,.64,1), opacity .4s ease;}
 .folder-card-title{font:700 21px/1.25 'Montserrat',sans-serif;}
-.folder-card-sub{font-size:14px;opacity:.72;margin-top:5px;}
+.folder-card-sub{font-size:var(--text-base);opacity:.72;margin-top:5px;}
 .folder-card-arrow{width:24px;height:24px;flex:none;opacity:.8;}
 
 [role="button"]{cursor:pointer;}
@@ -595,21 +642,19 @@ a{color:var(--primary);}
    dash-resumo em Toasted Caramel, e os demais cards — urgente/lucro/vendas/receita/
    produzido/pizza — em creme claro), em vez do card marrom único usado no resto do app.
    :not(.dash-resumo) preserva o "resumo de hoje", que sempre foi marrom por conta própria,
-   já com sua cor definida direto (não depende de --card-bg). O shadow NÃO usa mais a dupla
-   neumórfica --shadow-d/--shadow-l original (7px 7px .../-7px -7px ... #FFFFFF): esse branco
-   puro, borrado, contra o fundo dourado (#E8D1A7) da própria tela do Dashboard, criava um
-   halo branco brilhante em volta de cada card — visível de longe, não uma sombra discreta.
-   Uma sombra só, escura, embaixo do card (sem a segunda camada clara) dá o mesmo efeito de
-   "elevado" sem esse brilho. */
-.screen[data-screen="dashboard"] .raised:not(.dash-resumo){
+   já com sua cor definida direto (não depende de --card-bg). Cards planos aqui também (sem
+   box-shadow) pelo mesmo motivo do resto do app: cor já diferencia o card do fundo dourado
+   da tela, sombra não acrescenta leitura real. :not(.raised-emphasis) preserva a exceção do
+   card de lucro líquido — ele já soma var(--shadow-raised) pela regra base (.raised-emphasis
+   no bloco acima); sem essa exclusão aqui, este override (mais específico) apagaria aquela
+   sombra de novo dentro do Dashboard. */
+.screen[data-screen="dashboard"] .raised:not(.dash-resumo):not(.raised-emphasis){
   background:var(--bg);border-color:var(--line);
-  box-shadow:0 10px 24px -8px rgba(68,45,28,.22);
   color:var(--text);
   --text:unset;--text-dim:unset;--text-faint:unset;--line:unset;
 }
 .screen[data-screen="dashboard"] .raised-sm:not(.dash-resumo){
   background:var(--bg);border-color:var(--line);
-  box-shadow:0 6px 16px -6px rgba(68,45,28,.2);
   color:var(--text);
   --text:unset;--text-dim:unset;--text-faint:unset;--line:unset;
 }
@@ -664,13 +709,13 @@ a{color:var(--primary);}
 .dash-hero .iconbtn:active{background:rgba(243,230,206,.24);box-shadow:none;}
 .dash-hero .avisos-badge{background:#F3E6CE;color:#743014;}
 .dash-hero-greetrow{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:10px 20px 0;}
-.dash-hero-greet{font-style:italic;font-size:27px;color:#F3E6CE;}
-.dash-hero-date{font-size:12.5px;color:rgba(243,230,206,.68);margin-top:4px;}
+.dash-hero-greet{font-style:italic;font-size:var(--text-2xl);color:#F3E6CE;}
+.dash-hero-date{font-size:var(--text-sm);color:rgba(243,230,206,.68);margin-top:4px;}
 /* Tappable: abre o calendário do mês (data-action="go-calendario" no HTML). */
 .dash-hero-week{display:flex;justify-content:space-between;gap:5px;padding:22px 20px 2px;cursor:pointer;}
 .dash-hero-day{flex:1;display:flex;flex-direction:column;align-items:center;gap:7px;padding:9px 2px;border-radius:16px;}
-.dash-hero-day-label{font-size:10px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;color:rgba(243,230,206,.5);}
-.dash-hero-day-num{font-size:14px;font-weight:700;color:#F3E6CE;}
+.dash-hero-day-label{font-size:var(--text-2xs);font-weight:600;letter-spacing:.03em;text-transform:uppercase;color:rgba(243,230,206,.5);}
+.dash-hero-day-num{font-size:var(--text-base);font-weight:700;color:#F3E6CE;}
 .dash-hero-day.is-today{background:#F3E6CE;}
 .dash-hero-day.is-today .dash-hero-day-label{color:rgba(116,48,20,.62);}
 .dash-hero-day.is-today .dash-hero-day-num{color:#743014;}
@@ -686,9 +731,9 @@ a{color:var(--primary);}
    --bg (#442D1C), o creme do :root já lê bem em cima (mesmo par de cores do dash-hero). */
 .screen[data-screen="calendario"]{--bg:#743014;background:#743014;}
 .cal-monthrow{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
-.cal-monthname{font-size:25px;font-weight:800;letter-spacing:-.01em;text-transform:uppercase;color:var(--primary);}
+.cal-monthname{font-size:var(--text-xl);font-weight:800;letter-spacing:-.01em;text-transform:uppercase;color:var(--primary);}
 .cal-weekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:8px;}
-.cal-weekdays span{display:block;text-align:center;font-size:10.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text-faint);}
+.cal-weekdays span{display:block;text-align:center;font-size:var(--text-2xs);font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text-faint);}
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
 .cal-day-empty{aspect-ratio:1;}
 /* Borda de cada dia: var(--line), o mesmo contorno sutil que .raised/.pressed/.pill/.field
@@ -696,13 +741,13 @@ a{color:var(--primary);}
    tom em baixa opacidade), então cada dia ganha um chip arredondado creme sem precisar de
    uma cor nova só pra isto. Pedido: dar mais definição à grade (antes só hoje/selecionado
    tinham contorno, o resto eram números soltos). */
-.cal-day{aspect-ratio:1;border-radius:14px;border:1px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:13.5px;font-weight:600;color:var(--text);cursor:pointer;transition:background-color .15s ease,color .15s ease,border-color .15s ease,transform .1s ease;}
+.cal-day{aspect-ratio:1;border-radius:14px;border:1px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:var(--text-base);font-weight:600;color:var(--text);cursor:pointer;transition:background-color .15s ease,color .15s ease,border-color .15s ease,transform .1s ease;}
 .cal-day:active{transform:scale(.92);}
 /* Dia de hoje (sem ser o selecionado): contorno cheio em --primary (mais forte que o --line
    dos demais dias), pra não competir com o preenchimento sólido do dia selecionado — mesmo
    princípio do .pill.active (cor sólida = estado ativo). */
 .cal-day.is-today{border-color:var(--primary);color:var(--primary);}
-.cal-day.is-selected{background:var(--primary);color:var(--on-primary);border-color:var(--primary);box-shadow:var(--shadow-raised-xxs);}
+.cal-day.is-selected{background:var(--primary);color:var(--on-primary);border-color:var(--primary);}
 .cal-day-dot{width:4px;height:4px;border-radius:50%;background:var(--primary);}
 .cal-day.is-selected .cal-day-dot{background:var(--on-primary);}
 
@@ -899,12 +944,12 @@ html[data-preview="mobile"] .app-frame{
    já redefinidos pelo .raised (card marrom), então funciona igual nos dois temas sem cor nova. */
 .faq-item{border-bottom:1px solid var(--line);}
 .faq-item:last-child{border-bottom:none;}
-.faq-item summary{list-style:none;cursor:pointer;padding:14px 2px;font-size:13.5px;font-weight:600;color:var(--text);display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.faq-item summary{list-style:none;cursor:pointer;padding:14px 2px;font-size:var(--text-base);font-weight:600;color:var(--text);display:flex;align-items:center;justify-content:space-between;gap:12px;}
 .faq-item summary::-webkit-details-marker{display:none;}
 .faq-item summary::marker{content:"";}
 .faq-item .faq-chevron{flex:none;width:18px;height:18px;color:var(--text-dim);transition:transform .18s ease;}
 .faq-item[open] .faq-chevron{transform:rotate(90deg);}
-.faq-item p{font-size:12.5px;color:var(--text-faint);line-height:1.55;margin:0 2px 14px;}
+.faq-item p{font-size:var(--text-sm);color:var(--text-faint);line-height:1.55;margin:0 2px 14px;}
 
 @media print{
   body{background:#fff;padding:0;}
