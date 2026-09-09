@@ -678,7 +678,13 @@ a{color:var(--primary);}
 /* Tela "calendário" (data-screen="calendario") — mês completo, aberto a partir da tira de
    dias do hero. Nome do mês grande/em maiúsculas em --primary, eco discreto do estilo do
    calendário de papel de parede usado como referência visual (mês em destaque + grade),
-   mas com o vocabulário de cor/sombra do resto do app em vez de vermelho/creme fixos. */
+   mas com o vocabulário de cor/sombra do resto do app em vez de vermelho/creme fixos.
+   Pedido: fundo da tela igual ao do .dash-hero (Spiced Wine #743014) — a tela abre a
+   partir da tira de dias que já vive nesse tom, então o clique deixa de "trocar" pro
+   marrom escuro padrão (--bg) e mantém a mesma cor da origem. Só --bg muda: --text/
+   --primary/--line etc. continuam do :root porque #743014 é escuro na mesma família de
+   --bg (#442D1C), o creme do :root já lê bem em cima (mesmo par de cores do dash-hero). */
+.screen[data-screen="calendario"]{--bg:#743014;background:#743014;}
 .cal-monthrow{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
 .cal-monthname{font-size:25px;font-weight:800;letter-spacing:-.01em;text-transform:uppercase;color:var(--primary);}
 .cal-weekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:8px;}
