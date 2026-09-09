@@ -3949,6 +3949,24 @@
   }
 
   // ================================================================
+  // PWA / instalável — módulo 21. Registra o service worker (sw.js, na raiz do app — ver
+  // esse arquivo pra estratégia de cache) e o manifest.json (linkado em index.html) juntos
+  // dão o "app shell" necessário pra instalar na tela inicial e abrir offline depois da
+  // primeira visita. Roda sempre, logado ou não (independe de sessaoState) — feature-detect
+  // simples porque service worker não existe em todo navegador antigo. Precisa HTTPS (ou
+  // localhost) pra funcionar de verdade; aberto direto como arquivo (file://) o navegador
+  // nem tenta registrar, silenciosamente — normal em dev, não é bug.
+  // ================================================================
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", function(){
+      navigator.serviceWorker.register("./sw.js").catch(function(){
+        // Sem internet na 1ª visita, ou servido de file:// — o app continua funcionando
+        // normalmente, só sem o offline/instalável desta vez.
+      });
+    });
+  }
+
+  // ================================================================
   // Delegação de eventos
   // ================================================================
   document.addEventListener("touchstart", function(){}, { passive: true });

@@ -10,6 +10,20 @@
   <link rel="stylesheet"
     href="https://fonts.googleapis.com/css2?family=Abhaya+Libre:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600;700;800&display=swap">
   <link rel="stylesheet" href="style.css">
+
+  <!-- ---------- PWA / instalável — manifest.json (ícones/nome/cores) + service worker
+       (sw.js, registrado em app.js módulo 21) juntos deixam o app instalável na tela
+       inicial e funcionando offline depois da 1ª visita. Tags de ícone/tema abaixo cobrem
+       Android (manifest), iOS (apple-touch-icon + meta apple-*, que o Safari não lê do
+       manifest) e navegador comum (favicon). ---------- -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#442D1C">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png">
+  <link rel="icon" type="image/svg+xml" href="assets/icons/icon.svg">
+  <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="parágrafo">
 </head>
 
 <body>

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <!-- Versão "maskable"/apple-touch-icon: mesmo fundo e marca do icon.svg, mas sem cantos
+       arredondados — o quadrado vai até a borda porque quem arredonda/recorta (Android
+       adaptive icon, iOS) é o próprio sistema. A marca fica dentro da "safe zone" (círculo
+       de 80% do tamanho do ícone, centralizado) pra não ser cortada em nenhum formato de
+       máscara (círculo, squircle, etc.). -->
+  <rect width="512" height="512" fill="#442D1C"/>
+  <circle cx="208" cy="256" r="35" fill="#E8D1A7"/>
+  <rect x="294" y="128.5" width="45" height="255" rx="22.5" fill="#E8D1A7"/>
+</svg>

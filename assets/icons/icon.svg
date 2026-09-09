@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <!-- Ícone do app: fundo marrom da marca (mesmo tom do token de fundo do app) com cantos
+       arredondados (~18.75%, proporção parecida com o squircle do iOS) + a marca
+       ".parágrafo" (bolinha + traço, mesmas proporções de .wg-mark-dots em style.css) em
+       creme (mesmo tom do token primary do app). Usado pro favicon e pros ícones "any" do manifest
+       (o navegador/SO ainda pode arredondar mais em cima disso, dependendo da plataforma). -->
+  <rect width="512" height="512" rx="96" fill="#442D1C"/>
+  <circle cx="208" cy="256" r="35" fill="#E8D1A7"/>
+  <rect x="294" y="128.5" width="45" height="255" rx="22.5" fill="#E8D1A7"/>
+</svg>

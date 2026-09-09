@@ -613,11 +613,59 @@ ESTRUTURA GERAL DO APP — pendências importantes
   do lado do servidor); pp_conta_v1 hoje só guarda nome/e-mail (cache
   de exibição, sem dado sensível).
 
-- PWA / instalável: o app já é desenhado como um "app" (layout mobile
-  fixo, navegação por dock), mas falta manifest.json + ícones +
-  service worker pra virar de fato instalável na tela inicial do
-  celular e funcionar offline — hoje é só uma página comum aberta no
-  navegador.
+- [RESOLVIDO em 09/09/2026] PWA / instalável: o app já era desenhado
+  como um "app" (layout mobile fixo, navegação por dock), mas faltava
+  manifest.json + ícones + service worker pra virar de fato instalável
+  na tela inicial do celular e funcionar offline. Implementado:
+  - assets/icons/icon.svg (fonte, cantos arredondados) e
+    icon-maskable.svg (fonte, quadrado até a borda — quem arredonda é o
+    próprio SO) reproduzem a marca ".parágrafo" (bolinha + traço, mesmas
+    proporções de .wg-mark-dots em style.css) em creme sobre o marrom
+    de fundo do app. Rasterizados em PNG (192/512 "any", 192/512
+    "maskable", apple-touch-icon 180×180, favicon 32×32) com `qlmanage
+    -t` (gerador de thumbnail do QuickLook do macOS, usado como
+    conversor SVG→PNG já que node/npx/rsvg-convert/imagemagick/
+    cairosvg não estavam disponíveis nesta sessão) — todos conferidos
+    visualmente, inclusive o favicon de 32px (a marca continua legível
+    em miniatura).
+  - manifest.json (raiz do projeto): nome, ícones, theme_color/
+    background_color #442D1C (mesmo tom do --bg), display "standalone",
+    start_url/scope na raiz.
+  - sw.js (raiz): service worker com cache do "app shell"
+    (index.html/style.css/app.js/manifest/ícones/linen-brown.jpeg).
+    Estratégia: navegação (a página) network-first com fallback pro
+    cache; estático do próprio app cache-first; Google Fonts (outra
+    origem) stale-while-revalidate; qualquer outra origem (Supabase) ou
+    método não-GET passa direto pra rede, sem cache. CACHE_VERSION
+    controla a limpeza do cache antigo no "activate".
+  - index.html: <link rel="manifest">, favicon (PNG + SVG), apple-
+    touch-icon e metas apple-mobile-web-app-*/theme-color no <head>.
+  - app.js: registro do service worker em "PWA / instalável — módulo
+    21" (roda sempre, logado ou não; feature-detect, silencioso se
+    falhar).
+  Testado ponta a ponta com Playwright/Chromium headless contra um
+  servidor local (python3 -m http.server, já que node/npx seguiam
+  ausentes): manifest.json válido (JSON parseado, content-type
+  application/json), sw.js servido com content-type text/javascript
+  (exigido pelo navegador pra aceitar o register()), service worker
+  registra e ativa (reg.active.state === "activated", scope correto),
+  link de manifest/apple-touch-icon/theme-color presentes no DOM, zero
+  erros de console na carga normal. Testado offline (context.set_offline
+  no Playwright): já na 1ª visita o app shell (HTML/CSS/JS/textura de
+  fundo) carrega 100% do cache do service worker offline — só as fontes
+  do Google (outra origem) ainda falham offline logo na 1ª visita,
+  porque a 1ª carga de uma página nunca é controlada pelo seu próprio
+  service worker (comportamento padrão de todo browser, não bug deste
+  código: o SW só passa a interceptar as requisições a partir da 2ª
+  visita em diante). Confirmado o comportamento esperado: repetindo o
+  teste com 2 cargas online antes de ir offline, a 3ª carga (offline)
+  veio 100% do cache, zero requisições falhando, inclusive as fontes.
+  NÃO testado: instalação de verdade (ícone na tela inicial) num
+  celular/desktop real — precisa do app publicado atrás de HTTPS (ou
+  rodando em localhost); abrir index.html direto como arquivo (file://)
+  não registra o service worker (o navegador não permite), o que é
+  esperado e não é bug. Ver assets/icons/, manifest.json, sw.js;
+  index.html: <head>; app.js: "PWA / instalável — módulo 21".
 
 - [RESOLVIDO em 08/09/2026] Adicionar calendário no dashboard: tira dos 7 dias no hero
   (#dashSemanaStrip) agora é tocável e abre a tela "calendário" (novo data-screen), com
