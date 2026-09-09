@@ -3614,7 +3614,7 @@
     setText("dashTotalVendas", fmtMoney(computeTotalVendasBruto()));
     setText("dashReceitaReal", fmtMoney(computeReceitaReal()));
     setText("dashLucroLiquido", fmtMoney(computeLucroLiquidoReal()));
-    setText("dashLucroSub", "vem de Custos, já rateado · " + periodoLabelText());
+    setText("dashLucroSub", periodoLabelText());
 
     var lotesPeriodo = lotesState.lotes.filter(function(l){ return isInPeriodo(l.data); });
     var qtdTotal = lotesPeriodo.reduce(function(s, l){ return s + l.quantidade; }, 0);
