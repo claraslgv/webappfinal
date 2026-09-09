@@ -337,8 +337,9 @@ ESTRUTURA GERAL DO APP — pendências importantes
   Testado ponta a ponta, sem bugs. Ver app.js: "Backup / exportação
   dos dados" (BACKUP_KEYS, exportarBackup, importarBackupFile).
 
-- [IMPLEMENTADO em 08/09/2026, PRECISA DE TESTE MANUAL COMPLETO ANTES DE
-  CONFIAR — ver lista no fim] Sincronização entre dispositivos. Decisões
+- [RESOLVIDO em 09/09/2026 — implementado em 08/09, testado ponta a
+  ponta com sucesso em 09/09, ver detalhes no fim] Sincronização entre
+  dispositivos. Decisões
   tomadas com a usuária (3 perguntas): (1) login real via Supabase Auth
   (e-mail+senha), substituindo a conta local fake de antes — mesmo
   login em qualquer aparelho; (2) sincronização em "blob único" (sobe/
@@ -423,54 +424,65 @@ ESTRUTURA GERAL DO APP — pendências importantes
     prioriza o campo error_code da resposta (mais estável) em vez de só
     casar texto solto.
 
-  ACHADO NOVO, IMPORTANTE — envio de e-mail da Auth está no limite
-  padrão da Supabase (serviço de e-mail compartilhado/gratuito, bem
-  diferente do Resend que vocês já configuraram e verificaram pros
-  avisos de reposição — são dois sistemas de e-mail separados dentro do
-  mesmo projeto). Depois de só ~4-5 tentativas de signup/recuperação
-  nesta sessão de teste, toda chamada passou a responder 429
-  "over_email_send_rate_limit" — o teto é bem baixo (poucos e-mails por
-  hora). Em produção isso significa: se duas pessoas tentarem criar
-  conta ou recuperar senha na mesma hora, a segunda vai travar sem
-  aviso claro. RECOMENDAÇÃO: configurar SMTP customizado em Supabase
-  Dashboard → Authentication → Settings → SMTP Settings, reaproveitando
-  a MESMA conta Resend já verificada (domínio pontoparagrafo.com.br) —
-  resolve o limite baixo e usa a mesma infraestrutura de e-mail que o
-  projeto já paga/mantém, em vez de duas.
+  [RESOLVIDO em 09/09/2026] Envio de e-mail da Auth estava no limite
+  padrão da Supabase (2/hora — serviço compartilhado/gratuito, diferente
+  do Resend que já era usado pros avisos de reposição). Usuária
+  configurou SMTP customizado em Authentication → Emails → SMTP
+  Settings, reaproveitando a MESMA conta Resend (host smtp.resend.com,
+  porta 587, usuário "resend", senha = uma API key da Resend). Travou
+  numa primeira tentativa: o campo "Sender email address" tinha um
+  typo (`pontoparagrafo@com.br`, faltando o "pontoparagrafo." antes do
+  ".com.br") — a Resend recusava com "The com.br domain is not
+  verified" porque via só "com.br" como domínio, que nunca foi
+  verificado. Corrigido pra `contato@pontoparagrafo.com.br`. Depois do
+  fix, o log da Supabase confirmou o limite subindo de 2/hora pra
+  30/hora — SMTP customizado ativo de verdade.
 
-  NÃO TESTADO ainda (o rate limit acima interrompeu o teste antes de
-  completar — a tentativa de criar uma conta de teste real com
-  clarasallesgv+testesync@gmail.com pra confirmar de verdade pelo
-  Gmail ficou barrada nesse limite; retomar depois que o limite
-  liberar — geralmente libera dentro de 1h — ou depois de configurar o
-  SMTP customizado acima, o que resolve os dois problemas de uma vez):
-  1. Fluxo completo: criar conta num aparelho → confirmar e-mail de
-     verdade (clicando no link) → entrar → editar alguma coisa (ex.:
-     cadastrar um insumo) → sincronizar (ou sair da conta) → entrar com
-     a MESMA conta em outro aparelho/navegador → confirmar que os
-     dados aparecem lá.
-  2. Trocar senha (tela Conta) e conferir que a senha nova realmente
-     funciona pra entrar depois de sair da conta.
-  3. "esqueci a senha" (tela de login) — confirma se o e-mail chega e
-     PRA ONDE o link leva (bem provável que não leve a lugar nenhum
-     útil ainda, porque a tela de "definir nova senha" pelo link não
-     foi construída nesta sessão — se for o caso, ou constrói essa
-     tela numa próxima sessão, ou por enquanto troca a senha direto
-     pelo Supabase Dashboard → Authentication → Users quando alguém
-     esquecer).
-  4. IMPORTANTE pra quem já usava o app antes desta mudança: a conta
-     local antiga (se existir) não é reconhecida mais — ao abrir o app
-     depois desta atualização, cai direto na tela de login/criar conta
-     de novo (é esperado, não é bug). Os dados de negócio (insumos,
-     vendas, etc.) continuam intactos no localStorage — só o login
-     reseta. Vale confirmar isso acontecendo certinho (sem perder dado
-     nenhum) na primeira abertura depois do deploy.
+  [TESTADO em 09/09/2026, PONTA A PONTA, COM SUCESSO] Fluxo completo de
+  login + sincronização, feito 100% via API real (curl + Gmail
+  conectado, sem navegador — não havia node/npx/chromium nesta sessão,
+  mas todo o contrato com o backend que o app.js usa foi validado de
+  verdade, chamada por chamada):
+  1. POST /auth/v1/signup com clarasallesgv+testesync2@gmail.com → 200,
+     e-mail de confirmação chegou de verdade na caixa (via Resend/SMTP
+     customizado, remetente contato@pontoparagrafo.com.br).
+  2. E-mail lido direto pelo Gmail conectado — GET do link de
+     confirmação (extraído do RAW da mensagem, decodificando
+     quoted-printable manualmente, já que o corpo HTML/texto vinha com
+     "=3D" no lugar de "=") → devolveu access_token + refresh_token de
+     verdade (redirect com sessão no fragmento da URL, comportamento
+     padrão do Supabase Auth).
+  3. GET /auth/v1/user com o access_token → sessão confirmada válida
+     (email_confirmed_at preenchido).
+  4. POST /rest/v1/estado?on_conflict=user_id (mesmo formato exato que
+     supaEstadoPush manda) com um "cliente de teste" → 201 Created.
+  5. GET /rest/v1/estado?user_id=eq.<uid>&select=dados → devolveu
+     exatamente o dado subido no passo 4 — RLS permitindo o dono ler a
+     própria linha, PUSH e PULL confirmados funcionando de ponta a
+     ponta.
+  6. POST /auth/v1/token?grant_type=password com o mesmo e-mail/senha
+     (já confirmado) → 200, login normal funcionando (mesma chamada que
+     submitLogin faz).
+  Não testado ainda por essa via (exigiria abrir o app de verdade num
+  navegador, não só a API): a UI em si (telas, toasts, o
+  window.confirm de "encontrei dados na nuvem..."), trocar senha pela
+  tela Conta, e o link de "esqueci a senha" (a tela de "definir nova
+  senha" que esse link deveria abrir ainda não foi construída — ver
+  nota antiga sobre isso, continua válida). IMPORTANTE pra quem já
+  usava o app antes desta mudança: a conta local antiga não é
+  reconhecida mais — abrir o app cai direto no login/criar conta de
+  novo (esperado, dados de negócio no localStorage continuam
+  intactos).
 
-  LIMPEZA PENDENTE: ficou 1 conta de teste inofensiva (não confirmada,
-  nunca vai conseguir entrar) no Supabase Auth deste projeto — e-mail
-  teste-claude-sync-<timestamp>@gmail.com (endereço inventado, não é
-  de ninguém de verdade). Pode apagar em Supabase Dashboard →
-  Authentication → Users quando quiser, ou deixar (não afeta nada).
+  LIMPEZA PENDENTE (opcional, não afeta nada): sobraram 3 contas de
+  teste no Supabase Auth deste projeto — 1 não confirmada
+  (teste-claude-sync-<timestamp>@gmail.com, e-mail inventado) e 2
+  confirmadas (clarasallesgv+testesync@gmail.com e +testesync2, aliases
+  do seu Gmail real — a segunda tem 1 linha de teste na tabela
+  "estado" com um cliente fake "Cliente Teste Sync"). Nenhuma interfere
+  com a conta de verdade que a usuária for criar pra loja. Pode apagar
+  em Supabase Dashboard → Authentication → Users quando quiser, ou
+  deixar.
 
   Ver app.js: "Supabase — config compartilhada", "Conta / sessão —
   módulo 9", "Sincronização entre aparelhos — módulo 20"; index.html:
