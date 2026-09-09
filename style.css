@@ -615,58 +615,23 @@ a{color:var(--primary);}
   #dashPeriodoPills .pill:last-child{flex-basis:100%;}
 }
 
-/* ---------- Dashboard: paleta fixa da marca (Squarespace "createmor" — Golden Batter,
-   Toasted Caramel, Spiced Wine, Olive Harvest, Cowhide Cocoa), independente dos tokens de
-   tema do :root — mesma lógica de #authView, que também sempre usa cor de marca fixa em
-   vez de var(--bg)/var(--text). --text-faint aqui é #7A6852, não o valor do :root: #8C7A63
-   (o tom original) dava só 3.84:1 contra o fundo creme desta tela — abaixo do mínimo de
-   4.5:1 do WCAG 2.1 AA pra texto normal — e #7A6852 escurece a mesma família de marrom
-   quente (mesma proporção entre os canais) até 4.96:1, mantendo a cor "neutra discreta"
-   que o brandbook pede sem deixar o texto ilegível. --bg troca pro tom mais dourado do
-   moodboard, pra dar o "fundo creme" pedido. */
-.screen[data-screen="dashboard"]{
-  --bg:#FBF6EC;--text:#2B1B10;--text-dim:#84592B;--text-faint:#7A6852;
-  --primary:#442D1C;--primary-soft:rgba(68,45,28,.10);--primary-soft-2:rgba(68,45,28,.17);
-  --shadow-d:#E4D6BE;--shadow-l:#FFFFFF;--line:rgba(68,45,28,.12);
-  --warn:#743014;--warn-soft:rgba(116,48,20,.11);--good:#5C6B3F;--good-soft:rgba(92,107,63,.12);
-  --chart-2:#84592B;--chart-3:#9D9167;--on-primary:#E8D1A7;--dock-bg:#FFFDF7;
-  /* --surface-text* (criado pra .pill/.field/.iconbtn não herdarem o creme do card marrom,
-     ver comentário no :root) precisa ser repetido aqui: esta tela força --bg/--text sempre
-     claros, mas --surface-text* por si só continua puxando do :root se não for redefinido
-     também aqui — sem isso, vazava o creme do :root pro texto da pill "30 dias"/
-     "personalizado", invisível sobre o próprio fundo claro dela. */
-  --surface-text:#2B1B10;--surface-text-dim:#84592B;--surface-text-faint:#7A6852;
-  background:#E8D1A7;
-}
-/* Volta o Dashboard pro desenho original de várias cores (dash-hero em Spiced Wine,
-   dash-resumo em Toasted Caramel, e os demais cards — urgente/lucro/vendas/receita/
-   produzido/pizza — em creme claro), em vez do card marrom único usado no resto do app.
-   :not(.dash-resumo) preserva o "resumo de hoje", que sempre foi marrom por conta própria,
-   já com sua cor definida direto (não depende de --card-bg). Cards planos aqui também (sem
-   box-shadow) pelo mesmo motivo do resto do app: cor já diferencia o card do fundo dourado
-   da tela, sombra não acrescenta leitura real. :not(.raised-emphasis) preserva a exceção do
-   card de lucro líquido — ele já soma var(--shadow-raised) pela regra base (.raised-emphasis
-   no bloco acima); sem essa exclusão aqui, este override (mais específico) apagaria aquela
-   sombra de novo dentro do Dashboard. */
-.screen[data-screen="dashboard"] .raised:not(.dash-resumo):not(.raised-emphasis){
-  background:var(--bg);border-color:var(--line);
-  color:var(--text);
-  --text:unset;--text-dim:unset;--text-faint:unset;--line:unset;
-}
-.screen[data-screen="dashboard"] .raised-sm:not(.dash-resumo){
-  background:var(--bg);border-color:var(--line);
-  color:var(--text);
-  --text:unset;--text-dim:unset;--text-faint:unset;--line:unset;
-}
-.screen[data-screen="dashboard"] .raised .badge.warn,
-.screen[data-screen="dashboard"] .raised-sm .badge.warn{background:var(--warn-soft);color:var(--warn);}
-.screen[data-screen="dashboard"] .raised .badge.good,
-.screen[data-screen="dashboard"] .raised-sm .badge.good{background:var(--good-soft);color:var(--good);}
-.screen[data-screen="dashboard"] .raised .badge.primary,
-.screen[data-screen="dashboard"] .raised-sm .badge.primary{background:var(--primary-soft-2);color:var(--primary);}
+/* ---------- Dashboard: paleta da marca (Spiced Wine no hero, Toasted Caramel no resumo,
+   creme só no card de lucro líquido, que é o único destaque real) segue os tokens escuros
+   do :root — igual ao resto do app, sem override próprio. Antes esta tela virava um "modo
+   claro" isolado (fundo creme fixo, cards claros) mesmo com o app sendo dark-only em todo
+   canto: além de contradizer a decisão de tema único, empurrava dash-hero/dash-resumo (que
+   já são marrons escuros por conta própria) e o card de lucro (que fica claro só quando
+   --primary É o tom claro do :root) pra tons quase idênticos entre si, sem contraste — o
+   card que devia se destacar mais (lucro líquido) se perdia ao lado do "resumo de hoje".
+   Removido o override: .raised/.raised-sm comuns voltam a usar --card-bg (o único marrom
+   de superfície do resto do app, ver :root), e --primary volta a ser o creme do :root, então
+   .raised-emphasis (o card de lucro, único com background:var(--primary) direto no HTML)
+   volta a ser o único bloco claro da tela — a diferenciação vem da cor, não precisa mais de
+   badges/--text recalculados à parte pra esta tela (removidos junto, ver .raised/.raised-sm
+   e .badge.* no :root, já cobrem o card marrom padrão). */
 
-/* Estoque de Insumos e Estoque de Produção — mesmo "fundo creme" fixo do dashboard,
-   independente dos tokens de tema do :root (ver comentário acima). */
+/* Estoque de Insumos e Estoque de Produção — mesmo "fundo creme" fixo que o dashboard tinha,
+   ainda não revisto (o dashboard foi o pedido desta vez). */
 .screen[data-screen="estoqueInsumos"],
 .screen[data-screen="estoqueProducao"]{
   --bg:#FBF6EC;--text:#2B1B10;--text-dim:#84592B;--text-faint:#7A6852;
