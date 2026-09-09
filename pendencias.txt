@@ -1,5 +1,5 @@
 PENDÊNCIAS — painel "avisos de reposição" / notificações automáticas
-Atualizado em 08/09/2026
+Atualizado em 09/09/2026
 
 Ordem de trabalho combinada: design primeiro, funcionalidades depois.
 
@@ -488,7 +488,7 @@ ESTRUTURA GERAL DO APP — pendências importantes
   módulo 9", "Sincronização entre aparelhos — módulo 20"; index.html:
   data-screen="conta" (bloco "sincronização entre aparelhos").
 
-- [EM ANDAMENTO desde 08/09/2026] Integração com a Nuvemshop (site oficial
+- [RESOLVIDO em 09/09/2026] Integração com a Nuvemshop (site oficial
   da loja): decidido o Cenário 1 — cliente que se cadastra na loja online
   cai sozinho na lista de Clientes do webapp (módulo 13), via webhook
   (customer/created). Cenário 2 (login automático/SSO) fica como projeto
@@ -527,22 +527,42 @@ ESTRUTURA GERAL DO APP — pendências importantes
     enviarAvisoServidor: sem retry, sem timeout, falha de rede não
     aparece pra usuária.
 
-  O QUE FALTA (passos manuais, fora do código — ver histórico do chat
-  pra instruções completas):
-  1. No Nuvemshop Partners: registrar a redirect URI (aponta pra
-     nuvemshop-oauth-callback) e confirmar o escopo read_customers.
-  2. No Supabase Dashboard → Edge Functions → Secrets: cadastrar
-     NUVEMSHOP_CLIENT_ID e NUVEMSHOP_CLIENT_SECRET.
-  3. Confirmar se a loja usa api.nuvemshop.com.br ou api.tiendanube.com
-     (hoje fixado como .com.br nas duas funções que chamam a API da
-     Nuvemshop — ajustar se a loja não for BR).
-  4. Visitar uma vez o link de autorização da Nuvemshop (com o app_id do
-     Partners) pra completar o OAuth — isso salva o token e registra o
-     webhook sozinho.
-  5. Criar um cliente de teste na loja pra confirmar que ele aparece em
-     Clientes no webapp sem nenhuma ação manual.
-  Sem esses 5 passos, o código fica publicado mas inerte (as funções
-  respondem erro de configuração até os secrets existirem).
+  OS 5 PASSOS MANUAIS FORAM COMPLETADOS em 09/09/2026:
+  1. Redirect URI registrada no Nuvemshop Partners: o app tinha 2 campos
+     de URL ("Site do aplicativo" e "URL de redirecionamento após
+     instalação") — o segundo é o que a Nuvemshop realmente usa pra
+     mandar o `code` do OAuth (confirmado na documentação oficial, ver
+     https://dev.tiendanube.com/pt/docs/applications/authentication:
+     "o link gerado automaticamente no campo URL de redirecionamento
+     após a instalação serve apenas pra apoiar nos testes, mas não deve
+     ser usado em produção"). Trocado o valor de teste da própria
+     Nuvemshop pela URL de verdade da função
+     (.../functions/v1/nuvemshop-oauth-callback). Escopo read_customers
+     confirmado marcado em Permissões → Customers (write_customers
+     ficou desmarcado, como esperado).
+  2. NUVEMSHOP_CLIENT_ID e NUVEMSHOP_CLIENT_SECRET cadastrados nos
+     secrets do Supabase — confirmado sem expor o valor: chamando
+     nuvemshop-oauth-callback sem nenhum parâmetro, ela respondeu
+     "faltou o código de autorização" (400) em vez de "integração não
+     configurada" (500), que é o erro que ela devolveria se os secrets
+     não existissem.
+  3. Loja é .com.br (Real/Brasil) — confirmado com a usuária, nenhuma
+     mudança de código necessária (API_HOST já estava certo nas duas
+     funções que chamam a API da Nuvemshop).
+  4. Link de autorização visitado (https://www.tiendanube.com/apps/
+     <app_id>/authorize) — OAuth completado com sucesso: loja #7997572
+     autorizada, token salvo em nuvemshop_config, webhook de
+     customer/created registrado sozinho pela própria função. Conferido
+     direto na tabela (sem expor o token): scope
+     "write_products,read_customers" (o read_customers necessário está
+     lá; o write_products deve ter vindo de outra seção de permissões
+     marcada por padrão no app Nuvemshop, não afeta nada aqui porque
+     nenhuma função usa escrita de produtos — dá pra desmarcar no
+     Partners por princípio de menor privilégio, se quiser).
+  5. Cliente de teste ("Clara Gava") cadastrado na loja — chegou em
+     clientes_nuvemshop 1 segundo depois via webhook (sem ação manual),
+     e apareceu na tela Clientes do webapp ao abrir a tela, confirmado
+     pela usuária. Integração ponta a ponta funcionando de verdade.
 
 - [RESOLVIDO em 08/09/2026, de quebra] Segurança da senha da conta:
   antes a senha ficava em texto puro no localStorage (pp_conta_v1),
