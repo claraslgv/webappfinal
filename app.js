@@ -513,11 +513,85 @@
     }, 550);
   }
 
+  // Link de recuperação de senha (botão "esqueci" da tela de login, ver /auth/v1/recover):
+  // o e-mail que o Supabase Auth manda leva de volta pro app com
+  // #access_token=...&refresh_token=...&expires_in=...&type=recovery no fragmento da URL
+  // (fluxo implícito padrão do GoTrue, sem SDK — mesmo formato que login/signup devolvem no
+  // corpo, só que aqui vem na URL). Os tokens ficam só numa variável desta carga de página
+  // (não vão pro localStorage — a pessoa ainda não confirmou a nova senha) e o fragmento é
+  // limpo da URL na hora, pra não sobreviver a um F5 nem ficar exposto no histórico do
+  // navegador.
+  var recoveryTokens = null;
+  function detectRecoveryLink(){
+    var hash = window.location.hash || "";
+    if (hash.indexOf("type=recovery") === -1) return false;
+    var params = new URLSearchParams(hash.replace(/^#/, ""));
+    var accessToken = params.get("access_token");
+    if (!accessToken) return false;
+    recoveryTokens = {
+      accessToken: accessToken,
+      refreshToken: params.get("refresh_token"),
+      expiresIn: parseInt(params.get("expires_in"), 10) || 3600
+    };
+    try { history.replaceState(null, "", window.location.pathname + window.location.search); } catch (e) {}
+    return true;
+  }
+
+  // Tela "definir nova senha" (auth-screen "novaSenha") — só chega até aqui com
+  // recoveryTokens preenchido por detectRecoveryLink(). Troca a senha direto com o
+  // access_token do link (não com sessaoState/supaHeaders, que ainda não existem nesse
+  // momento) via PUT /auth/v1/user, e a resposta já vem com o objeto "user" atualizado —
+  // dá pra montar o mesmo formato de tokenData que aplicarSessaoLogin espera e entrar
+  // direto na conta, sem pedir login de novo.
+  function submitNovaSenha(){
+    var nova = document.getElementById("novaSenhaSenha").value;
+    var confirma = document.getElementById("novaSenhaConfirm").value;
+    var errEl = document.getElementById("novaSenhaError");
+    var btn = document.querySelector('[data-authscreen="novaSenha"] .auth-submit');
+    function fail(msg){ if (errEl) { errEl.hidden = false; errEl.textContent = msg; } if (btn) btn.disabled = false; }
+    if (!recoveryTokens || !recoveryTokens.accessToken) {
+      fail("esse link expirou ou já foi usado — peça um novo link de recuperação na tela de login.");
+      return;
+    }
+    if (nova.length < 6) { fail("a senha precisa ter pelo menos 6 caracteres."); return; }
+    if (nova !== confirma) { fail("as senhas não coincidem."); return; }
+    if (errEl) errEl.hidden = true;
+    if (btn) btn.disabled = true;
+
+    fetch(SUPABASE_URL + "/auth/v1/user", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json", "apikey": SUPABASE_ANON_KEY, "Authorization": "Bearer " + recoveryTokens.accessToken },
+      body: JSON.stringify({ password: nova })
+    }).then(function(resp){ return resp.json().then(function(data){ return { status: resp.status, data: data }; }); })
+      .then(function(res){
+        if (res.status >= 400) {
+          fail(res.status === 401 ? "esse link expirou ou já foi usado — peça um novo link de recuperação na tela de login." : supaErroMsg(res.data));
+          return;
+        }
+        var tokenData = { access_token: recoveryTokens.accessToken, refresh_token: recoveryTokens.refreshToken, expires_in: recoveryTokens.expiresIn, user: res.data };
+        aplicarSessaoLogin(tokenData, { lembrar: true });
+        recoveryTokens = null;
+        showToast("senha definida! você já está conectada.");
+        supaEstadoPullComConfirmacao(function(){ enterAppWithWelcome(); });
+      })
+      .catch(function(){ fail("não consegui falar com o servidor — confira sua internet."); });
+  }
+
   // Sessão salva com o token ainda válido: entra direto. Token vencido (expiresAt no
   // passado — o access_token do Supabase dura ~1h): tenta renovar em silêncio com o
   // refresh_token antes de decidir; se a renovação falhar (refresh_token também vencido/
-  // revogado), volta pro login. Sem sessão nenhuma: login normal.
+  // revogado), volta pro login. Sem sessão nenhuma: login normal. Link de recuperação de
+  // senha na URL tem prioridade sobre tudo isso — mesmo com uma sessão válida salva, a
+  // pessoa clicou no link de propósito pra trocar a senha.
   function checkAuthAndInit(){
+    if (detectRecoveryLink()) {
+      var authEl = document.getElementById("authView");
+      var frame = document.querySelector(".app-frame");
+      if (authEl) authEl.hidden = false;
+      if (frame) frame.hidden = true;
+      showAuthScreen("novaSenha");
+      return;
+    }
     if (sessaoState.logado && sessaoState.accessToken) {
       if (sessaoState.expiresAt && sessaoState.expiresAt < Date.now()) {
         supaRefreshSessao(function(ok){
@@ -3897,6 +3971,7 @@
   document.addEventListener("submit", function(e){
     if (e.target.matches('[data-action="login-submit"]')) { e.preventDefault(); submitLogin(); return; }
     if (e.target.matches('[data-action="signup-submit"]')) { e.preventDefault(); submitSignup(); return; }
+    if (e.target.matches('[data-action="nova-senha-submit"]')) { e.preventDefault(); submitNovaSenha(); return; }
   });
 
   document.addEventListener("click", function(e){
@@ -3940,12 +4015,14 @@
         if (errEl) { errEl.hidden = false; errEl.textContent = "digite seu e-mail no campo acima primeiro, pra eu saber pra onde mandar o link de recuperação."; }
         return;
       }
-      // Dispara o e-mail de recuperação real do Supabase Auth. NOTA (ver pendencias.txt):
-      // o link desse e-mail depende do "Site URL"/redirect configurado no projeto Supabase
-      // pra abrir uma tela de "definir nova senha" — essa tela ainda não existe no app, só
-      // o disparo do e-mail. Se o link não levar a lugar nenhum, a senha ainda pode ser
-      // trocada direto pelo Supabase Dashboard → Authentication → Users enquanto isso não
-      // é construído.
+      // Dispara o e-mail de recuperação real do Supabase Auth. O link desse e-mail volta
+      // pro app com #access_token=...&type=recovery no fragmento da URL — detectRecoveryLink()
+      // (ver checkAuthAndInit) reconhece isso e abre a tela "definir nova senha"
+      // (auth-screen "novaSenha", submitNovaSenha()) direto. Isso depende do "Site URL"/
+      // redirect configurado em Authentication → URL Configuration no projeto Supabase
+      // apontar pra URL onde este app está hospedado — se apontar pra outro lugar, o link
+      // não vai cair aqui (nesse caso a senha ainda pode ser trocada direto pelo Supabase
+      // Dashboard → Authentication → Users, como antes).
       fetch(SUPABASE_URL + "/auth/v1/recover", {
         method: "POST", headers: supaHeaders(false), body: JSON.stringify({ email: emailForgot })
       }).catch(function(){});

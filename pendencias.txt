@@ -465,10 +465,10 @@ ESTRUTURA GERAL DO APP — pendências importantes
      submitLogin faz).
   Não testado ainda por essa via (exigiria abrir o app de verdade num
   navegador, não só a API): a UI em si (telas, toasts, o
-  window.confirm de "encontrei dados na nuvem..."), trocar senha pela
-  tela Conta, e o link de "esqueci a senha" (a tela de "definir nova
-  senha" que esse link deveria abrir ainda não foi construída — ver
-  nota antiga sobre isso, continua válida). IMPORTANTE pra quem já
+  window.confirm de "encontrei dados na nuvem...") e trocar senha pela
+  tela Conta. A tela de "definir nova senha" que o link de "esqueci a
+  senha" abre já foi construída — ver pendência própria logo abaixo
+  desta ("Tela de 'definir nova senha'"). IMPORTANTE pra quem já
   usava o app antes desta mudança: a conta local antiga não é
   reconhecida mais — abrir o app cai direto no login/criar conta de
   novo (esperado, dados de negócio no localStorage continuam
@@ -487,6 +487,46 @@ ESTRUTURA GERAL DO APP — pendências importantes
   Ver app.js: "Supabase — config compartilhada", "Conta / sessão —
   módulo 9", "Sincronização entre aparelhos — módulo 20"; index.html:
   data-screen="conta" (bloco "sincronização entre aparelhos").
+
+- [RESOLVIDO em 09/09/2026] Tela de "definir nova senha" (a que faltava
+  construir depois do "esqueci a senha" — ver pendência de sincronização
+  acima). Construída como um terceiro auth-screen em #authView
+  (data-authscreen="novaSenha", ao lado de "login" e "criarConta"), com
+  os mesmos campos/estilo de "trocar senha" da tela Conta (nova senha +
+  confirmar, com "mostrar senha").
+
+  Como abre sozinha: o link do e-mail de recuperação do Supabase Auth
+  redireciona de volta pro app com #access_token=...&type=recovery no
+  fragmento da URL (fluxo padrão do GoTrue, sem SDK). detectRecoveryLink()
+  (chamada no início de checkAuthAndInit, antes de checar sessão salva)
+  reconhece isso, guarda o access_token numa variável só desta carga de
+  página (não vai pro localStorage — a senha ainda não foi confirmada) e
+  já limpa o fragmento da URL, e abre a tela "novaSenha" direto — mesmo
+  que já exista uma sessão válida salva neste aparelho, o link tem
+  prioridade. submitNovaSenha() troca a senha com esse token via PUT
+  /auth/v1/user e, dando certo, já loga a pessoa (aplicarSessaoLogin,
+  reaproveitando o próprio objeto "user" que o PUT devolve) e puxa os
+  dados da nuvem como um login normal — não precisa digitar a senha nova
+  de novo. Link expirado/já usado (401) cai numa mensagem própria
+  orientando a pedir um novo link no login.
+
+  DEPENDE DE CONFIGURAÇÃO FORA DO CÓDIGO: o "Site URL"/Redirect URLs em
+  Supabase Dashboard → Authentication → URL Configuration precisa
+  apontar pra URL onde este app está hospedado, senão o link do e-mail
+  redireciona pra outro lugar e nunca chega nesta tela nova — vale
+  conferir lá antes de testar de verdade com um e-mail real.
+
+  NÃO TESTADO nesta sessão num navegador de verdade (sem
+  node/npx/chromium disponíveis aqui, mesma limitação da sessão anterior
+  — ver pendência de sincronização acima): a implementação segue o
+  mesmo contrato de resposta do Supabase Auth já validado por essa
+  sessão anterior via curl (POST /auth/v1/token, PUT /auth/v1/user), mas
+  o fluxo ponta a ponta clicando no link do e-mail de verdade ainda
+  precisa ser conferido na prática.
+
+  Ver app.js: "Link de recuperação de senha" (detectRecoveryLink,
+  submitNovaSenha, perto de checkAuthAndInit); index.html:
+  data-authscreen="novaSenha".
 
 - [RESOLVIDO em 09/09/2026] Integração com a Nuvemshop (site oficial
   da loja): decidido o Cenário 1 — cliente que se cadastra na loja online
