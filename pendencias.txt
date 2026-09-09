@@ -185,12 +185,19 @@ ESTRUTURA GERAL DO APP — pendências importantes
   cupom). Os 2 primeiros blocos têm uma barra de proporção por linha
   (reaproveita só --line/--primary, sem CSS novo). Ver app.js:
   "Relatório completo — módulo 19"; index.html: data-screen=
-  "relatorioCompleto". NÃO testado no app real rodando nem com harness
-  de screenshot (node/npx ausentes nesta sessão) — vale abrir o card
-  "ver relatório completo do período" no Dashboard na próxima vez,
-  conferir os números batendo com os cards do Dashboard/Histórico de
-  Vendas e testar com um período sem nenhuma venda (deve mostrar os 3
-  empty states).
+  "relatorioCompleto". CONFIRMADO no app real em 09/09/2026 (login de
+  verdade via Supabase Auth com a conta da usuária, Playwright/Chromium
+  headless servindo os arquivos estáticos com "python3 -m http.server"
+  — node/npx continuam ausentes nesta sessão, mas dava pra rodar
+  headless mesmo assim): os 3 blocos batem com o resto do app no mesmo
+  período de 7 dias — "vendido por variação" somou R$ 1.185,00 = "total
+  de vendas" do Dashboard; "por forma de pagamento" somou R$ 1.161,30 =
+  "receita real" do Dashboard = "vendido" do Histórico de Vendas;
+  "cupons usados" mostrou PAUSA10 com -R$ 23,70, o mesmo desconto da
+  venda com cupom no Histórico. Testado também um período sem venda
+  nenhuma (Dashboard → personalizado → jan/2020): os 3 blocos mostraram
+  o empty state certo ("nenhuma venda no período" / "nenhum cupom
+  usado"). Zero erros de console em toda a navegação.
 
 - [RESOLVIDO em 08/09/2026] Cupons: pasta "Vendas → Cupons" deixou de
   ser um toast "em breve" e virou 2 telas de verdade (lista + novo/
@@ -230,11 +237,19 @@ ESTRUTURA GERAL DO APP — pendências importantes
   recálculo ao vivo). Reaproveita os mesmos padrões visuais do
   Dashboard/Encomendas (raised card destacado, par de raised-sm) —
   nenhum CSS novo. Ver app.js: "Controle de Custos — tela — módulo 18";
-  index.html: data-screen="controleCustos". NÃO testado no app real
-  rodando nem com harness de screenshot (node/npx ausentes nesta
-  sessão) — vale abrir Vendas → Controle de Custos na próxima vez,
-  conferir os números batendo com o Dashboard e testar adicionar/
-  remover/salvar um custo fixo com dados de verdade.
+  index.html: data-screen="controleCustos". CONFIRMADO no app real em
+  09/09/2026 (mesmo setup: login de verdade, Playwright/Chromium
+  headless servindo os arquivos estáticos): "lucro líquido real" mostrou
+  R$ 144,30, batendo com o card do Dashboard no mesmo período de 7 dias;
+  "custo real por vela" R$ 87,10 (insumo R$ 7,60 + fixo R$ 79,50
+  rateado por 40 velas/mês). Achado de negócio real da usuária (não é
+  bug do app): as 4 variações apareceram todas em --warn/prejuízo (ex.:
+  "Pera e Fresia · âmbar" vende a R$ 79,00 mas custa R$ 87,10 real,
+  -10%) — vale ela revisar preço ou o rateio de custo fixo. NÃO testado
+  nesta rodada adicionar/remover/salvar um custo fixo novo, pra não
+  alterar o rateio real da produção só pra teste — combinar com a
+  usuária antes de fazer esse teste com dados de verdade. Zero erros de
+  console.
 
 - [RESOLVIDO em 08/09/2026] Histórico de Vendas: pasta "Vendas →
   Histórico de Vendas" deixou de ser um toast "em breve" e virou uma
@@ -250,11 +265,13 @@ ESTRUTURA GERAL DO APP — pendências importantes
   confirmada/cancelada. Reaproveita os mesmos padrões visuais de
   Encomendas/Clientes (raised-sm, pressed.field.row de busca, pills,
   badge good/warn) — nenhum CSS novo. Ver app.js: "Histórico de Vendas
-  — módulo 16"; index.html: data-screen="historicoVendas". NÃO testado
-  no app real rodando nem com harness de screenshot (node/npx ausentes
-  nesta sessão) — vale abrir Vendas → Histórico de Vendas na próxima
-  vez pra conferir visualmente e testar a busca/filtro de período com
-  dados de verdade.
+  — módulo 16"; index.html: data-screen="historicoVendas". CONFIRMADO
+  no app real em 09/09/2026 (login de verdade, Playwright/Chromium
+  headless): pill "7 dias" mostrou 5 vendas confirmadas somando
+  R$ 1.161,30 — bate com "receita real" do Dashboard no mesmo período;
+  busca por "a" filtrou a lista ao vivo sem recarregar a tela; badges
+  confirmada/cancelada e o "cupom PAUSA10" aparecendo certo na linha que
+  usou. Zero erros de console.
 
 - [RESOLVIDO em 08/09/2026] Ícones do card "resumo de hoje" no dashboard
   sem contraste: usuária gostou dos ícones (produção/insumos/vendas) mas
@@ -678,9 +695,13 @@ ESTRUTURA GERAL DO APP — pendências importantes
   hoje pré-selecionado, então já mostra um recap antes de qualquer toque. Testado com
   harness estático usando o style.css real (Chrome headless, screenshots, setembro 2026)
   em claro e escuro — grade, dia de hoje, dia selecionado e bolinhas de venda todos
-  legíveis nos dois temas; NÃO testado dentro do app real rodando (fluxo de login local
-  ficou de fora desta sessão) — vale confirmar clicando em "ver calendário" a partir do
-  hero na próxima vez que abrir. Ver index.html: data-screen="calendario",
+  legíveis nos dois temas (modo claro foi removido do app depois, ver pendência "Modo claro
+  removido" logo abaixo). CONFIRMADO dentro do app real em 09/09/2026 (login de verdade via
+  Supabase Auth com a conta da usuária, Playwright/Chromium headless servindo os arquivos
+  estáticos com "python3 -m http.server"): tocar em #dashSemanaStrip abre a tela, a grade de
+  setembro/2026 carrega certo, dia 9 (hoje) contornado, um dia com bolinha (dia 3) é clicável
+  e vira o selecionado sólido, e o recap do dia daquele dia bate com a mesma conta do card
+  "resumo de hoje" do dashboard (produção/insumos/vendas). Zero erros de console. Ver index.html: data-screen="calendario",
   #dashSemanaStrip; app.js: abrirCalendario/renderCalendarioGrid/renderCalendarioRecap/
   computeResumoDia; style.css: .cal-monthname/.cal-grid/.cal-day.
 
