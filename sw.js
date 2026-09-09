@@ -19,7 +19,7 @@
 // próximo "activate" (a troca de service worker só acontece quando todas as abas do app
 // forem fechadas e reabertas, comportamento padrão do navegador).
 
-var CACHE_VERSION = "v2";
+var CACHE_VERSION = "v3";
 var CACHE_NAME = "paragrafo-" + CACHE_VERSION;
 
 var APP_SHELL = [
