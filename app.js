@@ -616,11 +616,11 @@
   function defaultEstoqueState(){
     return {
       insumos: [
-        { id: "i1", nome: "Cera de soja", unidade: "kg", quantidade: 2.4, custoMedio: 28.10, minimo: 5 },
-        { id: "i2", nome: "Essência Pera e Fresia", unidade: "ml", quantidade: 480, custoMedio: 0.19, minimo: 200 },
-        { id: "i3", nome: "Essência Lavanda", unidade: "ml", quantidade: 310, custoMedio: 0.21, minimo: 200 },
-        { id: "i4", nome: "Jarra 180 ml", unidade: "un", quantidade: 96, custoMedio: 4.80, minimo: 40 },
-        { id: "i5", nome: "Pavio algodão", unidade: "un", quantidade: 210, custoMedio: 0.42, minimo: 200 }
+        { id: "i1", nome: "Cera de soja", unidade: "kg", quantidade: 2.4, custoMedio: 28.10, minimo: 5, categoria: "cera" },
+        { id: "i2", nome: "Essência Pera e Fresia", unidade: "ml", quantidade: 480, custoMedio: 0.19, minimo: 200, categoria: "essencia" },
+        { id: "i3", nome: "Essência Lavanda", unidade: "ml", quantidade: 310, custoMedio: 0.21, minimo: 200, categoria: "essencia" },
+        { id: "i4", nome: "Jarra 180 ml", unidade: "un", quantidade: 96, custoMedio: 4.80, minimo: 40, categoria: "embalagem" },
+        { id: "i5", nome: "Pavio algodão", unidade: "un", quantidade: 210, custoMedio: 0.42, minimo: 200, categoria: "pavio" }
       ],
       movimentacoes: [
         { id: "m1", insumoId: "i1", tipo: "entrada", quantidade: 10, valor: 281.00, data: offsetISO(-9) },
@@ -635,7 +635,12 @@
       var raw = localStorage.getItem(ESTOQUE_KEY);
       if (raw) {
         var parsed = JSON.parse(raw);
-        if (parsed && Array.isArray(parsed.insumos) && Array.isArray(parsed.movimentacoes)) return parsed;
+        if (parsed && Array.isArray(parsed.insumos) && Array.isArray(parsed.movimentacoes)) {
+          // Insumos salvos antes do filtro por categoria (10/09/2026) não têm o campo —
+          // caem em "outro" em vez de sumir da lista quando um filtro de categoria é aplicado.
+          parsed.insumos.forEach(function(i){ if (!i.categoria) i.categoria = "outro"; });
+          return parsed;
+        }
       }
     } catch (e) {}
     return defaultEstoqueState();
@@ -2482,6 +2487,9 @@
   var currentMovTipo = "entrada";
   var insumoFormMode = "novo";
   var insumoFormEditingId = null;
+  var estoqueInsumosFiltroCategoria = "todas";
+  var INSUMO_CATEGORIA_LABEL = { cera: "cera", essencia: "essências", pavio: "pavios", embalagem: "embalagens", outro: "outros" };
+  function insumoCategoriaLabel(cat){ return INSUMO_CATEGORIA_LABEL[cat] || "outros"; }
 
   function insumoRowHTML(insumo){
     var abaixo = insumo.minimo > 0 && insumo.quantidade < insumo.minimo;
@@ -2506,18 +2514,29 @@
   function renderEstoqueInsumosList(){
     var searchEl = document.getElementById("estoqueSearchInput");
     var q = searchEl ? searchEl.value.trim().toLowerCase() : "";
-    var list = estoqueState.insumos.filter(function(i){ return i.nome.toLowerCase().indexOf(q) !== -1; });
+    var list = estoqueState.insumos.filter(function(i){
+      if (i.nome.toLowerCase().indexOf(q) === -1) return false;
+      if (estoqueInsumosFiltroCategoria !== "todas" && (i.categoria || "outro") !== estoqueInsumosFiltroCategoria) return false;
+      return true;
+    });
     var listEl = document.getElementById("estoqueInsumosList");
     if (listEl) {
+      var filtroLabel = estoqueInsumosFiltroCategoria === "todas" ? "" : " em " + insumoCategoriaLabel(estoqueInsumosFiltroCategoria);
       listEl.innerHTML = list.length ? list.map(insumoRowHTML).join("") : emptyStateHTML({
         icon: ICON_INSUMOS,
-        title: q ? "nenhum insumo encontrado" : "nenhum insumo cadastrado",
-        sub: q ? "tenta buscar por outro nome." : "toque no + pra cadastrar o primeiro."
+        title: q || filtroLabel ? "nenhum insumo encontrado" : "nenhum insumo cadastrado",
+        sub: q ? "tenta buscar por outro nome." : (filtroLabel ? "mude o filtro acima pra ver as outras categorias." : "toque no + pra cadastrar o primeiro.")
       });
     }
     var n = estoqueState.insumos.length;
     setText("estoqueInsumosCount", n + (n === 1 ? " insumo" : " insumos"));
+    document.querySelectorAll('#estoqueInsumosFiltroPills [data-categoria]').forEach(function(p){
+      var active = p.dataset.categoria === estoqueInsumosFiltroCategoria;
+      p.classList.toggle("active", active);
+      p.setAttribute("aria-pressed", active ? "true" : "false");
+    });
   }
+  function setEstoqueInsumosFiltro(categoria){ estoqueInsumosFiltroCategoria = categoria; renderEstoqueInsumosList(); }
 
   function openInsumoDetalhe(id){
     currentInsumoId = id;
@@ -2672,6 +2691,13 @@
     var active = document.querySelector('#insumoFormUnitPills .pill.active');
     return active ? active.dataset.unit : "kg";
   }
+  function setInsumoFormCategoria(categoria){
+    document.querySelectorAll('#insumoFormCategoriaPills [data-categoria]').forEach(function(p){ p.classList.toggle("active", p.dataset.categoria === categoria); });
+  }
+  function getInsumoFormCategoria(){
+    var active = document.querySelector('#insumoFormCategoriaPills .pill.active');
+    return active ? active.dataset.categoria : "outro";
+  }
 
   function openInsumoForm(mode, id){
     insumoFormMode = mode;
@@ -2684,11 +2710,13 @@
     setHidden("insumoFormHint", isEdit);
 
     var unit = "kg";
+    var categoria = "outro";
     if (isEdit) {
       var insumo = findInsumo(id);
       if (!insumo) return;
       document.getElementById("insumoFormNome").value = insumo.nome;
       unit = insumo.unidade;
+      categoria = insumo.categoria || "outro";
       document.getElementById("insumoFormMinimo").value = insumo.minimo > 0 ? numToStr(insumo.minimo) : "";
       setText("insumoFormInfoQtd", fmtQty(insumo.quantidade, insumo.unidade));
       setText("insumoFormInfoCusto", fmtMoney(insumo.custoMedio) + "/" + insumo.unidade);
@@ -2699,6 +2727,7 @@
       document.getElementById("insumoFormMinimo").value = "";
     }
     setInsumoFormUnit(unit);
+    setInsumoFormCategoria(categoria);
     showScreen("insumoForm");
   }
 
@@ -2707,6 +2736,7 @@
     var nome = nomeEl.value.trim();
     if (!nome) { nomeEl.focus(); return; }
     var unidade = getInsumoFormUnit();
+    var categoria = getInsumoFormCategoria();
     var minimo = strToNum(document.getElementById("insumoFormMinimo").value);
 
     if (insumoFormMode === "editar") {
@@ -2714,11 +2744,12 @@
       if (!insumo) return;
       insumo.nome = nome;
       insumo.unidade = unidade;
+      insumo.categoria = categoria;
       insumo.minimo = round2(minimo);
     } else {
       var qtd = strToNum(document.getElementById("insumoFormQtd").value);
       var custo = strToNum(document.getElementById("insumoFormCusto").value);
-      estoqueState.insumos.push({ id: uid("i"), nome: nome, unidade: unidade, quantidade: round2(qtd), custoMedio: custo, minimo: round2(minimo) });
+      estoqueState.insumos.push({ id: uid("i"), nome: nome, unidade: unidade, categoria: categoria, quantidade: round2(qtd), custoMedio: custo, minimo: round2(minimo) });
     }
     saveEstoqueState();
     renderEstoqueInsumosList();
@@ -4149,6 +4180,9 @@
     if (periodoPill) { setPeriodoModo(periodoPill.dataset.periodo); return; }
 
     // ---- Estoque de Insumos ----
+    var insumoFiltroPill = e.target.closest('#estoqueInsumosFiltroPills [data-categoria]');
+    if (insumoFiltroPill) { setEstoqueInsumosFiltro(insumoFiltroPill.dataset.categoria); return; }
+
     var insumoAdd = e.target.closest('[data-action="insumo-add"]');
     if (insumoAdd) { openInsumoForm("novo"); return; }
 
@@ -4179,6 +4213,9 @@
 
     var insumoUnitPill = e.target.closest("#insumoFormUnitPills [data-unit]");
     if (insumoUnitPill) { setInsumoFormUnit(insumoUnitPill.dataset.unit); return; }
+
+    var insumoCategoriaPill = e.target.closest("#insumoFormCategoriaPills [data-categoria]");
+    if (insumoCategoriaPill) { setInsumoFormCategoria(insumoCategoriaPill.dataset.categoria); return; }
 
     var movSubmit = e.target.closest('[data-action="mov-submit"]');
     if (movSubmit) { if (!movSubmit.hasAttribute("disabled")) submitMovimentacao(); return; }
