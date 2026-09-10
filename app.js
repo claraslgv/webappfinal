@@ -839,6 +839,7 @@
     saveCatalogoState();
 
     renderCalc();
+    renderLucro();
     renderConfiguracoes();
     showToast("configurações salvas.");
   }
@@ -2678,6 +2679,7 @@
     renderEstoqueInsumosList();
     renderEstoqueHub();
     renderCalc();
+    renderLucro();
     checarNotificacaoAutomatica();
     showScreen("insumoDetalhe");
   }
@@ -2819,10 +2821,11 @@
   }
 
   // ================================================================
-  // Calculadora de Velas — planeja um lote, mostra custo/margem e é quem de fato registra
-  // a produção (módulo 5+6 fundidos numa tela só). Ajustes por lote (chips +5%/−5%) valem
-  // pro cálculo do que será debitado ao registrar; "salvar como novo padrão" é o único
-  // jeito de torná-los permanentes em configState pros próximos lotes.
+  // Calculadora de Velas — só simula: monta um lote, mostra os insumos necessários e o que
+  // falta no estoque pra cada um (módulo 5). Não debita nada — quem registra de fato a
+  // produção é a Calculadora de Lucro, logo abaixo. Ajustes por lote (chips +5%/−5%) valem
+  // só pra esta simulação; "salvar como novo padrão" é o único jeito de torná-los
+  // permanentes em configState (e portanto refletidos também na Calculadora de Lucro).
   // ================================================================
   var calcState = { variacaoId: null, quantidade: 24, ajustes: {} };
 
@@ -2886,17 +2889,11 @@
     var pillsEl = document.getElementById("calcVarPills");
     if (pillsEl) pillsEl.innerHTML = catalogoState.variacoes.map(calcVarPillHTML).join("");
 
-    var warnEl = document.getElementById("calcWarning");
-    var btnEl = document.getElementById("calcRegistrarBtn");
-
     if (!v) {
       ["calcInsumosList"].forEach(function(id){ var el = document.getElementById(id); if (el) el.innerHTML = emptyStateHTML({
         icon: ICON_PRODUCAO, title: "nenhuma variação no catálogo", sub: "cadastre uma variação no Catálogo de Produtos primeiro."
       }); });
       setHidden("calcSaveWrap", true);
-      setText("calcCustoOut", "—"); setText("calcReceitaOut", "—"); setText("calcMargemOut", "—");
-      if (warnEl) warnEl.hidden = true;
-      if (btnEl) btnEl.setAttribute("disabled", "disabled");
       return;
     }
 
@@ -2911,23 +2908,6 @@
     setText("calcJarrasOut", calcState.quantidade + " un");
     setText("calcJarraCap", numToStr(configState.jarraCapacidadeMl) + " ml");
     setHidden("calcSaveWrap", !hasAjuste);
-
-    var receita = round2((v.precoVenda || 0) * calcState.quantidade);
-    var margem = round2(receita - calc.custoTotal);
-    setText("calcCustoOut", fmtMoney(calc.custoTotal));
-    setText("calcReceitaOut", fmtMoney(receita));
-    setText("calcMargemOut", fmtMoney(margem));
-
-    if (warnEl && btnEl) {
-      if (calc.insuficiente) {
-        warnEl.textContent = "estoque de insumo insuficiente pra este lote — reduza a quantidade ou registre uma compra.";
-        warnEl.hidden = false;
-        btnEl.setAttribute("disabled", "disabled");
-      } else {
-        warnEl.hidden = true;
-        btnEl.removeAttribute("disabled");
-      }
-    }
   }
 
   function bumpCalcAjuste(insumoId, delta){
@@ -2956,22 +2936,100 @@
     calcState.ajustes = {};
     saveConfigState();
     renderCalc();
+    renderLucro();
+  }
+
+  // ================================================================
+  // Calculadora de Lucro — módulo 5-B. Pega uma variação e quantidade (seleção própria,
+  // independente da Calculadora de Velas), mostra o mesmo cálculo de insumos necessários
+  // (sem os chips de ajuste — aqui é pra fechar o lote, não pra simular variações) junto
+  // com custo/receita/margem, e é quem de fato registra a produção ao tocar "Registrar
+  // produção".
+  // ================================================================
+  var lucroState = { variacaoId: null, quantidade: 24 };
+
+  function lucroVarPillHTML(v){
+    var active = v.id === lucroState.variacaoId ? " active" : "";
+    return '<div class="pill' + active + '" style="flex:none;" data-var-id="' + v.id + '">' + escapeHtml(variacaoLabel(v)) + '</div>';
+  }
+
+  function lucroInsumoRowHTML(item){
+    var falta = item.falta;
+    var statusHTML = falta > 0
+      ? '<div style="font-size:12.5px;color:var(--warn);">falta ' + numToStr(falta) + '</div>'
+      : '<div style="font-size:12.5px;color:var(--text-faint);">tem ' + numToStr(round2(item.precisa - falta)) + '</div>';
+    return '' +
+      '<div class="between" style="padding:12px 0;border-bottom:1px solid var(--line);">' +
+        '<div style="font-size:15.5px;font-weight:500;">' + escapeHtml(item.nome) + '</div>' +
+        '<div style="text-align:right;">' +
+          '<div style="font-size:15.5px;font-weight:700;">' + fmtQty(item.precisa, item.unidade) + '</div>' +
+          statusHTML +
+        '</div>' +
+      '</div>';
+  }
+
+  function renderLucro(){
+    if (!lucroState.variacaoId || !findVariacao(lucroState.variacaoId)) {
+      lucroState.variacaoId = catalogoState.variacoes.length ? catalogoState.variacoes[0].id : null;
+    }
+    var v = findVariacao(lucroState.variacaoId);
+
+    var pillsEl = document.getElementById("lucroVarPills");
+    if (pillsEl) pillsEl.innerHTML = catalogoState.variacoes.map(lucroVarPillHTML).join("");
+
+    var warnEl = document.getElementById("lucroWarning");
+    var btnEl = document.getElementById("lucroRegistrarBtn");
+
+    if (!v) {
+      var listEl0 = document.getElementById("lucroInsumosList");
+      if (listEl0) listEl0.innerHTML = emptyStateHTML({
+        icon: ICON_PRODUCAO, title: "nenhuma variação no catálogo", sub: "cadastre uma variação no Catálogo de Produtos primeiro."
+      });
+      setText("lucroCustoOut", "—"); setText("lucroReceitaOut", "—"); setText("lucroMargemOut", "—");
+      if (warnEl) warnEl.hidden = true;
+      if (btnEl) btnEl.setAttribute("disabled", "disabled");
+      return;
+    }
+
+    setText("lucroQtdOut", lucroState.quantidade);
+    setText("lucroPerdaNote", "perda " + numToStr(configState.perdaDerretimento) + "% inclusa");
+
+    var calc = computeInsumosLote(v, lucroState.quantidade, {});
+    var listEl = document.getElementById("lucroInsumosList");
+    if (listEl) listEl.innerHTML = calc.itens.map(lucroInsumoRowHTML).join("");
+
+    var receita = round2((v.precoVenda || 0) * lucroState.quantidade);
+    var margem = round2(receita - calc.custoTotal);
+    setText("lucroCustoOut", fmtMoney(calc.custoTotal));
+    setText("lucroReceitaOut", fmtMoney(receita));
+    setText("lucroMargemOut", fmtMoney(margem));
+
+    if (warnEl && btnEl) {
+      if (calc.insuficiente) {
+        warnEl.textContent = "estoque de insumo insuficiente pra este lote — reduza a quantidade ou registre uma compra.";
+        warnEl.hidden = false;
+        btnEl.setAttribute("disabled", "disabled");
+      } else {
+        warnEl.hidden = true;
+        btnEl.removeAttribute("disabled");
+      }
+    }
   }
 
   // Registrar produção: debita cada insumo (mesma auditoria de saída do Estoque de
-  // Insumos, motivo "Produção", incluindo os ajustes por chip desta simulação), credita a
-  // vela pronta no Estoque de Produção e cria o lote em lotesState — os três marcados com
-  // o mesmo loteId, pra excluirLote() (módulo 6, abaixo) saber exatamente o que reverter.
-  // A margem mostrada acima é bruta (preço de venda − custo de insumo, sem custo fixo
-  // nenhum) — o lucro líquido real, já rateado, é o card do Dashboard.
+  // Insumos, motivo "Produção"), credita a vela pronta no Estoque de Produção e cria o
+  // lote em lotesState — os três marcados com o mesmo loteId, pra excluirLote() (módulo 6,
+  // abaixo) saber exatamente o que reverter. A margem mostrada acima é bruta (preço de
+  // venda − custo de insumo, sem custo fixo nenhum) — o lucro líquido real, já rateado, é
+  // o card do Dashboard.
   function registrarProducao(){
-    var v = findVariacao(calcState.variacaoId);
+    var v = findVariacao(lucroState.variacaoId);
     if (!v) return;
-    var calc = computeInsumosLote(v, calcState.quantidade, calcState.ajustes);
+    var calc = computeInsumosLote(v, lucroState.quantidade, {});
     if (calc.insuficiente) return;
     var today = todayISO();
     var loteId = uid("l");
-    var quantidade = calcState.quantidade;
+    var quantidade = lucroState.quantidade;
 
     calc.itens.forEach(function(item){
       var insumo = findInsumo(item.insumoId);
@@ -2996,13 +3054,13 @@
     saveLotesState();
 
     showToast(quantidade + " velas de " + variacaoLabel(v) + " registradas na produção.");
-    calcState.quantidade = 24;
-    calcState.ajustes = {};
+    lucroState.quantidade = 24;
 
     renderEstoqueInsumosList();
     renderEstoqueHub();
     renderProducaoList();
     renderCalc();
+    renderLucro();
     renderRegistroProducao();
     renderDashboard();
     checarNotificacaoAutomatica();
@@ -3113,6 +3171,7 @@
     renderEstoqueHub();
     renderProducaoList();
     renderCalc();
+    renderLucro();
     renderRegistroProducao();
     renderDashboard();
     checarNotificacaoAutomatica();
@@ -3790,7 +3849,7 @@
   var ESTOQUE_SCREENS = {
     estoque: true, estoqueInsumos: true, insumoForm: true, insumoDetalhe: true,
     insumoMovimentar: true, estoqueProducao: true, estoqueCalculadora: true,
-    registroProducao: true, loteDetalhe: true
+    estoqueCalculadoraLucro: true, registroProducao: true, loteDetalhe: true
   };
   // Telas que vivem sob a pasta "Mais" (a página dos três pontinhos) — "configurações"
   // mudou de casa (era uma sub-tela do Estoque, ver ESTOQUE_SCREENS acima) porque faz mais
@@ -3812,7 +3871,7 @@
     "dashDock", "reposicaoDock", "calendarioDock", "maisDock",
     "estoqueDock", "estoqueInsumosDock", "insumoFormDock", "insumoDetalheDock",
     "insumoMovimentarDock", "estoqueProducaoDock", "estoqueCalculadoraDock",
-    "registroProducaoDock", "loteDetalheDock",
+    "estoqueCalculadoraLucroDock", "registroProducaoDock", "loteDetalheDock",
     "configuracoesDock", "vendasDock", "registrarVendaDock",
     "encomendasDock", "encomendaFormDock", "encomendaDetalheDock", "historicoVendasDock",
     "cuponsDock", "cupomFormDock", "controleCustosDock", "relatorioCompletoDock",
@@ -4252,8 +4311,18 @@
     var calcSavePadrao = e.target.closest('[data-action="calc-save-padrao"]');
     if (calcSavePadrao) { saveCalcAjustesComoPadrao(); return; }
 
-    var calcRegistrar = e.target.closest('[data-action="calc-registrar"]');
-    if (calcRegistrar) { if (!calcRegistrar.hasAttribute("disabled")) registrarProducao(); return; }
+    // ---- Calculadora de Lucro ----
+    var lucroVarPill = e.target.closest("#lucroVarPills [data-var-id]");
+    if (lucroVarPill) { lucroState.variacaoId = lucroVarPill.dataset.varId; renderLucro(); return; }
+
+    var lucroQtdInc = e.target.closest('[data-action="lucro-qtd-inc"]');
+    if (lucroQtdInc) { lucroState.quantidade += 1; renderLucro(); return; }
+
+    var lucroQtdDec = e.target.closest('[data-action="lucro-qtd-dec"]');
+    if (lucroQtdDec) { lucroState.quantidade = Math.max(1, lucroState.quantidade - 1); renderLucro(); return; }
+
+    var lucroRegistrar = e.target.closest('[data-action="lucro-registrar"]');
+    if (lucroRegistrar) { if (!lucroRegistrar.hasAttribute("disabled")) registrarProducao(); return; }
 
     // ---- Registro de Produção ----
     var loteRow = e.target.closest("[data-lote-id]");
@@ -4483,6 +4552,7 @@
   renderEstoqueInsumosList();
   renderProducaoList();
   renderCalc();
+  renderLucro();
   renderRegistroProducao();
   renderNotifCanal();
   renderClientesList();
