@@ -3438,7 +3438,7 @@
   // ================================================================
   // Dashboard — resumo de hoje, período, lucro/receita/vendas, pizza por variação
   // ================================================================
-  var ICON_PRODUCAO = '<path d="M12 3c-3 4-5.2 6.4-5.2 9.4A5.2 5.2 0 0 0 12 21a5.2 5.2 0 0 0 5.2-5.2c0-1.2-.4-2.1-1.1-2.8.1 1-.3 2-1.1 2.5.4-2.1-1-3.6-3-6.5z"/>';
+  var ICON_PRODUCAO = '<path d="M12 2.7l5 6a7 7 0 1 1-10 0l5-6z"/>';
   var ICON_INSUMOS = '<rect x="4" y="4" width="16" height="5" rx="1.2"/><rect x="4" y="11" width="16" height="9" rx="1.2"/><path d="M9 15h6"/>';
   var ICON_VENDAS = '<path d="M6 8h12l1 12H5L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/>';
   var ICON_CLIENTES = '<circle cx="12" cy="8.2" r="3.4"/><path d="M5 19c0-3.9 3.2-6.2 7-6.2s7 2.3 7 6.2"/>';
