@@ -518,7 +518,7 @@
           </div>
 
           <div class="folder-card" role="button" tabindex="0" data-goto="registroProducao"
-            aria-label="Abrir Registro de Produção" style="background:#84592B;color:#F3E6CE;">
+            aria-label="Abrir Registro de Produção" style="background:#744E26;color:#F3E6CE;">
             <div style="flex:1;min-width:0;">
               <div class="folder-card-title">Registro de Produção</div>
               <div class="folder-card-sub" id="folderLotesSub">—</div>
@@ -562,6 +562,7 @@
       <div class="content">
         <div class="skel-overlay" aria-hidden="true" hidden>
           <div class="skel-block" style="height:46px;border-radius:16px;"></div>
+          <div class="skel-block" style="height:36px;border-radius:999px;"></div>
           <div class="skel-block" style="height:64px;"></div>
           <div class="skel-block" style="height:64px;"></div>
           <div class="skel-block" style="height:64px;"></div>
@@ -574,6 +575,15 @@
               <path d="m20 20-4.8-4.8" />
             </svg></div>
           <input type="text" id="estoqueSearchInput" placeholder="buscar insumo" />
+        </div>
+
+        <div class="row" style="gap:9px;overflow-x:auto;margin-bottom:14px;padding-bottom:2px;" id="estoqueInsumosFiltroPills">
+          <div class="pill active" style="flex:none;" data-categoria="todas" role="button" tabindex="0" aria-pressed="true">todas</div>
+          <div class="pill" style="flex:none;" data-categoria="cera" role="button" tabindex="0" aria-pressed="false">cera</div>
+          <div class="pill" style="flex:none;" data-categoria="essencia" role="button" tabindex="0" aria-pressed="false">essências</div>
+          <div class="pill" style="flex:none;" data-categoria="pavio" role="button" tabindex="0" aria-pressed="false">pavios</div>
+          <div class="pill" style="flex:none;" data-categoria="embalagem" role="button" tabindex="0" aria-pressed="false">embalagens</div>
+          <div class="pill" style="flex:none;" data-categoria="outro" role="button" tabindex="0" aria-pressed="false">outros</div>
         </div>
 
         <div class="label" id="estoqueInsumosCount">insumos</div>
@@ -623,6 +633,17 @@
             <div class="pressed-pill pill" data-unit="ml" style="padding:9px 15px;">ml</div>
             <div class="pressed-pill pill" data-unit="L" style="padding:9px 15px;">L</div>
             <div class="pressed-pill pill" data-unit="un" style="padding:9px 15px;">un</div>
+          </div>
+        </div>
+
+        <div class="raised card">
+          <div class="label">categoria</div>
+          <div class="row" id="insumoFormCategoriaPills" style="gap:9px;flex-wrap:wrap;">
+            <div class="pressed-pill pill" data-categoria="cera" style="padding:9px 15px;">cera</div>
+            <div class="pressed-pill pill" data-categoria="essencia" style="padding:9px 15px;">essência</div>
+            <div class="pressed-pill pill" data-categoria="pavio" style="padding:9px 15px;">pavio</div>
+            <div class="pressed-pill pill" data-categoria="embalagem" style="padding:9px 15px;">embalagem</div>
+            <div class="pressed-pill pill active" data-categoria="outro" style="padding:9px 15px;">outro</div>
           </div>
         </div>
 
@@ -1348,7 +1369,7 @@
           </div>
 
           <div class="folder-card" role="button" tabindex="0" data-goto="cupons"
-            aria-label="Abrir Cupons" style="background:#84592B;color:#F3E6CE;">
+            aria-label="Abrir Cupons" style="background:#744E26;color:#F3E6CE;">
             <div style="flex:1;min-width:0;">
               <div class="folder-card-title">Cupons</div>
               <div class="folder-card-sub">código, desconto, validade e limite de uso</div>

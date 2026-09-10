@@ -345,19 +345,21 @@ input.auth-input:-webkit-autofill{-webkit-text-fill-color:#F3E6CE;transition:bac
 .iconbtn svg{width:19px;height:19px;}
 .iconbtn:active{transform:scale(.94);}
 /* Pedido da usuária: a seta de voltar e a barra de busca sempre marrom (#442D1C fixo), nunca
-   o creme/branco de var(--bg) — nem mesmo dentro do Dashboard/Estoque de Insumos/Produção,
-   que forçam --bg creme pra paleta de marca fixa dessas telas (sem este bloco, os dois
-   "sumiam" nesse creme). [data-goto] isola só a seta de voltar (os botões "+" usam
-   [data-action], ficam de fora); .row isola só os 2 campos de busca reais —
-   #estoqueSearchInput/#clientesSearchInput — dos demais .pressed.field de formulário comum.
-   Hex fixo em vez de var(--primary): --primary é outra cor caso volte a existir mais de um
-   tema. .iconbtn[data-goto] não tem box-shadow (é plano, ver comentário do :root) — só
-   .pressed.field.row carrega um, e esse var(--shadow-pressed) já é um drop-shadow escuro
-   fixo, o mesmo em qualquer tela, não depende de --bg pra combinar, então não precisa de
-   override. border-color e color/placeholder, sim, precisam de override: --line e --surface-text* /
-   --text-faint SÃO recalculados pelas telas de paleta fixa pra combinar com o --bg creme
-   delas — sem isto, o contorno quase sumiria e o ícone/texto/placeholder ficariam escuros
-   sobre um fundo agora também escuro. */
+   var(--bg) puro — era essencial enquanto Dashboard e Estoque de Insumos/Produção forçavam
+   um --bg creme pra paleta de marca fixa dessas telas (sem este bloco, os dois "sumiam"
+   nesse creme). Hoje nenhuma tela força mais --bg claro (ver comentário logo acima: as três
+   últimas telas com esse pedido viraram só um degrau mais claro/quente do próprio marrom
+   escuro), então esta regra funciona como rede de segurança — garante a mesma cor fixa
+   mesmo que uma tela futura volte a pedir um --bg bem mais claro que o padrão. [data-goto]
+   isola só a seta de voltar (os botões "+" usam [data-action], ficam de fora); .row isola só
+   os 2 campos de busca reais — #estoqueSearchInput/#clientesSearchInput — dos demais
+   .pressed.field de formulário comum. Hex fixo em vez de var(--primary): --primary é outra
+   cor caso volte a existir mais de um tema. .iconbtn[data-goto] não tem box-shadow (é plano,
+   ver comentário do :root) — só .pressed.field.row carrega um, e esse var(--shadow-pressed)
+   já é um drop-shadow escuro fixo, o mesmo em qualquer tela, não depende de --bg pra
+   combinar, então não precisa de override. border-color e color/placeholder continuam com
+   override próprio por segurança, caso uma tela futura recalcule --line/--surface-text* de
+   novo pra combinar com um --bg claro. */
 .iconbtn[data-goto]{background:#442D1C;border-color:rgba(232,209,167,.30);color:#F3E7D6;}
 .pressed.field.row{background:#442D1C;border-color:rgba(232,209,167,.30);color:#F3E7D6;}
 .pressed.field.row input{color:#F3E7D6;}
@@ -553,7 +555,10 @@ a{color:var(--primary);}
    Cowhide Cocoa) sendo a própria cor de --bg do app, um cartão colado ou de fundo idêntico ao
    vão ao redor "sumia" contra o resto da tela — por isso #442D1C também não entra na rotação
    de fundo dos cartões, só como cor de texto sobre fundo claro (ver hex por cartão no HTML).
-   Progressão clara → escura de cima pra baixo, com um passo de volta no último cartão. */
+   Progressão clara → escura de cima pra baixo, com um passo de volta no último cartão. Sobram
+   só 4 cores de apoio pra 5 cartões — o 5º reaproveita a mesma cor do 3º (Toasted Caramel),
+   mas numa sombra ~12% mais escura (#744E26 em vez de #84592B) pra não repetir o hex cravado;
+   é derivada da cor oficial, não uma cor nova fora da paleta do brandbook. */
 .folder-stack{display:flex;flex-direction:column;gap:10px;margin-bottom:14px;}
 .folder-card{
   display:flex;align-items:center;gap:14px;min-height:150px;padding:28px 30px;border-radius:26px;
@@ -632,30 +637,19 @@ a{color:var(--primary);}
    badges/--text recalculados à parte pra esta tela (removidos junto, ver .raised/.raised-sm
    e .badge.* no :root, já cobrem o card marrom padrão). */
 
-/* Estoque de Insumos e Estoque de Produção — mesmo "fundo creme" fixo que o dashboard tinha,
-   ainda não revisto (o dashboard foi o pedido desta vez). */
+/* Estoque de Insumos, Estoque de Produção e Avisos de Reposição — a usuária pediu um "ar
+   creme" nessas telas, mas um creme pálido fixo (#FBF6EC, o que Estoque de Insumos/Produção
+   usavam até 10/09/2026) reabre o "modo claro" isolado que já tinha sido removido do
+   Dashboard por contradizer a decisão de tema único (ver comentário acima) — e em Reposição
+   colidiria com --primary (creme, #E8D1A7), que ali já é a cor sólida do pill "Push no app"
+   ativo (.pill.active): pill e fundo do card ficariam do mesmo tom, o estado ativo sumiria.
+   Em vez disso, só --bg sobe um degrau — de #442D1C pra um marrom mais claro e quente, a
+   meio caminho de --card-bg (#5A3D27) — sem tocar --primary/--card-bg/--on-primary/--text,
+   então nada colide e as três telas seguem dark-only, só com uma temperatura mais próxima do
+   creme da marca (Reposição em 09/09/2026; Estoque de Insumos/Produção alinhados ao mesmo
+   padrão em 10/09/2026, fechando a pendência citada no comentário do Dashboard). */
 .screen[data-screen="estoqueInsumos"],
-.screen[data-screen="estoqueProducao"]{
-  --bg:#FBF6EC;--text:#2B1B10;--text-dim:#84592B;--text-faint:#7A6852;
-  --primary:#442D1C;--primary-soft:rgba(68,45,28,.10);--primary-soft-2:rgba(68,45,28,.17);
-  --shadow-d:#E4D6BE;--shadow-l:#FFFFFF;--line:rgba(68,45,28,.12);
-  --warn:#743014;--warn-soft:rgba(116,48,20,.11);--good:#5C6B3F;--good-soft:rgba(92,107,63,.12);
-  --chart-2:#84592B;--chart-3:#9D9167;--on-primary:#E8D1A7;--dock-bg:#FFFDF7;
-  /* Mesmo motivo do bloco do Dashboard acima — sem isso, o texto de .field/.pill/.iconbtn
-     nesta tela (ex.: "buscar insumo") herdava o creme do :root, quase invisível sobre o
-     fundo sempre-claro forçado aqui. */
-  --surface-text:#2B1B10;--surface-text-dim:#84592B;--surface-text-faint:#7A6852;
-  background:#E8D1A7;
-}
-
-/* Avisos de reposição — pedido de fundo "creme" pra esta tela (09/09/2026), mas um creme
-   pálido fixo (#FBF6EC, igual Estoque acima) reabriria o "modo claro" isolado que já foi
-   removido do Dashboard por contradizer a decisão de tema único — e colidiria com --primary
-   (creme, #E8D1A7), que aqui mesmo já é a cor sólida do pill "Push no app" ativo (ver
-   .pill.active): pill e fundo do card ficariam do mesmo tom, o estado ativo sumiria. Em vez
-   disso, só --bg sobe um degrau — de #442D1C pra um marrom mais claro e quente, a meio
-   caminho de --card-bg (#5A3D27) — sem tocar --primary/--card-bg/--on-primary, então nada
-   colide e a tela segue dark-only, só com uma temperatura mais próxima do creme da marca. */
+.screen[data-screen="estoqueProducao"],
 .screen[data-screen="reposicao"]{
   --bg:#4F3522;
 }
