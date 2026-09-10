@@ -461,16 +461,16 @@
         </div>
       </div>
       <div class="content">
-        <!-- Sem skel-overlay aqui de propósito: a própria cascata das 3 pastas
+        <!-- Sem skel-overlay aqui de propósito: a própria cascata das 5 pastas
              (playStackReveal, ver showScreen() em app.js) já cumpre o papel de revelação —
              um skeleton por cima só ia tampar essa animação. -->
 
-        <!-- As 3 pastas empilhadas — mesma lógica de cor fixa do dash-hero e do dock: sempre
-             uma das cores da marca, cascateando de mais clara pra mais escura (a mesma
-             sequência de cores do dock, só reordenada). -->
+        <!-- As 5 pastas empilhadas — mesma lógica de cor fixa do dash-hero e do dock: sempre
+             uma das cores da marca, separadas por um gap real (ver .folder-stack em style.css)
+             e cascateando de mais clara pra mais escura, com um passo de volta no fim. -->
         <div class="folder-stack">
           <div class="folder-card" role="button" tabindex="0" data-goto="estoqueInsumos"
-            aria-label="Abrir Estoque de Insumos" style="background:#9D9167;color:#2B1B10;">
+            aria-label="Abrir Estoque de Insumos" style="background:#E8D1A7;color:#442D1C;">
             <div style="flex:1;min-width:0;">
               <div class="folder-card-title">Estoque de Insumos</div>
               <div class="folder-card-sub" id="folderInsumosSub">—</div>
@@ -482,7 +482,7 @@
           </div>
 
           <div class="folder-card" role="button" tabindex="0" data-goto="estoqueProducao"
-            aria-label="Abrir Estoque de Produção" style="background:#84592B;color:#F3E6CE;">
+            aria-label="Abrir Estoque de Produção" style="background:#9D9167;color:#2B1B10;">
             <div style="flex:1;min-width:0;">
               <div class="folder-card-title">Estoque de Produção</div>
               <div class="folder-card-sub" id="folderProducaoSub">—</div>
@@ -494,7 +494,7 @@
           </div>
 
           <div class="folder-card" role="button" tabindex="0" data-goto="estoqueCalculadora"
-            aria-label="Abrir Calculadora de Velas" style="background:#743014;color:#F3E6CE;">
+            aria-label="Abrir Calculadora de Velas" style="background:#84592B;color:#F3E6CE;">
             <div style="flex:1;min-width:0;">
               <div class="folder-card-title">Calculadora de Velas</div>
               <div class="folder-card-sub">monte um lote e veja o que falta</div>
@@ -506,7 +506,7 @@
           </div>
 
           <div class="folder-card" role="button" tabindex="0" data-goto="estoqueCalculadoraLucro"
-            aria-label="Abrir Calculadora de Lucro" style="background:#442D1C;color:#E8D1A7;">
+            aria-label="Abrir Calculadora de Lucro" style="background:#743014;color:#F3E6CE;">
             <div style="flex:1;min-width:0;">
               <div class="folder-card-title">Calculadora de Lucro</div>
               <div class="folder-card-sub">custo do lote e margem antes de produzir</div>
@@ -518,7 +518,7 @@
           </div>
 
           <div class="folder-card" role="button" tabindex="0" data-goto="registroProducao"
-            aria-label="Abrir Registro de Produção" style="background:#E8D1A7;color:#442D1C;">
+            aria-label="Abrir Registro de Produção" style="background:#84592B;color:#F3E6CE;">
             <div style="flex:1;min-width:0;">
               <div class="folder-card-title">Registro de Produção</div>
               <div class="folder-card-sub" id="folderLotesSub">—</div>
@@ -1300,7 +1300,7 @@
              navegam de verdade (data-goto); nenhuma dispara mais o toast "em breve". -->
         <div class="folder-stack">
           <div class="folder-card" role="button" tabindex="0" data-goto="registrarVenda"
-            aria-label="Abrir Registrar Venda" style="background:#9D9167;color:#2B1B10;">
+            aria-label="Abrir Registrar Venda" style="background:#E8D1A7;color:#442D1C;">
             <div style="flex:1;min-width:0;">
               <div class="folder-card-title">Registrar Venda</div>
               <div class="folder-card-sub">cliente, variações, forma de pagamento — debita do estoque na hora</div>
@@ -1312,7 +1312,7 @@
           </div>
 
           <div class="folder-card" role="button" tabindex="0" data-goto="encomendas"
-            aria-label="Abrir Encomendas" style="background:#84592B;color:#F3E6CE;">
+            aria-label="Abrir Encomendas" style="background:#9D9167;color:#2B1B10;">
             <div style="flex:1;min-width:0;">
               <div class="folder-card-title">Encomendas</div>
               <div class="folder-card-sub">pendente → em produção → entregue, vinculada a um lote</div>
@@ -1324,7 +1324,7 @@
           </div>
 
           <div class="folder-card" role="button" tabindex="0" data-goto="historicoVendas"
-            aria-label="Abrir Histórico de Vendas" style="background:#743014;color:#F3E6CE;">
+            aria-label="Abrir Histórico de Vendas" style="background:#84592B;color:#F3E6CE;">
             <div style="flex:1;min-width:0;">
               <div class="folder-card-title">Histórico de Vendas</div>
               <div class="folder-card-sub">filtro por período, cliente ou variação</div>
@@ -1336,7 +1336,7 @@
           </div>
 
           <div class="folder-card" role="button" tabindex="0" data-goto="controleCustos"
-            aria-label="Abrir Controle de Custos" style="background:#442D1C;color:#E8D1A7;">
+            aria-label="Abrir Controle de Custos" style="background:#743014;color:#F3E6CE;">
             <div style="flex:1;min-width:0;">
               <div class="folder-card-title">Controle de Custos</div>
               <div class="folder-card-sub">custo real por vela, margem e lucro líquido</div>
@@ -1348,7 +1348,7 @@
           </div>
 
           <div class="folder-card" role="button" tabindex="0" data-goto="cupons"
-            aria-label="Abrir Cupons" style="background:#E8D1A7;color:#442D1C;">
+            aria-label="Abrir Cupons" style="background:#84592B;color:#F3E6CE;">
             <div style="flex:1;min-width:0;">
               <div class="folder-card-title">Cupons</div>
               <div class="folder-card-sub">código, desconto, validade e limite de uso</div>
@@ -2261,28 +2261,35 @@
           <div class="skel-block" style="height:74px;"></div>
           <div class="skel-block" style="height:46px;border-radius:15px;"></div>
         </div>
+        <!-- As 3 linhas de navegação abaixo levam cor sólida da marca (mesma paleta cascateada
+             do dock e das pastas do Estoque — ver DOCK_ITEMS em app.js e .folder-card acima),
+             em vez do --card-bg neutro comum a todo .raised: nesta tela em particular, todo
+             bloco tinha o mesmo marrom, sem nada pra diferenciar um item do outro à primeira
+             vista (pedido da usuária, 10/09/2026). O card de backup e o botão "sair" continuam
+             neutros de propósito — cor aqui marca "isto leva a outra tela", não decoração; um
+             card com botões internos (backup) ou uma ação destrutiva (sair) não é navegação. -->
         <div class="raised card between dash-tap" role="button" tabindex="0" data-goto="configuracoes"
-          aria-label="Abrir Configurações" style="margin-bottom:14px;">
+          aria-label="Abrir Configurações" style="margin-bottom:14px;background:#9D9167;color:#2B1B10;border-color:transparent;">
           <div>
             <div style="font-size:16px;font-weight:600;">configurações</div>
-            <div style="font-size:14px;color:var(--text-faint);margin-top:2px;">receita padrão, jarra e preços de
+            <div style="font-size:14px;color:rgba(43,27,16,.68);margin-top:2px;">receita padrão, jarra e preços de
               venda</div>
           </div>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-            stroke-linejoin="round" style="width:20px;height:20px;flex:none;color:var(--text-dim);">
+            stroke-linejoin="round" style="width:20px;height:20px;flex:none;color:rgba(43,27,16,.75);">
             <path d="m9 6 6 6-6 6" />
           </svg>
         </div>
 
         <div class="raised card between dash-tap" role="button" tabindex="0" data-goto="conta"
-          aria-label="Abrir conta" style="margin-bottom:14px;">
+          aria-label="Abrir conta" style="margin-bottom:14px;background:#84592B;color:#F3E6CE;border-color:transparent;">
           <div>
             <div style="font-size:16px;font-weight:600;">conta</div>
-            <div style="font-size:14px;color:var(--text-faint);margin-top:2px;">nome, e-mail e senha de acesso
+            <div style="font-size:14px;color:rgba(243,230,206,.68);margin-top:2px;">nome, e-mail e senha de acesso
             </div>
           </div>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-            stroke-linejoin="round" style="width:20px;height:20px;flex:none;color:var(--text-dim);">
+            stroke-linejoin="round" style="width:20px;height:20px;flex:none;color:rgba(243,230,206,.75);">
             <path d="m9 6 6 6-6 6" />
           </svg>
         </div>
@@ -2299,14 +2306,14 @@
         </div>
 
         <div class="raised card between dash-tap" role="button" tabindex="0" data-goto="ajuda"
-          aria-label="Abrir ajuda" style="margin-bottom:14px;">
+          aria-label="Abrir ajuda" style="margin-bottom:14px;background:#743014;color:#F3E6CE;border-color:transparent;">
           <div>
             <div style="font-size:16px;font-weight:600;">ajuda</div>
-            <div style="font-size:14px;color:var(--text-faint);margin-top:2px;">perguntas frequentes sobre o app
+            <div style="font-size:14px;color:rgba(243,230,206,.68);margin-top:2px;">perguntas frequentes sobre o app
             </div>
           </div>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-            stroke-linejoin="round" style="width:20px;height:20px;flex:none;color:var(--text-dim);">
+            stroke-linejoin="round" style="width:20px;height:20px;flex:none;color:rgba(243,230,206,.75);">
             <path d="m9 6 6 6-6 6" />
           </svg>
         </div>
