@@ -797,6 +797,11 @@
         icon: ICON_PRODUCAO, title: "nenhuma variação no catálogo", sub: "cadastre uma variação no Catálogo de Produtos primeiro."
       });
     }
+
+    // "notificar por" (canais de aviso de reposição) mudou de tela — de "avisos de
+    // reposição" pra cá — mas continua sendo estado próprio dela (NOTIF_KEY), sem relação
+    // com configState/catalogoState acima; só renderiza junto por dividirem a mesma tela.
+    renderNotifCanal();
   }
 
   function submitConfiguracoesForm(){
@@ -3212,7 +3217,6 @@
       countEl.hidden = !items.length;
       countEl.textContent = items.length + (items.length === 1 ? " item abaixo do mínimo, em ordem de prioridade" : " itens abaixo do mínimo, em ordem de prioridade");
     }
-    renderNotifCanal();
   }
 
   function renderDashboardAvisos(){
@@ -3247,8 +3251,11 @@
 
   // ================================================================
   // Notificação do aviso de reposição — canais (push no app / e-mail / WhatsApp, um ou vários
-  // ao mesmo tempo), parte do módulo 7. "Push no app" usa a Web Notification API nativa do
-  // navegador, sem servidor. E-mail e WhatsApp passam pela Edge Function "enviar-aviso" do
+  // ao mesmo tempo), parte do módulo 7. Card "notificar por" mora na tela Configurações (fim
+  // dela, ver index.html), não em "avisos de reposição" — só os dados/critério de disparo
+  // (o que conta como "abaixo do mínimo") seguem calculados a partir daquela tela. "Push no
+  // app" usa a Web Notification API nativa do navegador, sem servidor. E-mail e WhatsApp
+  // passam pela Edge Function "enviar-aviso" do
   // projeto Supabase ponto-paragrafo (Resend pro e-mail, Twilio pro WhatsApp) — até esse
   // projeto ter as chaves/credenciais configuradas nos secrets, a função responde
   // { ok:false, pendente:true } e o app mostra "configuração pendente" pro canal.

@@ -382,34 +382,6 @@
         <div style="font-size:13px;color:var(--text-faint);margin-bottom:16px;" id="reposicaoCount">—</div>
         <div id="reposicaoList"></div>
 
-        <div class="raised card" style="margin-top:6px;">
-          <div class="between" style="margin-bottom:10px;">
-            <div class="label" style="margin:0;">notificar por</div>
-            <div style="font-size:11px;color:var(--text-faint);" id="notifStatusNote">—</div>
-          </div>
-          <div class="row" id="notifCanalPills" style="gap:9px;flex-wrap:wrap;margin-bottom:14px;">
-            <div class="pressed-pill pill active" data-canal="push" style="padding:9px 15px;">Push no app</div>
-            <div class="pressed-pill pill" data-canal="email" style="padding:9px 15px;">E-mail</div>
-            <div class="pressed-pill pill" data-canal="whatsapp" style="padding:9px 15px;">WhatsApp</div>
-          </div>
-          <div class="pressed" id="notifContatoGroup" style="margin-bottom:14px;" hidden>
-            <div class="field" id="notifEmailField" style="margin-bottom:0;" hidden>
-              <div class="label">e-mail</div>
-              <input type="email" id="notifEmailInput" placeholder="voce@email.com" />
-            </div>
-            <div id="notifContatoDivider" style="height:1px;background:var(--line);margin:0 16px;" hidden></div>
-            <div class="field" id="notifWhatsappField" style="margin-bottom:0;" hidden>
-              <div class="label">WhatsApp</div>
-              <input type="tel" id="notifWhatsappInput" placeholder="(11) 99999-9999" />
-            </div>
-          </div>
-          <div id="notifStatusList" style="margin-bottom:14px;"></div>
-          <button class="btn btn-ghost" style="width:100%;" data-action="notif-testar">testar aviso agora</button>
-          <div style="font-size:11px;color:var(--text-faint);line-height:1.5;margin-top:12px;">avisos são enviados
-            automaticamente quando um insumo ou vela pronta fica abaixo do mínimo — o botão acima é só pra testar.
-          </div>
-        </div>
-
         <div class="reveal-footer" aria-hidden="true">
           <span class="reveal-footer-mark">.parágrafo</span>
         </div>
@@ -1270,6 +1242,37 @@
           configurações</button>
         <div class="hint" style="text-align:center;">As mudanças valem a
           partir de agora — lotes já registrados não são recalculados.</div>
+
+        <div class="label" style="margin-top:20px;">avisos de reposição</div>
+        <div class="hint" style="margin:-6px 4px 14px;">Por onde avisar
+          quando um insumo ou vela pronta fica abaixo do mínimo cadastrado.</div>
+        <div class="raised card">
+          <div class="between" style="margin-bottom:10px;">
+            <div class="label" style="margin:0;">notificar por</div>
+            <div style="font-size:11px;color:var(--text-faint);" id="notifStatusNote">—</div>
+          </div>
+          <div class="row" id="notifCanalPills" style="gap:9px;flex-wrap:wrap;margin-bottom:14px;">
+            <div class="pressed-pill pill active" data-canal="push" style="padding:9px 15px;">Push no app</div>
+            <div class="pressed-pill pill" data-canal="email" style="padding:9px 15px;">E-mail</div>
+            <div class="pressed-pill pill" data-canal="whatsapp" style="padding:9px 15px;">WhatsApp</div>
+          </div>
+          <div class="pressed" id="notifContatoGroup" style="margin-bottom:14px;" hidden>
+            <div class="field" id="notifEmailField" style="margin-bottom:0;" hidden>
+              <div class="label">e-mail</div>
+              <input type="email" id="notifEmailInput" placeholder="voce@email.com" />
+            </div>
+            <div id="notifContatoDivider" style="height:1px;background:var(--line);margin:0 16px;" hidden></div>
+            <div class="field" id="notifWhatsappField" style="margin-bottom:0;" hidden>
+              <div class="label">WhatsApp</div>
+              <input type="tel" id="notifWhatsappInput" placeholder="(11) 99999-9999" />
+            </div>
+          </div>
+          <div id="notifStatusList" style="margin-bottom:14px;"></div>
+          <button class="btn btn-ghost" style="width:100%;" data-action="notif-testar">testar aviso agora</button>
+          <div style="font-size:11px;color:var(--text-faint);line-height:1.5;margin-top:12px;">avisos são enviados
+            automaticamente quando um insumo ou vela pronta fica abaixo do mínimo — o botão acima é só pra testar.
+          </div>
+        </div>
 
         <div class="reveal-footer" aria-hidden="true">
           <span class="reveal-footer-mark">.parágrafo</span>

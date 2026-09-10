@@ -646,6 +646,18 @@ a{color:var(--primary);}
   background:#E8D1A7;
 }
 
+/* Avisos de reposição — pedido de fundo "creme" pra esta tela (09/09/2026), mas um creme
+   pálido fixo (#FBF6EC, igual Estoque acima) reabriria o "modo claro" isolado que já foi
+   removido do Dashboard por contradizer a decisão de tema único — e colidiria com --primary
+   (creme, #E8D1A7), que aqui mesmo já é a cor sólida do pill "Push no app" ativo (ver
+   .pill.active): pill e fundo do card ficariam do mesmo tom, o estado ativo sumiria. Em vez
+   disso, só --bg sobe um degrau — de #442D1C pra um marrom mais claro e quente, a meio
+   caminho de --card-bg (#5A3D27) — sem tocar --primary/--card-bg/--on-primary, então nada
+   colide e a tela segue dark-only, só com uma temperatura mais próxima do creme da marca. */
+.screen[data-screen="reposicao"]{
+  --bg:#4F3522;
+}
+
 /* Bloco "hero" — cor sólida (Spiced Wine) + texto creme, com a tira dos 7 dias da semana
    (hoje em destaque) no lugar do calendário mensal da referência. Ícones/avatar viram
    chips translúcidos claros sobre a cor, em vez do relevo neumórfico usado no resto do
