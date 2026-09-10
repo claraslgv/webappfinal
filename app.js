@@ -2488,7 +2488,7 @@
   var insumoFormMode = "novo";
   var insumoFormEditingId = null;
   var estoqueInsumosFiltroCategoria = "todas";
-  var INSUMO_CATEGORIA_LABEL = { cera: "cera", essencia: "essências", pavio: "pavios", embalagem: "embalagens", outro: "outros" };
+  var INSUMO_CATEGORIA_LABEL = { cera: "cera", essencia: "essências", pavio: "pavios", embalagem: "potes", outro: "outros" };
   function insumoCategoriaLabel(cat){ return INSUMO_CATEGORIA_LABEL[cat] || "outros"; }
 
   function insumoRowHTML(insumo){
