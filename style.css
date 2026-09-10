@@ -543,16 +543,18 @@ input.auth-input:-webkit-autofill{-webkit-text-fill-color:#F3E6CE;transition:bac
 .divider{height:1px;background:var(--line);margin:14px 0;}
 a{color:var(--primary);}
 
-/* Pastas do Estoque (hub) — 3 blocos empilhados de cor sólida fixa da marca, clareando pra
-   escurecendo de cima pra baixo, na mesma lógica de "sempre uma das cores da marca,
-   independente do tema" do dock e do dash-hero (ver DOCK_ITEMS/.dash-hero). O texto e a
-   seta usam a cor `color` de cada bloco (definida inline por cartão), não tokens de tema.
-   Layout de lista única (ref: mockup "Expenses" — faixas coloridas grandes, coladas uma na
-   outra sem gap. Cada faixa mantém seu próprio raio nos 4 cantos (em vez de só o bloco todo
-   arredondado): encostadas sem gap, o raio de cada uma "morde" um cantinho do fundo da
-   página bem na emenda — é esse recorte que dá a leitura de um cartão deitado por cima do
-   outro, não uma lista comum. */
-.folder-stack{display:flex;flex-direction:column;margin-bottom:14px;}
+/* Pastas do Estoque/Vendas (hub) — 5 blocos de cor sólida fixa da marca por pilha, na mesma
+   lógica de "sempre uma das cores da marca, independente do tema" do dock e do dash-hero (ver
+   DOCK_ITEMS/.dash-hero). O texto e a seta usam a cor `color` de cada bloco (definida inline
+   por cartão), não tokens de tema.
+   Cada cartão mantém seu raio nos 4 cantos e fica separado do vizinho por um gap real (mesma
+   escala de espaçamento — ~10px — que o resto do app usa entre itens de lista, ver .raised-sm
+   em app.js), em vez de coladas sem gap: com 5 cores de marca só e uma delas (#442D1C,
+   Cowhide Cocoa) sendo a própria cor de --bg do app, um cartão colado ou de fundo idêntico ao
+   vão ao redor "sumia" contra o resto da tela — por isso #442D1C também não entra na rotação
+   de fundo dos cartões, só como cor de texto sobre fundo claro (ver hex por cartão no HTML).
+   Progressão clara → escura de cima pra baixo, com um passo de volta no último cartão. */
+.folder-stack{display:flex;flex-direction:column;gap:10px;margin-bottom:14px;}
 .folder-card{
   display:flex;align-items:center;gap:14px;min-height:150px;padding:28px 30px;border-radius:26px;
   box-shadow:0 8px 16px -10px rgba(0,0,0,.4);transition:transform .12s ease;transform-origin:50% 0%;
