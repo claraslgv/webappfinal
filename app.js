@@ -785,10 +785,10 @@
         var last = i === catalogoState.variacoes.length - 1;
         return '' +
           '<div class="between" style="padding:11px 0;' + (last ? "" : "border-bottom:1px solid var(--line);") + '">' +
-            '<span style="font-size:13.5px;font-weight:500;">' + escapeHtml(variacaoLabel(v)) + '</span>' +
+            '<span style="font-size:15.5px;font-weight:500;">' + escapeHtml(variacaoLabel(v)) + '</span>' +
             '<div class="pressed field" style="padding:7px 12px;margin-bottom:0;flex:none;width:104px;">' +
               '<div class="row" style="gap:4px;">' +
-                '<span style="font-size:13px;font-weight:600;color:var(--text-faint);">R$</span>' +
+                '<span style="font-size:15px;font-weight:600;color:var(--text-faint);">R$</span>' +
                 '<input type="text" class="cfg-preco-input" data-cfg-preco-id="' + v.id + '" style="flex:1;text-align:right;" value="' + numToStr(v.precoVenda) + '" />' +
               '</div>' +
             '</div>' +
@@ -1024,12 +1024,12 @@
     return '' +
       '<div class="between" style="padding:11px 0;' + (last ? "" : "border-bottom:1px solid var(--line);") + '">' +
         '<div style="flex:1;min-width:0;">' +
-          '<div style="font-size:13.5px;font-weight:500;">' + escapeHtml(variacaoLabel(v)) + '</div>' +
-          '<div style="font-size:11px;color:var(--text-faint);margin-top:2px;">venda ' + fmtMoney(v.precoVenda) + '</div>' +
+          '<div style="font-size:15.5px;font-weight:500;">' + escapeHtml(variacaoLabel(v)) + '</div>' +
+          '<div style="font-size:13px;color:var(--text-faint);margin-top:2px;">venda ' + fmtMoney(v.precoVenda) + '</div>' +
         '</div>' +
         '<div style="text-align:right;">' +
-          '<div style="font-size:13.5px;font-weight:700;' + (prejuizo ? "color:var(--warn);" : "") + '">' + fmtMoney(margemValor) + '</div>' +
-          '<div style="font-size:11px;margin-top:2px;' + (prejuizo ? "color:var(--warn);" : "color:var(--text-faint);") + '">' + (prejuizo ? "prejuízo · " : "") + margemPct + '%</div>' +
+          '<div style="font-size:15.5px;font-weight:700;' + (prejuizo ? "color:var(--warn);" : "") + '">' + fmtMoney(margemValor) + '</div>' +
+          '<div style="font-size:13px;margin-top:2px;' + (prejuizo ? "color:var(--warn);" : "color:var(--text-faint);") + '">' + (prejuizo ? "prejuízo · " : "") + margemPct + '%</div>' +
         '</div>' +
       '</div>';
   }
@@ -1043,7 +1043,7 @@
         '<div class="pressed field" style="width:96px;flex:none;margin-bottom:0;">' +
           '<div class="label">valor</div>' +
           '<div class="row" style="gap:4px;">' +
-            '<span style="font-size:13px;font-weight:600;color:var(--text-faint);">R$</span>' +
+            '<span style="font-size:15px;font-weight:600;color:var(--text-faint);">R$</span>' +
             '<input type="text" class="custos-fixo-valor" style="flex:1;text-align:right;" value="' + numToStr(fixo.valor) + '" />' +
           '</div>' +
         '</div>' +
@@ -1175,10 +1175,10 @@
     return '' +
       '<div style="padding:11px 0;' + (last ? "" : "border-bottom:1px solid var(--line);") + '">' +
         '<div class="between">' +
-          '<div style="font-size:13.5px;font-weight:500;">' + escapeHtml(variacaoLabel(findVariacao(item.variacaoId))) + '</div>' +
+          '<div style="font-size:15.5px;font-weight:500;">' + escapeHtml(variacaoLabel(findVariacao(item.variacaoId))) + '</div>' +
           '<div style="text-align:right;">' +
-            '<div style="font-size:13.5px;font-weight:700;">' + fmtMoney(item.valor) + '</div>' +
-            '<div style="font-size:11px;color:var(--text-faint);margin-top:2px;">' + item.quantidade + (item.quantidade === 1 ? " vela" : " velas") + '</div>' +
+            '<div style="font-size:15.5px;font-weight:700;">' + fmtMoney(item.valor) + '</div>' +
+            '<div style="font-size:13px;color:var(--text-faint);margin-top:2px;">' + item.quantidade + (item.quantidade === 1 ? " vela" : " velas") + '</div>' +
           '</div>' +
         '</div>' +
         relatorioBarraHTML(pct) +
@@ -1189,10 +1189,10 @@
     return '' +
       '<div style="padding:11px 0;' + (last ? "" : "border-bottom:1px solid var(--line);") + '">' +
         '<div class="between">' +
-          '<div style="font-size:13.5px;font-weight:500;">' + formaPagamentoLabel(item.forma) + '</div>' +
+          '<div style="font-size:15.5px;font-weight:500;">' + formaPagamentoLabel(item.forma) + '</div>' +
           '<div style="text-align:right;">' +
-            '<div style="font-size:13.5px;font-weight:700;">' + fmtMoney(item.valor) + '</div>' +
-            '<div style="font-size:11px;color:var(--text-faint);margin-top:2px;">' + item.qtd + (item.qtd === 1 ? " venda" : " vendas") + '</div>' +
+            '<div style="font-size:15.5px;font-weight:700;">' + fmtMoney(item.valor) + '</div>' +
+            '<div style="font-size:13px;color:var(--text-faint);margin-top:2px;">' + item.qtd + (item.qtd === 1 ? " venda" : " vendas") + '</div>' +
           '</div>' +
         '</div>' +
         relatorioBarraHTML(pct) +
@@ -1202,10 +1202,10 @@
     return '' +
       '<div class="between" style="padding:11px 0;' + (last ? "" : "border-bottom:1px solid var(--line);") + '">' +
         '<div>' +
-          '<div style="font-size:13.5px;font-weight:600;">' + escapeHtml(item.codigo) + '</div>' +
-          '<div style="font-size:11px;color:var(--text-faint);margin-top:2px;">' + item.usos + (item.usos === 1 ? " uso" : " usos") + '</div>' +
+          '<div style="font-size:15.5px;font-weight:600;">' + escapeHtml(item.codigo) + '</div>' +
+          '<div style="font-size:13px;color:var(--text-faint);margin-top:2px;">' + item.usos + (item.usos === 1 ? " uso" : " usos") + '</div>' +
         '</div>' +
-        '<div style="font-size:13.5px;font-weight:700;color:var(--warn);">− ' + fmtMoney(item.desconto) + '</div>' +
+        '<div style="font-size:15.5px;font-weight:700;color:var(--warn);">− ' + fmtMoney(item.desconto) + '</div>' +
       '</div>';
   }
   function renderRelatorioCompleto(){
@@ -1367,12 +1367,12 @@
     return '' +
       '<div class="raised-sm" role="button" tabindex="0" aria-label="Ver cliente · ' + escapeHtml(c.nome) + '" data-cliente-id="' + c.id + '" style="padding:15px 16px;margin-bottom:11px;">' +
         '<div class="between" style="margin-bottom:6px;">' +
-          '<div style="font-size:14px;font-weight:600;">' + escapeHtml(c.nome) + '</div>' +
+          '<div style="font-size:16px;font-weight:600;">' + escapeHtml(c.nome) + '</div>' +
           menuBtn +
         '</div>' +
         '<div class="between">' +
-          '<div style="font-size:13px;color:var(--text-faint);">' + escapeHtml(c.telefone || "sem telefone") + '</div>' +
-          '<div style="font-size:11.5px;color:var(--text-faint);">' + stats.compras + (stats.compras === 1 ? " compra" : " compras") + ' · ' + fmtMoney(stats.totalGasto) + '</div>' +
+          '<div style="font-size:15px;color:var(--text-faint);">' + escapeHtml(c.telefone || "sem telefone") + '</div>' +
+          '<div style="font-size:13.5px;color:var(--text-faint);">' + stats.compras + (stats.compras === 1 ? " compra" : " compras") + ' · ' + fmtMoney(stats.totalGasto) + '</div>' +
         '</div>' +
       '</div>';
   }
@@ -1409,8 +1409,8 @@
         var metric = clientesRankingCriterio === "compras" ? (r.compras + (r.compras === 1 ? " compra" : " compras")) : fmtMoney(r.totalGasto);
         var borderStyle = idx === Math.min(arr.length, 5) - 1 ? "" : "border-bottom:1px solid var(--line);";
         return '<div class="between" role="button" tabindex="0" aria-label="Ver cliente · ' + escapeHtml(r.cliente.nome) + '" data-cliente-id="' + r.cliente.id + '" style="padding:11px 0;' + borderStyle + '">' +
-          '<div class="row" style="gap:10px;"><div style="font-size:13px;font-weight:700;color:var(--text-faint);width:16px;">' + (idx + 1) + '</div><div style="font-size:13.5px;font-weight:600;">' + escapeHtml(r.cliente.nome) + '</div></div>' +
-          '<div style="font-size:13.5px;font-weight:700;">' + metric + '</div>' +
+          '<div class="row" style="gap:10px;"><div style="font-size:15px;font-weight:700;color:var(--text-faint);width:16px;">' + (idx + 1) + '</div><div style="font-size:15.5px;font-weight:600;">' + escapeHtml(r.cliente.nome) + '</div></div>' +
+          '<div style="font-size:15.5px;font-weight:700;">' + metric + '</div>' +
         '</div>';
       }).join("") : emptyStateHTML({
         icon: ICON_CLIENTES, title: "sem dados ainda", sub: "o ranking aparece assim que houver vendas confirmadas ligadas a um cliente cadastrado."
@@ -1456,8 +1456,8 @@
         var itensTxt = v.itens.map(function(it){ return it.quantidade + "x " + variacaoLabel(findVariacao(it.variacaoId)); }).join(", ");
         var borderStyle = idx === vendas.length - 1 ? "" : "border-bottom:1px solid var(--line);";
         return '<div class="between" style="padding:12px 0;' + borderStyle + '">' +
-          '<div style="flex:1;min-width:0;padding-right:10px;"><div style="font-size:13.5px;font-weight:600;">' + escapeHtml(itensTxt) + '</div><div style="font-size:11px;color:var(--text-faint);margin-top:2px;">' + formatDateBR(v.data) + '</div></div>' +
-          '<div style="font-size:13.5px;font-weight:700;flex:none;">' + fmtMoney(v.total) + '</div>' +
+          '<div style="flex:1;min-width:0;padding-right:10px;"><div style="font-size:15.5px;font-weight:600;">' + escapeHtml(itensTxt) + '</div><div style="font-size:13px;color:var(--text-faint);margin-top:2px;">' + formatDateBR(v.data) + '</div></div>' +
+          '<div style="font-size:15.5px;font-weight:700;flex:none;">' + fmtMoney(v.total) + '</div>' +
         '</div>';
       }).join("");
     }
@@ -1570,11 +1570,11 @@
     return '' +
       '<div class="raised-sm between" style="padding:13px 16px;margin-bottom:10px;">' +
         '<div style="flex:1;min-width:0;">' +
-          '<div style="font-size:13.5px;font-weight:600;">' + escapeHtml(variacaoLabel(v)) + '</div>' +
-          '<div style="font-size:11.5px;color:var(--text-faint);margin-top:2px;">' + item.quantidade + ' × ' + fmtMoney(item.precoUnit) + '</div>' +
+          '<div style="font-size:15.5px;font-weight:600;">' + escapeHtml(variacaoLabel(v)) + '</div>' +
+          '<div style="font-size:13.5px;color:var(--text-faint);margin-top:2px;">' + item.quantidade + ' × ' + fmtMoney(item.precoUnit) + '</div>' +
         '</div>' +
         '<div class="row" style="gap:12px;">' +
-          '<div style="font-size:13.5px;font-weight:700;">' + fmtMoney(round2(item.quantidade * item.precoUnit)) + '</div>' +
+          '<div style="font-size:15.5px;font-weight:700;">' + fmtMoney(round2(item.quantidade * item.precoUnit)) + '</div>' +
           '<div class="tapicon" role="button" tabindex="0" aria-label="Remover item · ' + escapeHtml(variacaoLabel(v)) + '" data-action="venda-item-remove" data-idx="' + idx + '" style="width:30px;height:30px;">' +
             '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>' +
           '</div>' +
@@ -1638,8 +1638,8 @@
 
   function vendaClienteRowHTML(c){
     return '<div class="raised-sm" role="button" tabindex="0" data-venda-cliente-id="' + c.id + '" style="padding:12px 14px;margin-bottom:9px;">' +
-        '<div style="font-size:13.5px;font-weight:600;">' + escapeHtml(c.nome) + '</div>' +
-        '<div style="font-size:11.5px;color:var(--text-faint);margin-top:2px;">' + escapeHtml(c.telefone || "") + '</div>' +
+        '<div style="font-size:15.5px;font-weight:600;">' + escapeHtml(c.nome) + '</div>' +
+        '<div style="font-size:13.5px;color:var(--text-faint);margin-top:2px;">' + escapeHtml(c.telefone || "") + '</div>' +
       '</div>';
   }
 
@@ -1647,7 +1647,7 @@
     var listEl = document.getElementById("vendaClienteList");
     if (!listEl) return;
     var termo = (filtro || "").trim().toLowerCase();
-    var avulsoHTML = '<div class="raised-sm" role="button" tabindex="0" data-venda-cliente-id="avulso" style="padding:12px 14px;margin-bottom:9px;"><div style="font-size:13.5px;font-weight:600;">Cliente avulso</div></div>';
+    var avulsoHTML = '<div class="raised-sm" role="button" tabindex="0" data-venda-cliente-id="avulso" style="padding:12px 14px;margin-bottom:9px;"><div style="font-size:15.5px;font-weight:600;">Cliente avulso</div></div>';
     var itens = clientesState.clientes.filter(function(c){
       return !termo || c.nome.toLowerCase().indexOf(termo) !== -1 || (c.telefone || "").indexOf(termo) !== -1;
     });
@@ -1822,13 +1822,13 @@
     return '' +
       '<div class="raised-sm" role="button" tabindex="0" aria-label="Ver encomenda de ' + escapeHtml(enc.clienteNome) + '" data-encomenda-id="' + enc.id + '" style="padding:14px 16px;margin-bottom:11px;">' +
         '<div class="between" style="margin-bottom:6px;">' +
-          '<div style="font-size:14px;font-weight:600;">' + escapeHtml(enc.clienteNome) + '</div>' +
+          '<div style="font-size:16px;font-weight:600;">' + escapeHtml(enc.clienteNome) + '</div>' +
           '<span class="badge ' + encomendaStatusBadgeClass(enc.status) + '">' + encomendaStatusLabel(enc.status) + '</span>' +
         '</div>' +
-        '<div style="font-size:12px;color:var(--text-faint);margin-bottom:4px;">' + escapeHtml(encomendaItensResumo(enc.itens)) + '</div>' +
+        '<div style="font-size:14px;color:var(--text-faint);margin-bottom:4px;">' + escapeHtml(encomendaItensResumo(enc.itens)) + '</div>' +
         '<div class="between">' +
-          '<div style="font-size:11px;color:var(--text-faint);">' + (enc.dataPrevista ? "entrega prevista " + formatDateBR(enc.dataPrevista) : "sem data prevista") + '</div>' +
-          '<div style="font-size:13px;font-weight:700;">' + fmtMoney(computeEncomendaTotal(enc.itens)) + '</div>' +
+          '<div style="font-size:13px;color:var(--text-faint);">' + (enc.dataPrevista ? "entrega prevista " + formatDateBR(enc.dataPrevista) : "sem data prevista") + '</div>' +
+          '<div style="font-size:15px;font-weight:700;">' + fmtMoney(computeEncomendaTotal(enc.itens)) + '</div>' +
         '</div>' +
       '</div>';
   }
@@ -1894,11 +1894,11 @@
     return '' +
       '<div class="raised-sm between" style="padding:13px 16px;margin-bottom:10px;">' +
         '<div style="flex:1;min-width:0;">' +
-          '<div style="font-size:13.5px;font-weight:600;">' + escapeHtml(variacaoLabel(v)) + '</div>' +
-          '<div style="font-size:11.5px;color:var(--text-faint);margin-top:2px;">' + item.quantidade + ' × ' + fmtMoney(item.precoUnit) + '</div>' +
+          '<div style="font-size:15.5px;font-weight:600;">' + escapeHtml(variacaoLabel(v)) + '</div>' +
+          '<div style="font-size:13.5px;color:var(--text-faint);margin-top:2px;">' + item.quantidade + ' × ' + fmtMoney(item.precoUnit) + '</div>' +
         '</div>' +
         '<div class="row" style="gap:12px;">' +
-          '<div style="font-size:13.5px;font-weight:700;">' + fmtMoney(round2(item.quantidade * item.precoUnit)) + '</div>' +
+          '<div style="font-size:15.5px;font-weight:700;">' + fmtMoney(round2(item.quantidade * item.precoUnit)) + '</div>' +
           '<div class="tapicon" role="button" tabindex="0" aria-label="Remover item · ' + escapeHtml(variacaoLabel(v)) + '" data-action="encomenda-item-remove" data-idx="' + idx + '" style="width:30px;height:30px;">' +
             '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>' +
           '</div>' +
@@ -1935,15 +1935,15 @@
   }
   function encomendaClienteRowHTML(c){
     return '<div class="raised-sm" role="button" tabindex="0" data-encomenda-cliente-id="' + c.id + '" style="padding:12px 14px;margin-bottom:9px;">' +
-        '<div style="font-size:13.5px;font-weight:600;">' + escapeHtml(c.nome) + '</div>' +
-        '<div style="font-size:11.5px;color:var(--text-faint);margin-top:2px;">' + escapeHtml(c.telefone || "") + '</div>' +
+        '<div style="font-size:15.5px;font-weight:600;">' + escapeHtml(c.nome) + '</div>' +
+        '<div style="font-size:13.5px;color:var(--text-faint);margin-top:2px;">' + escapeHtml(c.telefone || "") + '</div>' +
       '</div>';
   }
   function renderEncomendaClienteList(filtro){
     var listEl = document.getElementById("encomendaClienteList");
     if (!listEl) return;
     var termo = (filtro || "").trim().toLowerCase();
-    var avulsoHTML = '<div class="raised-sm" role="button" tabindex="0" data-encomenda-cliente-id="avulso" style="padding:12px 14px;margin-bottom:9px;"><div style="font-size:13.5px;font-weight:600;">Cliente avulso</div></div>';
+    var avulsoHTML = '<div class="raised-sm" role="button" tabindex="0" data-encomenda-cliente-id="avulso" style="padding:12px 14px;margin-bottom:9px;"><div style="font-size:15.5px;font-weight:600;">Cliente avulso</div></div>';
     var itens = clientesState.clientes.filter(function(c){
       return !termo || c.nome.toLowerCase().indexOf(termo) !== -1 || (c.telefone || "").indexOf(termo) !== -1;
     });
@@ -2021,14 +2021,14 @@
   function encomendaLoteRowHTML(lote){
     var v = findVariacao(lote.variacaoId);
     return '<div class="raised-sm" role="button" tabindex="0" data-encomenda-lote-id="' + lote.id + '" style="padding:12px 14px;margin-bottom:9px;">' +
-        '<div style="font-size:13.5px;font-weight:600;">' + escapeHtml(variacaoLabel(v)) + '</div>' +
-        '<div style="font-size:11.5px;color:var(--text-faint);margin-top:2px;">' + formatDateBR(lote.data) + ' · ' + lote.quantidade + ' velas</div>' +
+        '<div style="font-size:15.5px;font-weight:600;">' + escapeHtml(variacaoLabel(v)) + '</div>' +
+        '<div style="font-size:13.5px;color:var(--text-faint);margin-top:2px;">' + formatDateBR(lote.data) + ' · ' + lote.quantidade + ' velas</div>' +
       '</div>';
   }
   function renderEncomendaLoteList(){
     var listEl = document.getElementById("encomendaLoteList");
     if (!listEl) return;
-    var nenhumHTML = '<div class="raised-sm" role="button" tabindex="0" data-encomenda-lote-id="nenhum" style="padding:12px 14px;margin-bottom:9px;"><div style="font-size:13.5px;font-weight:600;">nenhum lote</div></div>';
+    var nenhumHTML = '<div class="raised-sm" role="button" tabindex="0" data-encomenda-lote-id="nenhum" style="padding:12px 14px;margin-bottom:9px;"><div style="font-size:15.5px;font-weight:600;">nenhum lote</div></div>';
     listEl.innerHTML = nenhumHTML + lotesOrdenados().map(encomendaLoteRowHTML).join("");
   }
   function encomendaLoteToggle(){
@@ -2065,8 +2065,8 @@
     if (itensEl) itensEl.innerHTML = enc.itens.map(function(it){
       var v = findVariacao(it.variacaoId);
       return '<div class="between" style="padding:10px 0;border-bottom:1px solid var(--line);">' +
-          '<span style="font-size:13px;color:var(--text-faint);">' + escapeHtml(variacaoLabel(v)) + ' × ' + it.quantidade + '</span>' +
-          '<span style="font-size:13.5px;font-weight:700;">' + fmtMoney(round2(it.quantidade * it.precoUnit)) + '</span>' +
+          '<span style="font-size:15px;color:var(--text-faint);">' + escapeHtml(variacaoLabel(v)) + ' × ' + it.quantidade + '</span>' +
+          '<span style="font-size:15.5px;font-weight:700;">' + fmtMoney(round2(it.quantidade * it.precoUnit)) + '</span>' +
         '</div>';
     }).join("");
     setText("encomendaDetalheTotal", fmtMoney(computeEncomendaTotal(enc.itens)));
@@ -2201,13 +2201,13 @@
     return '' +
       '<div class="raised-sm" style="padding:14px 16px;margin-bottom:11px;">' +
         '<div class="between" style="margin-bottom:6px;">' +
-          '<div style="font-size:14px;font-weight:600;">' + escapeHtml(v.clienteNome) + '</div>' +
+          '<div style="font-size:16px;font-weight:600;">' + escapeHtml(v.clienteNome) + '</div>' +
           '<span class="badge ' + vendaStatusBadgeClass(v.status) + '">' + vendaStatusLabel(v.status) + '</span>' +
         '</div>' +
-        '<div style="font-size:12px;color:var(--text-faint);margin-bottom:4px;">' + escapeHtml(vendaItensResumo(v.itens)) + '</div>' +
+        '<div style="font-size:14px;color:var(--text-faint);margin-bottom:4px;">' + escapeHtml(vendaItensResumo(v.itens)) + '</div>' +
         '<div class="between">' +
-          '<div style="font-size:11px;color:var(--text-faint);">' + escapeHtml(meta) + '</div>' +
-          '<div style="font-size:13px;font-weight:700;">' + fmtMoney(v.total) + '</div>' +
+          '<div style="font-size:13px;color:var(--text-faint);">' + escapeHtml(meta) + '</div>' +
+          '<div style="font-size:15px;font-weight:700;">' + fmtMoney(v.total) + '</div>' +
         '</div>' +
       '</div>';
   }
@@ -2272,11 +2272,11 @@
     return '' +
       '<div class="raised-sm" role="button" tabindex="0" aria-label="Ver cupom ' + escapeHtml(cupom.codigo) + '" data-cupom-id="' + cupom.id + '" style="padding:14px 16px;margin-bottom:11px;">' +
         '<div class="between" style="margin-bottom:6px;">' +
-          '<div style="font-size:14px;font-weight:600;">' + escapeHtml(cupom.codigo) + '</div>' +
+          '<div style="font-size:16px;font-weight:600;">' + escapeHtml(cupom.codigo) + '</div>' +
           '<span class="badge ' + status.cls + '">' + status.label + '</span>' +
         '</div>' +
-        '<div style="font-size:12px;color:var(--text-faint);margin-bottom:4px;">' + escapeHtml(cupomValorLabel(cupom)) + ' · ' + usos + '</div>' +
-        '<div style="font-size:11px;color:var(--text-faint);">' + escapeHtml(cupomValidadeLabel(cupom)) + '</div>' +
+        '<div style="font-size:14px;color:var(--text-faint);margin-bottom:4px;">' + escapeHtml(cupomValorLabel(cupom)) + ' · ' + usos + '</div>' +
+        '<div style="font-size:13px;color:var(--text-faint);">' + escapeHtml(cupomValidadeLabel(cupom)) + '</div>' +
       '</div>';
   }
   function renderCupons(){
@@ -2493,12 +2493,12 @@
     return '' +
       '<div class="raised-sm" role="button" tabindex="0" aria-label="Ver histórico · ' + escapeHtml(insumo.nome) + '" data-insumo-id="' + insumo.id + '" style="padding:15px 16px;margin-bottom:11px;">' +
         '<div class="between" style="margin-bottom:6px;">' +
-          '<div style="font-size:14px;font-weight:600;">' + escapeHtml(insumo.nome) + '</div>' +
+          '<div style="font-size:16px;font-weight:600;">' + escapeHtml(insumo.nome) + '</div>' +
           rightTop +
         '</div>' +
         '<div class="between">' +
-          '<div style="font-size:18px;font-weight:700;">' + fmtQty(insumo.quantidade, insumo.unidade) + '</div>' +
-          '<div style="font-size:11.5px;color:var(--text-faint);">' + fmtMoney(insumo.custoMedio) + '/' + insumo.unidade + minTxt + '</div>' +
+          '<div style="font-size:20px;font-weight:700;">' + fmtQty(insumo.quantidade, insumo.unidade) + '</div>' +
+          '<div style="font-size:13.5px;color:var(--text-faint);">' + fmtMoney(insumo.custoMedio) + '/' + insumo.unidade + minTxt + '</div>' +
         '</div>' +
       '</div>';
   }
@@ -2559,8 +2559,8 @@
         var qtdColor = isEntrada ? "var(--good)" : "var(--text)";
         var borderStyle = idx === movs.length - 1 ? "" : "border-bottom:1px solid var(--line);";
         return '<div class="between" style="padding:12px 0;' + borderStyle + '">' +
-          '<div><div style="font-size:13.5px;font-weight:600;">' + label + '</div><div style="font-size:11px;color:var(--text-faint);margin-top:2px;">' + formatDateBR(m.data) + '</div></div>' +
-          '<div style="text-align:right;"><div style="font-size:13.5px;font-weight:700;color:' + qtdColor + ';">' + qtdTxt + '</div><div style="font-size:11px;color:var(--text-faint);margin-top:2px;">' + fmtMoney(m.valor) + '</div></div>' +
+          '<div><div style="font-size:15.5px;font-weight:600;">' + label + '</div><div style="font-size:13px;color:var(--text-faint);margin-top:2px;">' + formatDateBR(m.data) + '</div></div>' +
+          '<div style="text-align:right;"><div style="font-size:15.5px;font-weight:700;color:' + qtdColor + ';">' + qtdTxt + '</div><div style="font-size:13px;color:var(--text-faint);margin-top:2px;">' + fmtMoney(m.valor) + '</div></div>' +
         '</div>';
       }).join("");
     }
@@ -2751,10 +2751,10 @@
     var qtd = estoqueVela.quantidade;
     return '' +
       '<div class="raised-sm between" style="padding:15px 16px;margin-bottom:11px;">' +
-        '<div><div style="font-size:14px;font-weight:600;">' + escapeHtml(nome) + '</div><div style="font-size:11.5px;color:var(--text-faint);margin-top:2px;">velas prontas</div></div>' +
+        '<div><div style="font-size:16px;font-weight:600;">' + escapeHtml(nome) + '</div><div style="font-size:13.5px;color:var(--text-faint);margin-top:2px;">velas prontas</div></div>' +
         '<div class="row" style="gap:10px;">' +
           '<div class="pressed" role="button" tabindex="0" aria-label="Remover uma vela · ' + escapeHtml(nome) + '" data-action="prod-dec" data-var-id="' + v.id + '" style="width:34px;height:34px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--text);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M5 12h14"/></svg></div>' +
-          '<div style="font-size:18px;font-weight:700;min-width:30px;text-align:center;">' + qtd + '</div>' +
+          '<div style="font-size:20px;font-weight:700;min-width:30px;text-align:center;">' + qtd + '</div>' +
           '<div class="raised-sm" role="button" tabindex="0" aria-label="Adicionar uma vela · ' + escapeHtml(nome) + '" data-action="prod-inc" data-var-id="' + v.id + '" style="width:34px;height:34px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--card-text);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></div>' +
         '</div>' +
       '</div>';
@@ -2803,21 +2803,21 @@
   function calcInsumoRowHTML(item){
     var falta = item.falta;
     var statusHTML = falta > 0
-      ? '<div style="font-size:10.5px;color:var(--warn);">falta ' + numToStr(falta) + '</div>'
-      : '<div style="font-size:10.5px;color:var(--text-faint);">tem ' + numToStr(round2(item.precisa - falta)) + '</div>';
+      ? '<div style="font-size:12.5px;color:var(--warn);">falta ' + numToStr(falta) + '</div>'
+      : '<div style="font-size:12.5px;color:var(--text-faint);">tem ' + numToStr(round2(item.precisa - falta)) + '</div>';
     var ajusteTxt = (item.ajustePct > 0 ? "+" : "") + item.ajustePct + "%";
     return '' +
       '<div class="between" style="padding:12px 0;border-bottom:1px solid var(--line);">' +
         '<div style="flex:1;min-width:0;">' +
-          '<div style="font-size:13.5px;font-weight:500;">' + escapeHtml(item.nome) + '</div>' +
+          '<div style="font-size:15.5px;font-weight:500;">' + escapeHtml(item.nome) + '</div>' +
           '<div class="row" style="gap:4px;margin-top:4px;">' +
             '<div class="pressed" role="button" tabindex="0" aria-label="Diminuir 5% · ' + escapeHtml(item.nome) + '" data-action="calc-adj-dec" data-calc-insumo-id="' + item.insumoId + '" style="width:22px;height:22px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--text-faint);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14"/></svg></div>' +
-            '<div style="font-size:10.5px;color:var(--text-faint);min-width:30px;text-align:center;">' + ajusteTxt + '</div>' +
+            '<div style="font-size:12.5px;color:var(--text-faint);min-width:30px;text-align:center;">' + ajusteTxt + '</div>' +
             '<div class="pressed" role="button" tabindex="0" aria-label="Aumentar 5% · ' + escapeHtml(item.nome) + '" data-action="calc-adj-inc" data-calc-insumo-id="' + item.insumoId + '" style="width:22px;height:22px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--text-faint);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></div>' +
           '</div>' +
         '</div>' +
         '<div style="text-align:right;">' +
-          '<div style="font-size:13.5px;font-weight:700;">' + fmtQty(item.precisa, item.unidade) + '</div>' +
+          '<div style="font-size:15.5px;font-weight:700;">' + fmtQty(item.precisa, item.unidade) + '</div>' +
           statusHTML +
         '</div>' +
       '</div>';
@@ -3000,12 +3000,12 @@
     return '' +
       '<div class="raised-sm between" role="button" tabindex="0" aria-label="Ver lote · ' + escapeHtml(variacaoLabel(v)) + '" data-lote-id="' + lote.id + '" style="padding:15px 16px;margin-bottom:11px;">' +
         '<div>' +
-          '<div style="font-size:14px;font-weight:600;">' + escapeHtml(variacaoLabel(v)) + '</div>' +
-          '<div style="font-size:11.5px;color:var(--text-faint);margin-top:2px;">' + formatDateBR(lote.data) + ' · ' + lote.quantidade + ' velas</div>' +
+          '<div style="font-size:16px;font-weight:600;">' + escapeHtml(variacaoLabel(v)) + '</div>' +
+          '<div style="font-size:13.5px;color:var(--text-faint);margin-top:2px;">' + formatDateBR(lote.data) + ' · ' + lote.quantidade + ' velas</div>' +
         '</div>' +
         '<div style="text-align:right;">' +
-          '<div style="font-size:13.5px;font-weight:700;">' + fmtMoney(lote.custoTotal) + '</div>' +
-          '<div style="font-size:11px;color:var(--text-faint);margin-top:2px;">custo do lote</div>' +
+          '<div style="font-size:15.5px;font-weight:700;">' + fmtMoney(lote.custoTotal) + '</div>' +
+          '<div style="font-size:13px;color:var(--text-faint);margin-top:2px;">custo do lote</div>' +
         '</div>' +
       '</div>';
   }
@@ -3044,8 +3044,8 @@
       listEl.innerHTML = lote.insumosUsados.map(function(item, idx){
         var borderStyle = idx === lote.insumosUsados.length - 1 ? "" : "border-bottom:1px solid var(--line);";
         return '<div class="between" style="padding:12px 0;' + borderStyle + '">' +
-          '<div style="font-size:13.5px;font-weight:500;">' + escapeHtml(item.nome) + '</div>' +
-          '<div style="font-size:13.5px;font-weight:700;">' + fmtQty(item.quantidade, item.unidade) + '</div>' +
+          '<div style="font-size:15.5px;font-weight:500;">' + escapeHtml(item.nome) + '</div>' +
+          '<div style="font-size:15.5px;font-weight:700;">' + fmtQty(item.quantidade, item.unidade) + '</div>' +
         '</div>';
       }).join("");
     }
@@ -3143,12 +3143,12 @@
     var tipoLabel = item.tipo === "insumo" ? "Insumo" : "Vela pronta";
     return '<div class="raised-sm avisos-row" style="padding:15px 16px;margin-bottom:11px;">' +
         '<div class="between" style="margin-bottom:6px;">' +
-          '<div style="font-size:14px;font-weight:600;">' + escapeHtml(item.nome) + '</div>' +
+          '<div style="font-size:16px;font-weight:600;">' + escapeHtml(item.nome) + '</div>' +
           '<div class="badge warn">' + tipoLabel + '</div>' +
         '</div>' +
         '<div class="between">' +
-          '<div style="font-size:13.5px;color:var(--text-dim);">' + fmtQty(item.atual, item.unidade) + ' em estoque</div>' +
-          '<div style="font-size:11.5px;color:var(--text-faint);">mín ' + fmtQty(item.minimo, item.unidade) + '</div>' +
+          '<div style="font-size:15.5px;color:var(--text-dim);">' + fmtQty(item.atual, item.unidade) + ' em estoque</div>' +
+          '<div style="font-size:13.5px;color:var(--text-faint);">mín ' + fmtQty(item.minimo, item.unidade) + '</div>' +
         '</div>' +
       '</div>';
   }
@@ -3344,7 +3344,7 @@
     if (notifState.canais.indexOf("email") !== -1 && !notifState.email) linhas.push({tipo:"warn", texto:"e-mail: cadastre um endereço acima."});
     if (notifState.canais.indexOf("whatsapp") !== -1 && !notifState.whatsapp) linhas.push({tipo:"warn", texto:"WhatsApp: cadastre um número acima."});
     listEl.innerHTML = linhas.map(function(l){
-      return '<div style="display:flex;align-items:center;gap:7px;font-size:11px;color:var(--text-faint);line-height:1.6;">' +
+      return '<div style="display:flex;align-items:center;gap:7px;font-size:13px;color:var(--text-faint);line-height:1.6;">' +
         '<span class="status-dot ' + l.tipo + '" aria-hidden="true"></span>' + escapeHtml(l.texto) + '</div>';
     }).join("");
   }
@@ -3659,9 +3659,9 @@
       return stop;
     });
     var legend = slices.map(function(s){
-      return '<div class="between"><span style="display:flex;align-items:center;gap:8px;font-size:13px;">' +
+      return '<div class="between"><span style="display:flex;align-items:center;gap:8px;font-size:15px;">' +
         '<span style="width:8px;height:8px;border-radius:50%;background:' + s.color + ';"></span>' + escapeHtml(s.label) + '</span>' +
-        '<span style="font-size:13px;font-weight:600;">' + s.qty + ' un</span></div>';
+        '<span style="font-size:15px;font-weight:600;">' + s.qty + ' un</span></div>';
     }).join("");
     wrap.innerHTML =
       '<div style="display:flex;align-items:center;gap:20px;">' +
