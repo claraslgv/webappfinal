@@ -2507,6 +2507,16 @@
 
   <div class="toast" id="toast"></div>
 
+  <!-- ---------- Aviso de atualização disponível — fixo no topo, escondido por padrão
+       (mesmo padrão do .toast: sempre no DOM, opacity/transform controlados por classe
+       "show"). app.js (módulo 21) mostra este aviso quando o service worker detecta uma
+       versão nova do app shell; um toque recarrega a página pra usá-la. ---------- -->
+  <div class="update-banner" id="updateBanner" role="button" tabindex="0"
+    aria-label="Nova versão do app disponível — toque para atualizar">
+    <span class="update-banner-dot" aria-hidden="true"></span>
+    atualizar
+  </div>
+
   <script src="app.js"></script>
 </body>
 

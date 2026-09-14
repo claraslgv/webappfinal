@@ -599,6 +599,21 @@ a{color:var(--primary);}
 }
 .toast.show{opacity:1;transform:translate(-50%,0);}
 
+/* Aviso de atualização disponível (service worker achou uma versão nova do app shell) —
+   ver #updateBanner em index.html e o módulo 21 em app.js. Fixo no topo (o toast já ocupa
+   o embaixo, perto do dock) pra nunca competir por espaço com ele; não expira sozinho como
+   o toast — some só quando a pessoa toca pra atualizar. */
+.update-banner{
+  position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top));transform:translate(-50%,-12px);
+  display:flex;align-items:center;gap:8px;
+  background:var(--primary);color:var(--on-primary);font:700 13px/1 'Montserrat',sans-serif;
+  letter-spacing:.01em;padding:11px 20px;border-radius:999px;
+  box-shadow:0 10px 24px -8px rgba(0,0,0,.45);
+  opacity:0;pointer-events:none;transition:opacity .22s ease,transform .22s ease;z-index:60;cursor:pointer;
+}
+.update-banner.show{opacity:1;transform:translate(-50%,0);pointer-events:auto;}
+.update-banner-dot{width:7px;height:7px;border-radius:50%;background:var(--on-primary);opacity:.5;flex:none;}
+
 @media (prefers-reduced-motion: reduce){
   .raised,.raised-sm,.pressed,.pressed-pill,.btn,.pill,.iconbtn,.tapicon,
   .dockitem,.row[role="button"],.raised[role="button"]{

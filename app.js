@@ -4033,14 +4033,39 @@
   // simples porque service worker não existe em todo navegador antigo. Precisa HTTPS (ou
   // localhost) pra funcionar de verdade; aberto direto como arquivo (file://) o navegador
   // nem tenta registrar, silenciosamente — normal em dev, não é bug.
+  //
+  // Aviso de atualização ("atualizar", #updateBanner em index.html) — fase de testes: toda
+  // vez que o app shell muda de verdade (subiu CACHE_VERSION em sw.js, ou qualquer arquivo
+  // dele mudou de bytes), o navegador detecta e começa a instalar a versão nova sozinho.
+  // "updatefound" dispara nessa hora; só nos interessa quando esta aba JÁ tinha um service
+  // worker no controle (senão é a 1ª visita — nada pra avisar). Quando a versão nova termina
+  // de instalar, mostra o aviso; um toque recarrega a página. sw.js já chama skipWaiting()
+  // sozinho, então a versão nova assume assim que instala — o reload só busca os arquivos
+  // de novo, já pega a certa.
   // ================================================================
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", function(){
-      navigator.serviceWorker.register("./sw.js").catch(function(){
+      navigator.serviceWorker.register("./sw.js").then(function(reg){
+        if (!reg) return;
+        reg.addEventListener("updatefound", function(){
+          if (!navigator.serviceWorker.controller) return; // 1ª visita: nada pra atualizar
+          var novo = reg.installing;
+          if (!novo) return;
+          novo.addEventListener("statechange", function(){
+            if (novo.state === "installed") mostrarAvisoAtualizacao();
+          });
+        });
+      }).catch(function(){
         // Sem internet na 1ª visita, ou servido de file:// — o app continua funcionando
         // normalmente, só sem o offline/instalável desta vez.
       });
     });
+  }
+  function mostrarAvisoAtualizacao(){
+    var el = document.getElementById("updateBanner");
+    if (!el || el.classList.contains("show")) return;
+    el.classList.add("show");
+    el.addEventListener("click", function(){ window.location.reload(); }, { once: true });
   }
 
   // ================================================================
