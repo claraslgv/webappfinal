@@ -2766,9 +2766,9 @@
       '<div class="raised-sm between" style="padding:15px 16px;margin-bottom:11px;">' +
         '<div><div style="font-size:16px;font-weight:600;">' + escapeHtml(nome) + '</div><div style="font-size:13.5px;color:var(--text-faint);margin-top:2px;">velas prontas</div></div>' +
         '<div class="row" style="gap:10px;">' +
-          '<div class="pressed" role="button" tabindex="0" aria-label="Remover uma vela · ' + escapeHtml(nome) + '" data-action="prod-dec" data-var-id="' + v.id + '" style="width:34px;height:34px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--text);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M5 12h14"/></svg></div>' +
+          '<div class="pressed" role="button" tabindex="0" aria-label="Remover uma vela · ' + escapeHtml(nome) + '" data-action="prod-dec" data-var-id="' + v.id + '" style="width:34px;height:34px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--text);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" width="15" height="15"><path d="M5 12h14"/></svg></div>' +
           '<div style="font-size:20px;font-weight:700;min-width:30px;text-align:center;">' + qtd + '</div>' +
-          '<div class="raised-sm" role="button" tabindex="0" aria-label="Adicionar uma vela · ' + escapeHtml(nome) + '" data-action="prod-inc" data-var-id="' + v.id + '" style="width:34px;height:34px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--card-text);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></div>' +
+          '<div class="raised-sm" role="button" tabindex="0" aria-label="Adicionar uma vela · ' + escapeHtml(nome) + '" data-action="prod-inc" data-var-id="' + v.id + '" style="width:34px;height:34px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--card-text);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" width="15" height="15"><path d="M12 5v14M5 12h14"/></svg></div>' +
         '</div>' +
       '</div>';
   }
@@ -2825,9 +2825,9 @@
         '<div style="flex:1;min-width:0;">' +
           '<div style="font-size:15.5px;font-weight:500;">' + escapeHtml(item.nome) + '</div>' +
           '<div class="row" style="gap:4px;margin-top:4px;">' +
-            '<div class="pressed" role="button" tabindex="0" aria-label="Diminuir 5% · ' + escapeHtml(item.nome) + '" data-action="calc-adj-dec" data-calc-insumo-id="' + item.insumoId + '" style="width:22px;height:22px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--text-faint);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14"/></svg></div>' +
+            '<div class="pressed" role="button" tabindex="0" aria-label="Diminuir 5% · ' + escapeHtml(item.nome) + '" data-action="calc-adj-dec" data-calc-insumo-id="' + item.insumoId + '" style="width:22px;height:22px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--text-faint);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="12" height="12"><path d="M5 12h14"/></svg></div>' +
             '<div style="font-size:12.5px;color:var(--text-faint);min-width:30px;text-align:center;">' + ajusteTxt + '</div>' +
-            '<div class="pressed" role="button" tabindex="0" aria-label="Aumentar 5% · ' + escapeHtml(item.nome) + '" data-action="calc-adj-inc" data-calc-insumo-id="' + item.insumoId + '" style="width:22px;height:22px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--text-faint);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></div>' +
+            '<div class="pressed" role="button" tabindex="0" aria-label="Aumentar 5% · ' + escapeHtml(item.nome) + '" data-action="calc-adj-inc" data-calc-insumo-id="' + item.insumoId + '" style="width:22px;height:22px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--text-faint);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="12" height="12"><path d="M12 5v14M5 12h14"/></svg></div>' +
           '</div>' +
         '</div>' +
         '<div style="text-align:right;">' +

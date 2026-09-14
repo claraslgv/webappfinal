@@ -901,20 +901,27 @@
         <div style="display:flex;gap:9px;overflow-x:auto;margin-bottom:18px;padding-bottom:2px;" id="calcVarPills">
         </div>
 
+        <!-- ---------- +/- do estepe de quantidade: os svg's aqui (e nos outros estepes do
+             app — lucro, venda, encomenda, produção, ajuste de insumo) levam width/height
+             fixos direto no atributo, não só a viewBox. Sem isso o Chrome ainda preenche o
+             botão (parece funcionar em teste local), mas o Safari/iOS calcula 0x0 pro
+             mesmo svg dentro de um flex item sem tamanho próprio — o ícone some de vez só
+             no celular de verdade, sem erro no console. Bug relatado pela usuária
+             (14/09/2026): "+" e "-" sumidos em algumas telas no celular. ---------- -->
         <div class="raised card">
           <div class="label">quantidade do lote</div>
           <div class="row" style="justify-content:center;gap:26px;">
             <div class="pressed" role="button" tabindex="0" aria-label="Diminuir quantidade do lote"
               data-action="calc-qtd-dec"
               style="width:44px;height:44px;border-radius:15px;display:flex;align-items:center;justify-content:center;color:var(--text);">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" width="19" height="19">
                 <path d="M5 12h14" />
               </svg></div>
             <div style="font-size:32px;font-weight:700;min-width:44px;text-align:center;" id="calcQtdOut">24</div>
             <div class="raised-sm" role="button" tabindex="0" aria-label="Aumentar quantidade do lote"
               data-action="calc-qtd-inc"
               style="width:44px;height:44px;border-radius:15px;display:flex;align-items:center;justify-content:center;color:var(--primary);">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" width="19" height="19">
                 <path d="M12 5v14M5 12h14" />
               </svg></div>
           </div>
@@ -987,14 +994,14 @@
             <div class="pressed" role="button" tabindex="0" aria-label="Diminuir quantidade do lote"
               data-action="lucro-qtd-dec"
               style="width:44px;height:44px;border-radius:15px;display:flex;align-items:center;justify-content:center;color:var(--text);">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" width="19" height="19">
                 <path d="M5 12h14" />
               </svg></div>
             <div style="font-size:32px;font-weight:700;min-width:44px;text-align:center;" id="lucroQtdOut">24</div>
             <div class="raised-sm" role="button" tabindex="0" aria-label="Aumentar quantidade do lote"
               data-action="lucro-qtd-inc"
               style="width:44px;height:44px;border-radius:15px;display:flex;align-items:center;justify-content:center;color:var(--primary);">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" width="19" height="19">
                 <path d="M12 5v14M5 12h14" />
               </svg></div>
           </div>
@@ -1412,14 +1419,14 @@
           <div class="row" style="gap:12px;">
             <div class="pressed" role="button" tabindex="0" aria-label="Diminuir quantidade" data-action="venda-qtd-dec"
               style="width:34px;height:34px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--text);">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" width="15" height="15">
                 <path d="M5 12h14" />
               </svg>
             </div>
             <div style="font-size:22px;font-weight:700;min-width:26px;text-align:center;" id="vendaQtdValue">1</div>
             <div class="raised-sm" role="button" tabindex="0" aria-label="Aumentar quantidade" data-action="venda-qtd-inc"
               style="width:34px;height:34px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--card-text);">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" width="15" height="15">
                 <path d="M12 5v14M5 12h14" />
               </svg>
             </div>
@@ -1578,14 +1585,14 @@
           <div class="row" style="gap:12px;">
             <div class="pressed" role="button" tabindex="0" aria-label="Diminuir quantidade" data-action="encomenda-qtd-dec"
               style="width:34px;height:34px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--text);">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" width="15" height="15">
                 <path d="M5 12h14" />
               </svg>
             </div>
             <div style="font-size:22px;font-weight:700;min-width:26px;text-align:center;" id="encomendaQtdValue">1</div>
             <div class="raised-sm" role="button" tabindex="0" aria-label="Aumentar quantidade" data-action="encomenda-qtd-inc"
               style="width:34px;height:34px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--card-text);">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" width="15" height="15">
                 <path d="M12 5v14M5 12h14" />
               </svg>
             </div>

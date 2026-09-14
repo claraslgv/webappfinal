@@ -500,6 +500,11 @@ input.auth-input:-webkit-autofill{-webkit-text-fill-color:#F3E6CE;transition:bac
 .resumo-row{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--line);}
 .resumo-row.resumo-row-last{border-bottom:none;}
 .resumo-row-icon{width:32px;height:32px;border-radius:11px;display:flex;align-items:center;justify-content:center;color:var(--primary);flex:none;}
+/* Sem isso o ícone (svg sem width/height próprio, só a viewBox) fica invisível no Safari/
+   iOS: o Chrome preenche o flex item de 32px por padrão quando width/height ficam "auto",
+   mas o WebKit calcula 0x0 no mesmo cenário — mesma causa-raiz do bug corrigido nos
+   contadores de quantidade (.pressed/.raised-sm soltos, ver comentário perto deles). */
+.resumo-row-icon svg{width:14px;height:14px;}
 .resumo-row-title{font-size:var(--text-sm);font-weight:600;}
 .resumo-row-detail{font-size:var(--text-xs);color:var(--text-faint);margin-top:1px;}
 
