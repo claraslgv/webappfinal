@@ -752,33 +752,28 @@ a{color:var(--primary);}
    1180px dentro dele — sem isso, uma única coluna de cards ficaria absurdamente esticada
    numa tela grande. O dashboard, especificamente, troca a pilha vertical única por uma
    grade de 2 colunas (ver mais abaixo) pra aproveitar essa largura em vez de só esticar
-   os mesmos cards. */
-/* Toda regra aqui dentro é prefixada com "html:not([data-preview=mobile])" — sem isso,
-   forçar "celular" no alternador (ver .devswitch) só travava a largura do .app-frame (essa
-   parte já ganhava por especificidade, ver o bloco html[data-preview="mobile"] mais abaixo),
-   mas o CONTEÚDO continuava lendo a media query de verdade (min-width:900px, que só olha
-   pra largura real da janela) e a grade de 2 colunas do dashboard aplicava do mesmo jeito
-   dentro do cartão estreito — cards cortados, cada um mais largo que o próprio cartão. */
+   os mesmos cards. Puramente automático: só essa media query decide, pela largura real da
+   janela — não existe alternador manual nem preferência salva sobrepondo isso. */
 @media (min-width:900px){
-  html:not([data-preview="mobile"]) body{padding:0;align-items:stretch;}
-  html:not([data-preview="mobile"]) .app-frame{
+  body{padding:0;align-items:stretch;}
+  .app-frame{
     width:100%;max-width:none;height:100vh;border-radius:0;box-shadow:none;margin:0;
   }
-  html:not([data-preview="mobile"]) .content{max-width:1180px;width:100%;margin-left:auto;margin-right:auto;padding:36px 40px 60px;box-sizing:border-box;}
-  html:not([data-preview="mobile"]) .topbar,
-  html:not([data-preview="mobile"]) .backrow{max-width:1180px;width:100%;margin:0 auto;padding-left:40px;padding-right:40px;box-sizing:border-box;}
-  html:not([data-preview="mobile"]) .dash-hero-greetrow,
-  html:not([data-preview="mobile"]) .dash-hero-week{max-width:1180px;width:100%;margin-left:auto;margin-right:auto;padding-left:40px;padding-right:40px;box-sizing:border-box;}
+  .content{max-width:1180px;width:100%;margin-left:auto;margin-right:auto;padding:36px 40px 60px;box-sizing:border-box;}
+  .topbar,
+  .backrow{max-width:1180px;width:100%;margin:0 auto;padding-left:40px;padding-right:40px;box-sizing:border-box;}
+  .dash-hero-greetrow,
+  .dash-hero-week{max-width:1180px;width:100%;margin-left:auto;margin-right:auto;padding-left:40px;padding-right:40px;box-sizing:border-box;}
   /* O dock é um cluster compacto de botões (não uma barra que deve preencher a largura) —
      esticado por 1100px+ os 5 círculos ficariam absurdamente espalhados, então mantém uma
      largura de cluster e centraliza, em vez de acompanhar a largura do quadro. */
-  html:not([data-preview="mobile"]) .dock{max-width:420px;margin-left:auto;margin-right:auto;}
+  .dock{max-width:420px;margin-left:auto;margin-right:auto;}
 
   /* Dashboard: grade de 2 colunas — a lista de "resumo de hoje" e o gráfico de pizza
      (leitura mais longa/visual) numa coluna, os números-chave (lucro, vendas, produzido)
      na outra, com os controles de topo (avisos, período) ocupando a largura inteira.
      grid-area dá a ordem visual; a ordem no HTML continua a leitura linear do celular. */
-  html:not([data-preview="mobile"]) .screen[data-screen="dashboard"] .content{
+  .screen[data-screen="dashboard"] .content{
     display:grid;grid-template-columns:1.1fr .9fr;gap:22px 28px;align-items:start;align-content:start;
     grid-template-areas:
       "urgent urgent"
@@ -797,105 +792,28 @@ a{color:var(--primary);}
      olhos do grid — foi exatamente ali que o rodapé parava, entre os pills de período e os
      cards, empurrando tudo pra baixo. Área nomeada fixa resolve pra sempre, independente do
      que mais estiver oculto. */
-  html:not([data-preview="mobile"]) .screen[data-screen="dashboard"] .content > .reveal-footer{grid-area:reveal;}
-  html:not([data-preview="mobile"]) .dash-area-urgent{grid-area:urgent;}
-  html:not([data-preview="mobile"]) .dash-area-periodo{grid-area:periodo;}
-  html:not([data-preview="mobile"]) .dash-area-periodo2{grid-area:periodo2;}
-  html:not([data-preview="mobile"]) .dash-area-resumo{grid-area:resumo;}
-  html:not([data-preview="mobile"]) .dash-area-lucro{grid-area:lucro;}
-  html:not([data-preview="mobile"]) .dash-area-metrics{grid-area:metrics;}
-  html:not([data-preview="mobile"]) .dash-area-pizza{grid-area:pizza;}
-  html:not([data-preview="mobile"]) .dash-area-produzido{grid-area:produzido;}
-  html:not([data-preview="mobile"]) .dash-area-report{grid-area:report;}
+  .screen[data-screen="dashboard"] .content > .reveal-footer{grid-area:reveal;}
+  .dash-area-urgent{grid-area:urgent;}
+  .dash-area-periodo{grid-area:periodo;}
+  .dash-area-periodo2{grid-area:periodo2;}
+  .dash-area-resumo{grid-area:resumo;}
+  .dash-area-lucro{grid-area:lucro;}
+  .dash-area-metrics{grid-area:metrics;}
+  .dash-area-pizza{grid-area:pizza;}
+  .dash-area-produzido{grid-area:produzido;}
+  .dash-area-report{grid-area:report;}
   /* O gap da grade já espaça as células — os mesmos elementos usam margin inline pra se
      empilhar no celular (ver index.html), então precisa vencer o estilo inline aqui. */
-  html:not([data-preview="mobile"]) .dash-area-urgent,
-  html:not([data-preview="mobile"]) .dash-area-periodo,
-  html:not([data-preview="mobile"]) .dash-area-periodo2,
-  html:not([data-preview="mobile"]) .dash-area-resumo,
-  html:not([data-preview="mobile"]) .dash-area-lucro,
-  html:not([data-preview="mobile"]) .dash-area-metrics,
-  html:not([data-preview="mobile"]) .dash-area-pizza,
-  html:not([data-preview="mobile"]) .dash-area-produzido{
+  .dash-area-urgent,
+  .dash-area-periodo,
+  .dash-area-periodo2,
+  .dash-area-resumo,
+  .dash-area-lucro,
+  .dash-area-metrics,
+  .dash-area-pizza,
+  .dash-area-produzido{
     margin:0!important;
   }
-}
-
-/* ---------- Alternador computador/celular — fixo no canto superior direito da viewport,
-   fora de #authView e .app-frame (ver o botão em index.html e setPreview() em app.js). ---------- */
-.devswitch{
-  position:fixed;top:14px;right:14px;z-index:50;display:flex;gap:3px;
-  background:#442D1C;padding:4px;border-radius:14px;box-shadow:0 10px 24px -8px rgba(0,0,0,.5);
-}
-.devswitch-btn{
-  width:34px;height:34px;border:none;border-radius:10px;background:transparent;color:rgba(232,209,167,.55);
-  display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .15s ease,color .15s ease;
-}
-.devswitch-btn svg{width:17px;height:17px;}
-.devswitch-btn:hover{color:#E8D1A7;}
-.devswitch-btn[aria-pressed="true"]{background:#E8D1A7;color:#442D1C;}
-@media (max-width:480px){
-  .devswitch{top:10px;right:10px;}
-  .devswitch-btn{width:30px;height:30px;}
-  .devswitch-btn svg{width:15px;height:15px;}
-}
-
-/* ---------- Preview forçado (computador/celular) ----------
-   Reaplica os mesmos valores do @media(min-width:900px) acima, mas fora de uma media
-   query — como seletor de elemento (html[data-preview=...]) tem mais especificidade que
-   a regra simples de classe (.app-frame etc.), ganha dos dois lados: força o cartão largo
-   numa janela estreita, ou trava o cartão de celular numa janela larga, sem duplicar a
-   lógica dos componentes internos (que já herdam a largura do .app-frame). */
-html[data-preview="desktop"] body{padding:0;align-items:stretch;}
-html[data-preview="desktop"] .app-frame{
-  width:100%;max-width:none;height:100vh;border-radius:0;box-shadow:none;margin:0;
-}
-html[data-preview="desktop"] .content{max-width:1180px;width:100%;margin-left:auto;margin-right:auto;padding:36px 40px 60px;box-sizing:border-box;}
-html[data-preview="desktop"] .topbar,
-html[data-preview="desktop"] .backrow{max-width:1180px;width:100%;margin:0 auto;padding-left:40px;padding-right:40px;box-sizing:border-box;}
-html[data-preview="desktop"] .dash-hero-greetrow,
-html[data-preview="desktop"] .dash-hero-week{max-width:1180px;width:100%;margin-left:auto;margin-right:auto;padding-left:40px;padding-right:40px;box-sizing:border-box;}
-html[data-preview="desktop"] .dock{max-width:420px;margin-left:auto;margin-right:auto;}
-
-html[data-preview="desktop"] .screen[data-screen="dashboard"] .content{
-  display:grid;grid-template-columns:1.1fr .9fr;gap:22px 28px;align-items:start;align-content:start;
-  grid-template-areas:
-    "urgent urgent"
-    "periodo periodo"
-    "periodo2 periodo2"
-    "resumo lucro"
-    "resumo metrics"
-    "pizza produzido"
-    "report report"
-    "reveal reveal";
-}
-html[data-preview="desktop"] .screen[data-screen="dashboard"] .content > .reveal-footer{grid-area:reveal;}
-html[data-preview="desktop"] .dash-area-urgent{grid-area:urgent;}
-html[data-preview="desktop"] .dash-area-periodo{grid-area:periodo;}
-html[data-preview="desktop"] .dash-area-periodo2{grid-area:periodo2;}
-html[data-preview="desktop"] .dash-area-resumo{grid-area:resumo;}
-html[data-preview="desktop"] .dash-area-lucro{grid-area:lucro;}
-html[data-preview="desktop"] .dash-area-metrics{grid-area:metrics;}
-html[data-preview="desktop"] .dash-area-pizza{grid-area:pizza;}
-html[data-preview="desktop"] .dash-area-produzido{grid-area:produzido;}
-html[data-preview="desktop"] .dash-area-report{grid-area:report;}
-html[data-preview="desktop"] .dash-area-urgent,
-html[data-preview="desktop"] .dash-area-periodo,
-html[data-preview="desktop"] .dash-area-periodo2,
-html[data-preview="desktop"] .dash-area-resumo,
-html[data-preview="desktop"] .dash-area-lucro,
-html[data-preview="desktop"] .dash-area-metrics,
-html[data-preview="desktop"] .dash-area-pizza,
-html[data-preview="desktop"] .dash-area-produzido{
-  margin:0!important;
-}
-
-html[data-preview="mobile"] body{padding:26px 0;align-items:flex-start;}
-html[data-preview="mobile"] .app-frame{
-  max-width:430px;height:100vh;border-radius:0;box-shadow:0 0 1px rgba(0,0,0,.4);
-}
-@media (min-width:431px){
-  html[data-preview="mobile"] .app-frame{box-shadow:0 30px 70px rgba(0,0,0,.55);}
 }
 
 /* ---------- Mostrar/ocultar senha dentro de um .pressed.field comum (fora da tela de auth,

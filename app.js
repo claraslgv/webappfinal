@@ -376,35 +376,6 @@
       .catch(function(){ showToast("não consegui falar com o servidor — confira sua internet."); });
   }
 
-  // ================================================================
-  // Alternador computador/celular — força o layout do app-frame independente da largura
-  // real da janela (ver html[data-preview="..."] em style.css), pra dar pra comparar os
-  // dois formatos sem redimensionar o navegador. Sem preferência salva, detecta uma vez
-  // pela largura real da tela; depois disso guarda a escolha da pessoa.
-  // ================================================================
-  var PREVIEW_KEY = "pp_preview_v1";
-  function loadPreview(){
-    try {
-      var saved = localStorage.getItem(PREVIEW_KEY);
-      if (saved === "desktop" || saved === "mobile") return saved;
-    } catch (e) {}
-    var telaLarga = window.matchMedia && window.matchMedia("(min-width:900px)").matches;
-    return telaLarga ? "desktop" : "mobile";
-  }
-  function applyPreview(modo){
-    document.documentElement.setAttribute("data-preview", modo);
-    document.querySelectorAll("[data-preview-set]").forEach(function(btn){
-      btn.setAttribute("aria-pressed", btn.dataset.previewSet === modo ? "true" : "false");
-    });
-  }
-  var previewState = loadPreview();
-  applyPreview(previewState);
-  function setPreview(modo){
-    previewState = modo === "desktop" ? "desktop" : "mobile";
-    applyPreview(previewState);
-    try { localStorage.setItem(PREVIEW_KEY, previewState); } catch (e) {}
-  }
-
   function submitSignup(){
     var nome = document.getElementById("signupNome").value.trim();
     var email = document.getElementById("signupEmail").value.trim();
@@ -4109,9 +4080,6 @@
       void tapEl.offsetWidth;
       tapEl.classList.add("tap-bounce");
     }
-
-    var previewBtn = e.target.closest("[data-preview-set]");
-    if (previewBtn) { setPreview(previewBtn.dataset.previewSet); return; }
 
     var dock = e.target.closest("[data-dock]");
     if (dock) {

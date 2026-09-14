@@ -46,30 +46,6 @@
     </div>
   </div>
 
-  <!-- ---------- Alternador computador/celular — fixo no canto superior direito, fora de
-       #authView e .app-frame, pra ficar visível em qualquer tela. Força o layout mesmo
-       fora da largura real da janela (ver data-preview em style.css e setPreview() em
-       app.js), pra comparar os dois formatos sem precisar redimensionar o navegador. -->
-  <div class="devswitch" role="group" aria-label="Visualizar como">
-    <button type="button" class="devswitch-btn" data-preview-set="desktop" aria-pressed="false"
-      aria-label="Visualizar como computador" title="Computador">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
-        stroke-linejoin="round">
-        <rect x="3" y="4" width="18" height="13" rx="2" />
-        <path d="M8 21h8" />
-        <path d="M12 17v4" />
-      </svg>
-    </button>
-    <button type="button" class="devswitch-btn" data-preview-set="mobile" aria-pressed="false"
-      aria-label="Visualizar como celular" title="Celular">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
-        stroke-linejoin="round">
-        <rect x="7" y="2" width="10" height="20" rx="2.4" />
-        <path d="M11 18h2" />
-      </svg>
-    </button>
-  </div>
-
   <!-- ---------- Login / criar conta — tela cheia, fora do cartão do app ---------- -->
   <div id="authView">
     <div class="auth-bg-wg" aria-hidden="true">
