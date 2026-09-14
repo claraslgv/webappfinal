@@ -175,6 +175,15 @@
   // ================================================================
   var SUPABASE_URL = "https://vmqpvlcckcfixsryvfdn.supabase.co";
   var SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZtcXB2bGNja2NmaXhzcnl2ZmRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcwODYyNDQsImV4cCI6MjEwMjY2MjI0NH0.JGpqSGXuEM8Rc1s9oo451UCotu4ub1D9JhCJcLiPplM";
+  // URL onde este app está hospedado de verdade — mandada explicitamente como redirect_to em
+  // /signup e /recover (ver módulo 9, abaixo) pra garantir que o e-mail de confirmação/
+  // recuperação sempre volte pro app certo, em vez de depender do "Site URL" default do
+  // projeto Supabase (que sem isso manda pra http://localhost:3000 e quebra o link pra
+  // qualquer pessoa que não tenha um servidor local rodando). Ainda depende do Supabase
+  // aceitar essa URL: ela também precisa estar na lista de Redirect URLs em Authentication →
+  // URL Configuration no dashboard, senão o GoTrue ignora o redirect_to e cai no Site URL
+  // mesmo assim.
+  var APP_URL = "https://claraslgv.github.io/webappfinal/";
 
   // ================================================================
   // Conta / sessão — módulo 9. Login real via Supabase Auth (e-mail+senha) — substitui a
@@ -414,7 +423,7 @@
     if (errEl) errEl.hidden = true;
     if (btn) btn.disabled = true;
 
-    fetch(SUPABASE_URL + "/auth/v1/signup", {
+    fetch(SUPABASE_URL + "/auth/v1/signup?redirect_to=" + encodeURIComponent(APP_URL), {
       method: "POST", headers: supaHeaders(false),
       body: JSON.stringify({ email: email, password: senha, data: { nome: nome } })
     }).then(function(resp){ return resp.json().then(function(data){ return { status: resp.status, data: data }; }); })
@@ -4133,12 +4142,14 @@
       // Dispara o e-mail de recuperação real do Supabase Auth. O link desse e-mail volta
       // pro app com #access_token=...&type=recovery no fragmento da URL — detectRecoveryLink()
       // (ver checkAuthAndInit) reconhece isso e abre a tela "definir nova senha"
-      // (auth-screen "novaSenha", submitNovaSenha()) direto. Isso depende do "Site URL"/
-      // redirect configurado em Authentication → URL Configuration no projeto Supabase
-      // apontar pra URL onde este app está hospedado — se apontar pra outro lugar, o link
-      // não vai cair aqui (nesse caso a senha ainda pode ser trocada direto pelo Supabase
-      // Dashboard → Authentication → Users, como antes).
-      fetch(SUPABASE_URL + "/auth/v1/recover", {
+      // (auth-screen "novaSenha", submitNovaSenha()) direto. redirect_to manda explicitamente
+      // pra APP_URL (ver módulo 9, topo do arquivo), mas o Supabase só aceita isso se APP_URL
+      // também estiver na lista de Redirect URLs em Authentication → URL Configuration no
+      // projeto — sem isso ele ignora o redirect_to e usa o "Site URL" default do projeto (se
+      // esse continuar em algo como http://localhost:3000, o link não vai cair aqui pra
+      // ninguém fora de um servidor local; a senha ainda pode ser trocada direto pelo Supabase
+      // Dashboard → Authentication → Users nesse caso).
+      fetch(SUPABASE_URL + "/auth/v1/recover?redirect_to=" + encodeURIComponent(APP_URL), {
         method: "POST", headers: supaHeaders(false), body: JSON.stringify({ email: emailForgot })
       }).catch(function(){});
       if (errEl) { errEl.hidden = false; errEl.textContent = "se esse e-mail tiver uma conta, mandamos um link de recuperação — confira sua caixa de entrada."; }
