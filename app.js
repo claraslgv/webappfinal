@@ -1568,12 +1568,18 @@
       '</div>';
   }
 
+  // Cortesia = presente/parceria/divulgação: a vela sai do estoque e fica no histórico,
+  // mas a venda é gravada com preço 0 (itens, subtotal e total) — assim nenhum cálculo de
+  // faturamento/receita precisa saber que cortesia existe, e cupom não se aplica.
+  function vendaEhCortesia(){ return vendaFormState.formaPagamento === "cortesia"; }
+
   function computeVendaSubtotal(){
+    if (vendaEhCortesia()) return 0;
     return round2(vendaFormState.itens.reduce(function(sum, it){ return sum + it.quantidade * it.precoUnit; }, 0));
   }
   function computeVendaDesconto(subtotal){
     var cupom = vendaFormState.cupom;
-    if (!cupom) return 0;
+    if (!cupom || vendaEhCortesia()) return 0;
     if (cupom.tipo === "percentual") return round2(subtotal * (cupom.valor / 100));
     if (cupom.tipo === "fixo") return round2(Math.min(cupom.valor, subtotal));
     return 0;
@@ -1686,6 +1692,7 @@
   function vendaFormaSelecionar(forma){
     vendaFormState.formaPagamento = forma;
     document.querySelectorAll('#vendaFormaPills [data-forma]').forEach(function(p){ p.classList.toggle("active", p.dataset.forma === forma); });
+    renderRegistrarVenda();
   }
 
   function vendaCupomAplicar(){
@@ -1732,6 +1739,7 @@
     var desconto = computeVendaDesconto(subtotal);
     var total = round2(subtotal - desconto);
     var vendaId = uid("vd");
+    var cortesia = vendaEhCortesia();
 
     vendaFormState.itens.forEach(function(item){
       var estoqueVela = findEstoqueVela(item.variacaoId);
@@ -1742,14 +1750,14 @@
 
     vendasState.vendas.push({
       id: vendaId, clienteId: vendaFormState.clienteId, clienteNome: vendaFormState.clienteNome,
-      itens: vendaFormState.itens.map(function(it){ return { variacaoId: it.variacaoId, quantidade: it.quantidade, precoUnit: it.precoUnit, precoTabela: it.precoTabela }; }),
+      itens: vendaFormState.itens.map(function(it){ return { variacaoId: it.variacaoId, quantidade: it.quantidade, precoUnit: cortesia ? 0 : it.precoUnit, precoTabela: it.precoTabela }; }),
       formaPagamento: vendaFormState.formaPagamento, data: today, subtotal: subtotal,
-      cupomCodigo: vendaFormState.cupom ? vendaFormState.cupom.codigo : null, cupomDesconto: desconto, total: total,
+      cupomCodigo: (vendaFormState.cupom && !cortesia) ? vendaFormState.cupom.codigo : null, cupomDesconto: desconto, total: total,
       status: "confirmada", origemEncomendaId: null
     });
     saveVendasState();
 
-    if (vendaFormState.cupom) {
+    if (vendaFormState.cupom && !cortesia) {
       vendaFormState.cupom.usosCount = (vendaFormState.cupom.usosCount || 0) + 1;
       saveCuponsState();
     }
@@ -2155,6 +2163,7 @@
   function formaPagamentoLabel(forma){
     if (forma === "cartao") return "Cartão";
     if (forma === "dinheiro") return "Dinheiro";
+    if (forma === "cortesia") return "Cortesia";
     return "Pix";
   }
   function vendaItensResumo(itens){
