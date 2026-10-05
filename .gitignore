@@ -3,3 +3,6 @@
 # dados reais de clientes/vendas — nunca publicar
 *.xlsx
 backup-ponto-paragrafo*.json
+
+# lixo do macOS
+.DS_Store

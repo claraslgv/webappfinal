@@ -1,41 +1,40 @@
-
 /* O app é só escuro (a marca .parágrafo vive num Cowhide Cocoa #442D1C) — havia um modo
    claro alternável por toggle, removido a pedido da usuária; estes tokens eram os do
    `html[data-theme="dark"]` de antes e agora são os únicos valores, direto no :root.
    A técnica de sombra usada aqui (drop-shadow único bem definido + friso interno sutil,
    em vez de um par claro/escuro neumórfico) segue sendo a mesma — nenhuma regra abaixo
    precisa saber disso, só consome --shadow-raised / --shadow-pressed. */
-:root{
-  --bg:#442D1C;
-  --text:#F3E7D6;
-  --text-dim:#E8D1A7;
-  --text-faint:#B99E76;
-  --primary:#E8D1A7;
-  --primary-soft:rgba(232,209,167,.14);
-  --primary-soft-2:rgba(232,209,167,.24);
-  --shadow-d:rgba(0,0,0,.45);
-  --shadow-l:rgba(232,209,167,.06);
+:root {
+  --bg: #442D1C;
+  --text: #F3E7D6;
+  --text-dim: #E8D1A7;
+  --text-faint: #B99E76;
+  --primary: #E8D1A7;
+  --primary-soft: rgba(232, 209, 167, .14);
+  --primary-soft-2: rgba(232, 209, 167, .24);
+  --shadow-d: rgba(0, 0, 0, .45);
+  --shadow-l: rgba(232, 209, 167, .06);
   /* .30 dá um traço visível e ainda discreto (usado como border-width:1px em
      .raised/.pressed/.pill/.dock/.field a partir daqui). */
-  --line:rgba(232,209,167,.30);
-  --warn:#C1552F;
-  --warn-soft:rgba(193,85,47,.18);
-  --good:#C7BE95;
-  --good-soft:rgba(199,190,149,.14);
-  --chart-2:#B98A52;
-  --chart-3:#8A4A2B;
-  --on-primary:#442D1C;
-  --dock-bg:#5A3D27;
-  --page-bg:#2E1D11;
-  --knob-shadow:rgba(0,0,0,.5);
+  --line: rgba(232, 209, 167, .30);
+  --warn: #C1552F;
+  --warn-soft: rgba(193, 85, 47, .18);
+  --good: #C7BE95;
+  --good-soft: rgba(199, 190, 149, .14);
+  --chart-2: #B98A52;
+  --chart-3: #8A4A2B;
+  --on-primary: #442D1C;
+  --dock-bg: #5A3D27;
+  --page-bg: #2E1D11;
+  --knob-shadow: rgba(0, 0, 0, .5);
   /* #5A3D27 é o próprio --dock-bg — um marrom mais claro que o --bg (#442D1C) da página —
      dá pra distinguir card de fundo mesmo os dois sendo "marrom", e continua diferente de
      --primary (#E8D1A7, creme) pra não engolir elementos que usam --primary como cor sólida
      (ex.: .pill.active). */
-  --card-bg:#5A3D27;
-  --card-text:#F3E6CE;
-  --card-text-dim:rgba(243,230,206,.78);
-  --card-line:rgba(243,230,206,.16);
+  --card-bg: #5A3D27;
+  --card-text: #F3E6CE;
+  --card-text-dim: rgba(243, 230, 206, .78);
+  --card-line: rgba(243, 230, 206, .16);
   /* Cópia travada de --text/--text-dim/--text-faint, pra quem precisa do texto "de página"
      mesmo dentro de um .raised/.raised-sm agora marrom. .raised redefine --text/--text-dim/
      --text-faint localmente (pro texto solto do card virar creme) — mas var() sempre resolve
@@ -43,11 +42,11 @@
      .pressed-pill, .iconbtn — ex.: a pill "quem mais compra" dentro do card de ranking)
      herdaria esse creme sobre o PRÓPRIO fundo claro dele, quase ilegível. --surface-text* nunca
      é redefinido fora daqui, então essas classes usam ele em vez de --text/--text-dim direto. */
-  --surface-text:#F3E7D6;
-  --surface-text-dim:#E8D1A7;
-  --surface-text-faint:#B99E76;
+  --surface-text: #F3E7D6;
+  --surface-text-dim: #E8D1A7;
+  --surface-text-faint: #B99E76;
   /* Altura mínima do rodapé de marca no fim de cada tela (ver .reveal-footer mais abaixo). */
-  --reveal-footer-h:170px;
+  --reveal-footer-h: 170px;
   /* Elevação: só 2 tratamentos no total, não 4 níveis de "raised" + 2 de "pressed" como
      antes. Aquele leque inteiro era aplicado em quase todo elemento — card, pill, campo,
      botão, dock, ícone — e com tudo "em destaque" ao mesmo tempo, nada de fato se destacava:
@@ -59,8 +58,8 @@
      o resto que antes tinha relevo (a maioria: .raised/.raised-sm comuns, avatar, iconbtn,
      btn-ghost, pill ativa, step-dot, ícone de estado vazio, dia selecionado do calendário)
      virou plano — sem box-shadow, só cor de fundo/borda pra se diferenciar da página. */
-  --shadow-raised:0 6px 16px rgba(0,0,0,.42),inset 0 1px 0 rgba(232,209,167,.07);
-  --shadow-pressed:inset 0 2px 6px rgba(0,0,0,.5),inset 0 -1px 0 rgba(232,209,167,.04);
+  --shadow-raised: 0 6px 16px rgba(0, 0, 0, .42), inset 0 1px 0 rgba(232, 209, 167, .07);
+  --shadow-pressed: inset 0 2px 6px rgba(0, 0, 0, .5), inset 0 -1px 0 rgba(232, 209, 167, .04);
   /* ---------- Escala tipográfica ----------
      8 degraus fixos pra todo o app, em vez dos ~23 tamanhos soltos (9px a 30px) que existiam
      antes espalhados em style="" por index.html. Cada classe/estilo abaixo referencia uma
@@ -70,66 +69,239 @@
      md: subtítulos com um pouco mais de peso (.quote, títulos de esvaziado).
      lg: título de página (.pagetitle).
      xl/2xl: números grandes de destaque (saudação do dashboard, mês do calendário). */
-  --text-2xs:13px;
-  --text-xs:14px;
-  --text-sm:15px;
-  --text-base:16px;
-  --text-md:18px;
-  --text-lg:22px;
-  --text-xl:27px;
-  --text-2xl:32px;
+  --text-2xs: 13px;
+  --text-xs: 14px;
+  --text-sm: 15px;
+  --text-base: 16px;
+  --text-md: 18px;
+  --text-lg: 22px;
+  --text-xl: 27px;
+  --text-2xl: 32px;
 }
+
 /* ---------- Gradiente de boas-vindas (mesh de blobs) — referência: exemplo de footer
    animado do motion.dev, cores trocadas pra paleta da marca (Golden Batter, Spiced Wine,
    Olive Harvest, Toasted Caramel, Cowhide Cocoa). Só transform anima (blur fica fixo no
    elemento, não recalculado a cada frame) pra ficar leve mesmo em celular. Reaproveitado
    em dois lugares: tela cheia via #welcomeGradient (transição pós-login, ver app.js) e,
    bem mais sutil/lento, como pano de fundo vivo do próprio #authView logo abaixo. */
-@keyframes wg-drift-1{0%,100%{transform:translate(0,0) scale(1);}50%{transform:translate(9vmax,7vmax) scale(1.12);}}
-@keyframes wg-drift-2{0%,100%{transform:translate(0,0) scale(1);}50%{transform:translate(-7vmax,9vmax) scale(1.08);}}
-@keyframes wg-drift-3{0%,100%{transform:translate(0,0) scale(1);}50%{transform:translate(7vmax,-9vmax) scale(1.1);}}
-@keyframes wg-drift-4{0%,100%{transform:translate(0,0) scale(1);}50%{transform:translate(-9vmax,-6vmax) scale(1.14);}}
+@keyframes wg-drift-1 {
 
-#welcomeGradient{
-  position:fixed;inset:0;z-index:45;overflow:hidden;pointer-events:none;
-  background:#442D1C;opacity:0;transition:opacity .55s ease;
-}
-#welcomeGradient.show{opacity:1;}
-.wg-blob{position:absolute;border-radius:50%;filter:blur(60px);mix-blend-mode:screen;will-change:transform;}
-.wg-blob-1{width:60vmax;height:60vmax;left:-16vmax;top:-20vmax;background:radial-gradient(circle,#E8D1A7,transparent 70%);animation:wg-drift-1 7s ease-in-out infinite;}
-.wg-blob-2{width:55vmax;height:55vmax;right:-18vmax;top:-12vmax;background:radial-gradient(circle,#C1552F,transparent 70%);opacity:.85;animation:wg-drift-2 8.5s ease-in-out infinite;}
-.wg-blob-3{width:65vmax;height:65vmax;left:-14vmax;bottom:-26vmax;background:radial-gradient(circle,#8A9B5E,transparent 70%);opacity:.8;animation:wg-drift-3 9s ease-in-out infinite;}
-.wg-blob-4{width:50vmax;height:50vmax;right:-13vmax;bottom:-16vmax;background:radial-gradient(circle,#B98A52,transparent 70%);animation:wg-drift-4 7.5s ease-in-out infinite;}
-.wg-mark{
-  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:14px;
-  opacity:0;transform:translateY(6px) scale(.98);transition:opacity .5s ease .25s,transform .5s ease .25s;
-}
-#welcomeGradient.show .wg-mark{opacity:1;transform:translateY(0) scale(1);}
-.wg-mark-dots{display:flex;align-items:center;gap:8px;height:40px;}
-.wg-mark-dots span{background:#E8D1A7;display:block;}
-.wg-mark-dots span:first-child{width:11px;aspect-ratio:1;border-radius:50%;}
-.wg-mark-dots span:last-child{width:7px;height:100%;border-radius:5px;}
-.wg-mark-text{font:500 44px/1 'Abhaya Libre',Georgia,serif;letter-spacing:.01em;color:#E8D1A7;}
-@media (max-width:480px){
-  .wg-mark-dots{height:32px;gap:6px;}
-  .wg-mark-dots span:first-child{width:9px;}
-  .wg-mark-text{font-size:34px;}
-}
-@media (prefers-reduced-motion: reduce){
-  .wg-blob{animation:none!important;}
-  #welcomeGradient{transition-duration:.001ms!important;}
-  .wg-mark{transition-duration:.001ms!important;}
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  50% {
+    transform: translate(9vmax, 7vmax) scale(1.12);
+  }
 }
 
-*{box-sizing:border-box;}
+@keyframes wg-drift-2 {
+
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  50% {
+    transform: translate(-7vmax, 9vmax) scale(1.08);
+  }
+}
+
+@keyframes wg-drift-3 {
+
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  50% {
+    transform: translate(7vmax, -9vmax) scale(1.1);
+  }
+}
+
+@keyframes wg-drift-4 {
+
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  50% {
+    transform: translate(-9vmax, -6vmax) scale(1.14);
+  }
+}
+
+#welcomeGradient {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  overflow: hidden;
+  pointer-events: none;
+  background: #442D1C;
+  opacity: 0;
+  transition: opacity .55s ease;
+}
+
+#welcomeGradient.show {
+  opacity: 1;
+}
+
+.wg-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  mix-blend-mode: screen;
+  will-change: transform;
+}
+
+.wg-blob-1 {
+  width: 60vmax;
+  height: 60vmax;
+  left: -16vmax;
+  top: -20vmax;
+  background: radial-gradient(circle, #E8D1A7, transparent 70%);
+  animation: wg-drift-1 7s ease-in-out infinite;
+}
+
+.wg-blob-2 {
+  width: 55vmax;
+  height: 55vmax;
+  right: -18vmax;
+  top: -12vmax;
+  background: radial-gradient(circle, #C1552F, transparent 70%);
+  opacity: .85;
+  animation: wg-drift-2 8.5s ease-in-out infinite;
+}
+
+.wg-blob-3 {
+  width: 65vmax;
+  height: 65vmax;
+  left: -14vmax;
+  bottom: -26vmax;
+  background: radial-gradient(circle, #8A9B5E, transparent 70%);
+  opacity: .8;
+  animation: wg-drift-3 9s ease-in-out infinite;
+}
+
+.wg-blob-4 {
+  width: 50vmax;
+  height: 50vmax;
+  right: -13vmax;
+  bottom: -16vmax;
+  background: radial-gradient(circle, #B98A52, transparent 70%);
+  animation: wg-drift-4 7.5s ease-in-out infinite;
+}
+
+.wg-mark {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  opacity: 0;
+  transform: translateY(6px) scale(.98);
+  transition: opacity .5s ease .25s, transform .5s ease .25s;
+}
+
+#welcomeGradient.show .wg-mark {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.wg-mark-dots {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+}
+
+.wg-mark-dots span {
+  background: #E8D1A7;
+  display: block;
+}
+
+.wg-mark-dots span:first-child {
+  width: 11px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+}
+
+.wg-mark-dots span:last-child {
+  width: 7px;
+  height: 100%;
+  border-radius: 5px;
+}
+
+.wg-mark-text {
+  font: 500 44px/1 'Abhaya Libre', Georgia, serif;
+  letter-spacing: .01em;
+  color: #E8D1A7;
+}
+
+@media (max-width:480px) {
+  .wg-mark-dots {
+    height: 32px;
+    gap: 6px;
+  }
+
+  .wg-mark-dots span:first-child {
+    width: 9px;
+  }
+
+  .wg-mark-text {
+    font-size: 34px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wg-blob {
+    animation: none !important;
+  }
+
+  #welcomeGradient {
+    transition-duration: .001ms !important;
+  }
+
+  .wg-mark {
+    transition-duration: .001ms !important;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
 /* Precisa vencer qualquer classe (.row, .between etc.) que também defina `display` no
    mesmo elemento — sem o !important, um <div hidden class="row"> ficava visível porque
    .row{display:flex} (autor) tem prioridade sobre o [hidden]{display:none} padrão do
    navegador (user-agent), mesmo com especificidade igual. */
-[hidden]{display:none!important;}
-html,body{margin:0;padding:0;height:100%;}
-body{background:var(--page-bg);display:flex;align-items:flex-start;justify-content:center;padding:26px 0;font-family:'Montserrat',system-ui,sans-serif;transition:background-color .2s ease;}
-.serif{font-family:'Abhaya Libre',Georgia,serif;}
+[hidden] {
+  display: none !important;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  background: var(--page-bg);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 26px 0;
+  font-family: 'Montserrat', system-ui, sans-serif;
+  transition: background-color .2s ease;
+}
+
+.serif {
+  font-family: 'Abhaya Libre', Georgia, serif;
+}
 
 /* ---------- #authView: login / criar conta — tela cheia, fora do .app-frame ----------
    O layout de duas colunas (marca + formulário) foi desenhado pra ocupar o viewport
@@ -137,140 +309,431 @@ body{background:var(--page-bg);display:flex;align-items:flex-start;justify-conte
    sempre no tom escuro da marca (Cowhide Cocoa), com cor fixa em vez de var(--bg).
    checkAuthAndInit()/enterApp() (app.js) decidem qual dos dois
    (#authView ou .app-frame) fica visível. */
-#authView{
-  min-height:100vh;width:100%;position:relative;display:flex;flex-direction:column;
-  align-items:center;justify-content:center;background:#442D1C;
-  -webkit-font-smoothing:antialiased;
+#authView {
+  min-height: 100vh;
+  width: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #442D1C;
+  -webkit-font-smoothing: antialiased;
 }
-#authView[hidden]{display:none;}
-#authView::before{
-  content:"";position:absolute;inset:0;background-image:url("assets/linen-brown.jpeg");
-  background-size:520px;background-repeat:repeat;opacity:.55;mix-blend-mode:overlay;pointer-events:none;z-index:1;
+
+#authView[hidden] {
+  display: none;
 }
-#authView::after{
-  content:"";position:absolute;inset:0;
-  background:radial-gradient(120% 90% at 18% 0%, rgba(232,209,167,.13), rgba(68,45,28,0) 60%);
-  pointer-events:none;z-index:1;
+
+#authView::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("assets/linen-brown.jpeg");
+  background-size: 520px;
+  background-repeat: repeat;
+  opacity: .55;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+  z-index: 1;
 }
+
+#authView::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(120% 90% at 18% 0%, rgba(232, 209, 167, .13), rgba(68, 45, 28, 0) 60%);
+  pointer-events: none;
+  z-index: 1;
+}
+
 /* Mesmo mesh de blobs do #welcomeGradient, só que muito mais sutil e lento — fica atrás
    do linho/textura acima (por isso o z-index:1 nelas e :0 aqui) como um pano de fundo
    discretamente vivo antes mesmo do login, em vez de uma cor sólida parada. */
-.auth-bg-wg{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0;}
-.auth-bg-wg .wg-blob{opacity:.6;filter:blur(75px);animation-duration:22s;}
-.auth-bg-wg .wg-blob-2,.auth-bg-wg .wg-blob-3{opacity:.48;}
-@media (prefers-reduced-motion: reduce){
-  .auth-bg-wg .wg-blob{animation:none!important;}
+.auth-bg-wg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
 }
-.auth-row{
-  position:relative;z-index:2;display:flex;flex-wrap:wrap;align-items:stretch;gap:0;
-  width:100%;max-width:960px;min-height:min(600px,calc(100vh - 48px));margin:24px;
-  border-radius:28px;overflow:hidden;box-shadow:0 40px 90px -20px rgba(0,0,0,.55);
+
+.auth-bg-wg .wg-blob {
+  opacity: .6;
+  filter: blur(75px);
+  animation-duration: 22s;
 }
-.auth-brand{
-  flex:1 1 420px;display:flex;flex-direction:column;justify-content:space-between;
-  padding:clamp(28px,5vw,64px);min-height:min(46vh,340px);
+
+.auth-bg-wg .wg-blob-2,
+.auth-bg-wg .wg-blob-3 {
+  opacity: .48;
 }
-.auth-wordmark{display:flex;align-items:center;justify-content:center;gap:clamp(14px,1.6vw,22px);}
-.auth-wordmark-dots{display:flex;align-items:center;gap:clamp(7px,.8vw,10px);height:clamp(44px,5vw,64px);}
-.auth-wordmark-dots span{background:#E8D1A7;display:block;}
-.auth-wordmark-dots span:first-child{width:clamp(10px,1.1vw,14px);aspect-ratio:1;border-radius:50%;}
-.auth-wordmark-dots span:last-child{width:clamp(7px,.75vw,10px);height:100%;border-radius:5px;}
-.auth-wordmark-text{font:500 clamp(44px,5.2vw,68px)/1 'Abhaya Libre',serif;letter-spacing:.01em;color:#E8D1A7;}
-.auth-tagline{
-  margin:clamp(32px,6vw,72px) 0 0;max-width:min(560px,100%);
-  font:300 clamp(14px,1.4vw,16px)/1.6 'Montserrat',sans-serif;color:rgba(232,209,167,.62);max-width:34ch;
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-bg-wg .wg-blob {
+    animation: none !important;
+  }
 }
-.auth-footnote{
-  margin:clamp(28px,5vw,56px) 0 0;font:300 12px/1.5 'Montserrat',sans-serif;
-  letter-spacing:.06em;color:rgba(232,209,167,.34);
+
+.auth-row {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 0;
+  width: 100%;
+  max-width: 960px;
+  min-height: min(600px, calc(100vh - 48px));
+  margin: 24px;
+  border-radius: 28px;
+  overflow: hidden;
+  box-shadow: 0 40px 90px -20px rgba(0, 0, 0, .55);
 }
-.auth-panel{flex:1 1 460px;display:flex;align-items:center;justify-content:center;padding:clamp(20px,4vw,56px);}
-.auth-panel-inner{width:100%;max-width:432px;}
-.auth-form{display:flex;flex-direction:column;gap:20px;}
-.auth-field{display:flex;flex-direction:column;gap:8px;}
-.auth-field-label{
-  display:flex;justify-content:space-between;align-items:baseline;gap:12px;
-  font:500 10.5px/1 'Montserrat',sans-serif;letter-spacing:.22em;text-transform:uppercase;color:rgba(232,209,167,.6);
+
+.auth-brand {
+  flex: 1 1 420px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: clamp(28px, 5vw, 64px);
+  min-height: min(46vh, 340px);
 }
-.auth-input{
-  width:100%;background:transparent;border:none;border-bottom:1px solid rgba(232,209,167,.24);
-  padding:8px 0 11px;font:300 16px/1.3 'Montserrat',sans-serif;color:#F3E6CE;outline:none;
-  transition:border-color .15s ease;
+
+.auth-wordmark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(14px, 1.6vw, 22px);
 }
-.auth-input:focus{border-bottom-color:#E8D1A7;}
-.auth-forgot{
-  font:300 11px/1 'Montserrat',sans-serif;letter-spacing:.04em;color:rgba(232,209,167,.55);
-  text-decoration:none;background:none;border:none;padding:0;cursor:pointer;
+
+.auth-wordmark-dots {
+  display: flex;
+  align-items: center;
+  gap: clamp(7px, .8vw, 10px);
+  height: clamp(44px, 5vw, 64px);
 }
-.auth-forgot:hover{color:#E8D1A7;}
-.auth-eyewrap{position:relative;}
-.auth-eye{
-  position:absolute;right:0;bottom:9px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;
-  color:rgba(232,209,167,.55);cursor:pointer;background:none;border:none;padding:0;
+
+.auth-wordmark-dots span {
+  background: #E8D1A7;
+  display: block;
 }
-.auth-eye:hover{color:#E8D1A7;}
-.auth-eye svg{width:17px;height:17px;}
-.auth-check-row{
-  display:flex;align-items:center;gap:11px;background:none;border:none;padding:0;margin-top:2px;
-  cursor:pointer;text-align:left;
+
+.auth-wordmark-dots span:first-child {
+  width: clamp(10px, 1.1vw, 14px);
+  aspect-ratio: 1;
+  border-radius: 50%;
 }
-.auth-checkbox{
-  width:19px;height:19px;flex:none;border-radius:6px;display:flex;align-items:center;justify-content:center;
-  font:600 11px/1 'Montserrat',sans-serif;transition:all .18s ease;
-  background:transparent;color:transparent;border:1px solid rgba(232,209,167,.32);
+
+.auth-wordmark-dots span:last-child {
+  width: clamp(7px, .75vw, 10px);
+  height: 100%;
+  border-radius: 5px;
 }
-.auth-check-row[aria-pressed="true"] .auth-checkbox{background:#E8D1A7;color:#442D1C;border-color:#E8D1A7;}
-.auth-check-label{font:300 13.5px/1 'Montserrat',sans-serif;color:rgba(232,209,167,.72);}
-.auth-error{font-size:var(--text-sm);color:#F2B79A;font-weight:600;line-height:1.5;}
-.auth-submit{
-  width:100%;margin-top:4px;padding:17px 20px;border:none;border-radius:999px;background:#E8D1A7;
-  color:#442D1C;font:500 14px/1 'Montserrat',sans-serif;letter-spacing:.12em;text-transform:uppercase;
-  cursor:pointer;box-shadow:0 12px 28px -12px rgba(0,0,0,.75);transition:transform .18s ease,background .18s ease;
+
+.auth-wordmark-text {
+  font: 500 clamp(44px, 5.2vw, 68px)/1 'Abhaya Libre', serif;
+  letter-spacing: .01em;
+  color: #E8D1A7;
 }
-.auth-submit:hover{background:#F3E6CE;transform:translateY(-1px);}
-.auth-submit:active{transform:translateY(0);}
-.auth-switch{margin:26px 0 0;text-align:center;font:300 13.5px/1.5 'Montserrat',sans-serif;color:rgba(232,209,167,.55);}
-.auth-switch-btn{
-  background:none;border:none;padding:0;font:500 13.5px/1.5 'Montserrat',sans-serif;color:#E8D1A7;
-  cursor:pointer;text-decoration:underline;text-underline-offset:3px;
+
+.auth-tagline {
+  margin: clamp(32px, 6vw, 72px) 0 0;
+  max-width: min(560px, 100%);
+  font: 300 clamp(14px, 1.4vw, 16px)/1.6 'Montserrat', sans-serif;
+  color: rgba(232, 209, 167, .62);
+  max-width: 34ch;
 }
-input.auth-input:-webkit-autofill{-webkit-text-fill-color:#F3E6CE;transition:background-color 9999s;}
-#authView ::placeholder{color:rgba(232,209,167,.42);}
+
+.auth-footnote {
+  margin: clamp(28px, 5vw, 56px) 0 0;
+  font: 300 12px/1.5 'Montserrat', sans-serif;
+  letter-spacing: .06em;
+  color: rgba(232, 209, 167, .34);
+}
+
+.auth-panel {
+  flex: 1 1 460px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(20px, 4vw, 56px);
+}
+
+.auth-panel-inner {
+  width: 100%;
+  max-width: 432px;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.auth-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.auth-field-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  font: 500 10.5px/1 'Montserrat', sans-serif;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: rgba(232, 209, 167, .6);
+}
+
+.auth-input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(232, 209, 167, .24);
+  padding: 8px 0 11px;
+  font: 300 16px/1.3 'Montserrat', sans-serif;
+  color: #F3E6CE;
+  outline: none;
+  transition: border-color .15s ease;
+}
+
+.auth-input:focus {
+  border-bottom-color: #E8D1A7;
+}
+
+.auth-forgot {
+  font: 300 11px/1 'Montserrat', sans-serif;
+  letter-spacing: .04em;
+  color: rgba(232, 209, 167, .55);
+  text-decoration: none;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.auth-forgot:hover {
+  color: #E8D1A7;
+}
+
+.auth-eyewrap {
+  position: relative;
+}
+
+.auth-eye {
+  position: absolute;
+  right: 0;
+  bottom: 9px;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(232, 209, 167, .55);
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+.auth-eye:hover {
+  color: #E8D1A7;
+}
+
+.auth-eye svg {
+  width: 17px;
+  height: 17px;
+}
+
+.auth-check-row {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  background: none;
+  border: none;
+  padding: 0;
+  margin-top: 2px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.auth-checkbox {
+  width: 19px;
+  height: 19px;
+  flex: none;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font: 600 11px/1 'Montserrat', sans-serif;
+  transition: all .18s ease;
+  background: transparent;
+  color: transparent;
+  border: 1px solid rgba(232, 209, 167, .32);
+}
+
+.auth-check-row[aria-pressed="true"] .auth-checkbox {
+  background: #E8D1A7;
+  color: #442D1C;
+  border-color: #E8D1A7;
+}
+
+.auth-check-label {
+  font: 300 13.5px/1 'Montserrat', sans-serif;
+  color: rgba(232, 209, 167, .72);
+}
+
+.auth-error {
+  font-size: var(--text-sm);
+  color: #F2B79A;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.auth-submit {
+  width: 100%;
+  margin-top: 4px;
+  padding: 17px 20px;
+  border: none;
+  border-radius: 999px;
+  background: #E8D1A7;
+  color: #442D1C;
+  font: 500 14px/1 'Montserrat', sans-serif;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 12px 28px -12px rgba(0, 0, 0, .75);
+  transition: transform .18s ease, background .18s ease;
+}
+
+.auth-submit:hover {
+  background: #F3E6CE;
+  transform: translateY(-1px);
+}
+
+.auth-submit:active {
+  transform: translateY(0);
+}
+
+.auth-switch {
+  margin: 26px 0 0;
+  text-align: center;
+  font: 300 13.5px/1.5 'Montserrat', sans-serif;
+  color: rgba(232, 209, 167, .55);
+}
+
+.auth-switch-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  font: 500 13.5px/1.5 'Montserrat', sans-serif;
+  color: #E8D1A7;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+input.auth-input:-webkit-autofill {
+  -webkit-text-fill-color: #F3E6CE;
+  transition: background-color 9999s;
+}
+
+#authView ::placeholder {
+  color: rgba(232, 209, 167, .42);
+}
 
 /* Celular deitado (landscape) com pouca altura: os painéis somam mais largura que altura
    de sobra, então em vez de empilhar (o que jogaria o formulário bem abaixo da dobra,
    exigindo rolagem pra sequer ver o "Entrar") eles ficam lado a lado com espaçamento
    reduzido — a mesma composição do desktop, só compacta o bastante pra caber sem rolar. */
-@media (max-height:560px) and (orientation:landscape){
-  .auth-row{margin:14px;min-height:0;}
-  .auth-brand{flex:1 1 260px;min-height:0;padding:18px clamp(16px,3vw,32px);justify-content:center;gap:14px;}
-  .auth-wordmark-text{font-size:clamp(28px,4vw,40px);}
-  .auth-tagline,.auth-footnote{display:none;}
-  .auth-panel{flex:1 1 320px;padding:18px clamp(16px,3vw,32px);}
-  .auth-form{gap:12px;}
+@media (max-height:560px) and (orientation:landscape) {
+  .auth-row {
+    margin: 14px;
+    min-height: 0;
+  }
+
+  .auth-brand {
+    flex: 1 1 260px;
+    min-height: 0;
+    padding: 18px clamp(16px, 3vw, 32px);
+    justify-content: center;
+    gap: 14px;
+  }
+
+  .auth-wordmark-text {
+    font-size: clamp(28px, 4vw, 40px);
+  }
+
+  .auth-tagline,
+  .auth-footnote {
+    display: none;
+  }
+
+  .auth-panel {
+    flex: 1 1 320px;
+    padding: 18px clamp(16px, 3vw, 32px);
+  }
+
+  .auth-form {
+    gap: 12px;
+  }
 }
 
 /* ---------- App shell: .screen preenche .app-frame e rola internamente — largura/altura
    propositalmente 100% aqui, não um tamanho fixo de preview, pra encolher em telas menores
    que um celular em vez de vazar horizontalmente. ---------- */
-.app-frame{
-  width:100%;max-width:430px;margin:0 auto;height:100vh;background:var(--bg);
-  position:relative;overflow:hidden;
-  box-shadow:0 0 1px rgba(0,0,0,.4);
+.app-frame {
+  width: 100%;
+  max-width: 430px;
+  margin: 0 auto;
+  height: 100vh;
+  background: var(--bg);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 1px rgba(0, 0, 0, .4);
 }
-.app-frame[hidden]{display:none;}
-@media (min-width:431px){
-  .app-frame{box-shadow:0 30px 70px rgba(0,0,0,.55);}
+
+.app-frame[hidden] {
+  display: none;
 }
-.screen{
-  width:100%;height:100%;background:var(--bg);color:var(--text);
-  position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;
-  opacity:1;transform:none;
-  transition:opacity .18s ease,transform .18s ease,background-color .2s ease,color .2s ease;
+
+@media (min-width:431px) {
+  .app-frame {
+    box-shadow: 0 30px 70px rgba(0, 0, 0, .55);
+  }
 }
-.screen[hidden]{display:none;}
-.screen.screen-enter{opacity:0;transform:translateY(10px);}
-.screen.screen-exit{opacity:0;transform:translateY(-10px);pointer-events:none;}
+
+.screen {
+  width: 100%;
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  opacity: 1;
+  transform: none;
+  transition: opacity .18s ease, transform .18s ease, background-color .2s ease, color .2s ease;
+}
+
+.screen[hidden] {
+  display: none;
+}
+
+.screen.screen-enter {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.screen.screen-exit {
+  opacity: 0;
+  transform: translateY(-10px);
+  pointer-events: none;
+}
 
 /* ---------- Skeleton de carregamento na troca de tela pelo dock — referência: exemplo
    "loaders" do motion.dev (motion.dev/examples, padrão skeleton-pulsante → revelação do
@@ -279,26 +742,58 @@ input.auth-input:-webkit-autofill{-webkit-text-fill-color:#F3E6CE;transition:bac
    do dock carrega seu próprio .skel-overlay (mesmo desenho grosso dos cards reais, só sem
    o texto); showScreen() em app.js liga/desliga via playScreenSkeleton(). Cobre o conteúdo
    real com --bg sólido, então não precisa esconder os elementos de baixo. ---------- */
-.skel-overlay{
-  position:absolute;inset:0;z-index:3;background:var(--bg);
-  padding:26px 20px 132px;box-sizing:border-box;
-  display:flex;flex-direction:column;gap:14px;
-  opacity:1;transition:opacity .32s ease;
-}
-.skel-overlay[hidden]{display:none;}
-.skel-overlay.skel-out{opacity:0;pointer-events:none;}
-.skel-block{
-  border-radius:16px;flex:none;
-  background:linear-gradient(100deg,var(--primary-soft) 25%,var(--primary-soft-2) 50%,var(--primary-soft) 75%);
-  background-size:200% 100%;
-  animation:skel-shimmer 1.4s ease-in-out infinite;
-}
-@keyframes skel-shimmer{0%{background-position:160% 0;}100%{background-position:-60% 0;}}
-@media (prefers-reduced-motion: reduce){
-  .skel-block{animation:none;background-position:50% 0;}
+.skel-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  background: var(--bg);
+  padding: 26px 20px 132px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  opacity: 1;
+  transition: opacity .32s ease;
 }
 
-.content{position:relative;padding:26px 20px 132px;}
+.skel-overlay[hidden] {
+  display: none;
+}
+
+.skel-overlay.skel-out {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.skel-block {
+  border-radius: 16px;
+  flex: none;
+  background: linear-gradient(100deg, var(--primary-soft) 25%, var(--primary-soft-2) 50%, var(--primary-soft) 75%);
+  background-size: 200% 100%;
+  animation: skel-shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes skel-shimmer {
+  0% {
+    background-position: 160% 0;
+  }
+
+  100% {
+    background-position: -60% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skel-block {
+    animation: none;
+    background-position: 50% 0;
+  }
+}
+
+.content {
+  position: relative;
+  padding: 26px 20px 132px;
+}
 
 /* ---------- Rodapé de marca no fim de cada tela — fundo marrom (Cowhide Cocoa) com
    ".parágrafo" em Abhaya Libre no meio, último bloco de .content antes do dock (referência:
@@ -310,40 +805,137 @@ input.auth-input:-webkit-autofill{-webkit-text-fill-color:#F3E6CE;transition:bac
    qualquer conteúdo) e ganha só a entrada suave — fade + leve subida — quando cruza a
    viewport, via IntersectionObserver (playRevealFooters() em app.js) alternando
    .reveal-footer-in; sem JS ou com prefers-reduced-motion, fica sempre visível, sem animar. */
-.reveal-footer{
-  margin-top:20px;min-height:var(--reveal-footer-h);border-radius:24px;
-  display:flex;align-items:center;justify-content:center;
-  background:#442D1C;
+.reveal-footer {
+  margin-top: 20px;
+  min-height: var(--reveal-footer-h);
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #442D1C;
   /* --bg já É #442D1C — sem sombra o rodapé "some" contra o próprio fundo da tela. Continua
      com sombra própria (só o dock e o card de lucro líquido usam --shadow-raised — ver
      comentário no :root) porque, ao contrário dos cards comuns, o rodapé não tem NENHUMA
      diferença de cor pra se separar da tela: box-shadow fixo, mesma fórmula do
      --shadow-raised mas um pouco mais leve (.35 de opacidade em vez de .42), calibrado à
      parte pro bloco grande do rodapé em vez de reaproveitar o valor pensado pro dock. */
-  box-shadow:0 6px 18px rgba(0,0,0,.35),inset 0 1px 0 rgba(232,209,167,.08);
-  opacity:0;transform:translateY(18px);transition:opacity .6s ease,transform .6s ease;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, .35), inset 0 1px 0 rgba(232, 209, 167, .08);
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity .6s ease, transform .6s ease;
 }
-.reveal-footer.reveal-footer-in{opacity:1;transform:translateY(0);}
-.reveal-footer-mark{
-  font:500 clamp(26px,7vw,38px)/1 'Abhaya Libre',Georgia,serif;
-  color:#E8D1A7;letter-spacing:.01em;
+
+.reveal-footer.reveal-footer-in {
+  opacity: 1;
+  transform: translateY(0);
 }
-@media (max-width:380px){
-  .reveal-footer-mark{font-size:26px;}
+
+.reveal-footer-mark {
+  font: 500 clamp(26px, 7vw, 38px)/1 'Abhaya Libre', Georgia, serif;
+  color: #E8D1A7;
+  letter-spacing: .01em;
 }
-@media (prefers-reduced-motion: reduce){
-  .reveal-footer{opacity:1;transform:none;transition:none;}
+
+@media (max-width:380px) {
+  .reveal-footer-mark {
+    font-size: 26px;
+  }
 }
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:26px 20px 4px;}
-.brandrow{display:flex;align-items:center;gap:9px;}
-.brandmark{width:26px;height:26px;border-radius:8px;background:var(--primary);display:flex;align-items:center;justify-content:center;color:var(--on-primary);font-family:'Abhaya Libre',Georgia,serif;font-style:italic;font-size:var(--text-md);flex:none;}
-.brandname{font-size:var(--text-sm);font-weight:600;letter-spacing:.03em;color:var(--text-dim);text-transform:lowercase;}
-.avatar{width:44px;height:44px;border-radius:15px;background:var(--bg);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:var(--text-sm);font-weight:700;color:var(--primary);cursor:pointer;transition:transform .1s ease;}
-.avatar:active{transform:scale(.94);}
-.backrow{display:flex;align-items:center;gap:12px;padding:26px 20px 2px;}
-.iconbtn{width:44px;height:44px;border-radius:15px;background:var(--bg);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--surface-text);flex:none;transition:transform .1s ease;}
-.iconbtn svg{width:19px;height:19px;}
-.iconbtn:active{transform:scale(.94);}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal-footer {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 26px 20px 4px;
+}
+
+.brandrow {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.brandmark {
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  background: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--on-primary);
+  font-family: 'Abhaya Libre', Georgia, serif;
+  font-style: italic;
+  font-size: var(--text-md);
+  flex: none;
+}
+
+.brandname {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  letter-spacing: .03em;
+  color: var(--text-dim);
+  text-transform: lowercase;
+}
+
+.avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 15px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--primary);
+  cursor: pointer;
+  transition: transform .1s ease;
+}
+
+.avatar:active {
+  transform: scale(.94);
+}
+
+.backrow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 26px 20px 2px;
+}
+
+.iconbtn {
+  width: 44px;
+  height: 44px;
+  border-radius: 15px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--surface-text);
+  flex: none;
+  transition: transform .1s ease;
+}
+
+.iconbtn svg {
+  width: 19px;
+  height: 19px;
+}
+
+.iconbtn:active {
+  transform: scale(.94);
+}
+
 /* Pedido da usuária: a seta de voltar e a barra de busca sempre marrom (#442D1C fixo), nunca
    var(--bg) puro — era essencial enquanto Dashboard e Estoque de Insumos/Produção forçavam
    um --bg creme pra paleta de marca fixa dessas telas (sem este bloco, os dois "sumiam"
@@ -360,22 +952,68 @@ input.auth-input:-webkit-autofill{-webkit-text-fill-color:#F3E6CE;transition:bac
    combinar, então não precisa de override. border-color e color/placeholder continuam com
    override próprio por segurança, caso uma tela futura recalcule --line/--surface-text* de
    novo pra combinar com um --bg claro. */
-.iconbtn[data-goto]{background:#442D1C;border-color:rgba(232,209,167,.30);color:#F3E7D6;}
-.pressed.field.row{background:#442D1C;border-color:rgba(232,209,167,.30);color:#F3E7D6;}
-.pressed.field.row input{color:#F3E7D6;}
-.pressed.field.row input::placeholder{color:rgba(243,231,214,.55);}
+.iconbtn[data-goto] {
+  background: #442D1C;
+  border-color: rgba(232, 209, 167, .30);
+  color: #F3E7D6;
+}
+
+.pressed.field.row {
+  background: #442D1C;
+  border-color: rgba(232, 209, 167, .30);
+  color: #F3E7D6;
+}
+
+.pressed.field.row input {
+  color: #F3E7D6;
+}
+
+.pressed.field.row input::placeholder {
+  color: rgba(243, 231, 214, .55);
+}
+
 /* .tapicon é sempre um controle (menu de ações, editar, etc.), nunca decoração — por isso usa
    --text-dim (mais escuro/claro que --text-faint conforme o tema) em vez do tom "de legenda",
    senão o próprio botão fica ilegível como algo clicável (era o caso do "···" nos cards de
    cliente e da seta de "configurações"). */
-.tapicon{width:40px;height:40px;border-radius:14px;display:flex;align-items:center;justify-content:center;color:var(--text-dim);flex:none;transition:opacity .15s ease,transform .1s ease;}
-.tapicon svg{width:17px;height:17px;}
-.tapicon:active{opacity:.6;transform:scale(.92);}
-.crumb{font-size:var(--text-xs);color:var(--text-faint);font-weight:500;}
+.tapicon {
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-dim);
+  flex: none;
+  transition: opacity .15s ease, transform .1s ease;
+}
+
+.tapicon svg {
+  width: 17px;
+  height: 17px;
+}
+
+.tapicon:active {
+  opacity: .6;
+  transform: scale(.92);
+}
+
+.crumb {
+  font-size: var(--text-xs);
+  color: var(--text-faint);
+  font-weight: 500;
+}
+
 /* 19px (--text-lg), não os 23px de antes — todo uso em index.html sobrescrevia este valor
    inline pra 19px, então o 23px nunca aparecia de fato; a classe agora só declara o que
    realmente é usado, sem precisar de style="" repetido em cada tela. */
-.pagetitle{font-size:var(--text-lg);font-weight:700;letter-spacing:-.01em;margin:2px 0 0;}
+.pagetitle {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  letter-spacing: -.01em;
+  margin: 2px 0 0;
+}
+
 /* .pressed/.pressed-pill (inputs, pills) continuam na cor da própria tela — só levaram o
    border:1px var(--line) antes pra ganhar contorno próprio. .raised/.raised-sm (os "cards")
    viraram um bloco de cor sólida (--card-bg, ver definição no :root) em vez de reaproveitar
@@ -390,18 +1028,30 @@ input.auth-input:-webkit-autofill{-webkit-text-fill-color:#F3E6CE;transition:bac
    precisar caçar cada `style=` dentro de cada card. Filhos que continuam em var(--bg)
    (.pressed-pill, .iconbtn, .avatar, .field) não usam --bg redefinido aqui de propósito:
    viram um "chip" claro sobre o card escuro, igual ao emblema/avatar do .dash-hero. */
-.raised{
-  background:var(--card-bg);border-radius:20px;border:1px solid var(--card-line);
-  color:var(--card-text);
-  --text:var(--card-text);--text-dim:var(--card-text-dim);--text-faint:var(--card-text-dim);--line:var(--card-line);
-  transition:box-shadow .15s ease,transform .1s ease;
+.raised {
+  background: var(--card-bg);
+  border-radius: 20px;
+  border: 1px solid var(--card-line);
+  color: var(--card-text);
+  --text: var(--card-text);
+  --text-dim: var(--card-text-dim);
+  --text-faint: var(--card-text-dim);
+  --line: var(--card-line);
+  transition: box-shadow .15s ease, transform .1s ease;
 }
-.raised-sm{
-  background:var(--card-bg);border-radius:15px;border:1px solid var(--card-line);
-  color:var(--card-text);
-  --text:var(--card-text);--text-dim:var(--card-text-dim);--text-faint:var(--card-text-dim);--line:var(--card-line);
-  transition:box-shadow .15s ease,transform .1s ease;
+
+.raised-sm {
+  background: var(--card-bg);
+  border-radius: 15px;
+  border: 1px solid var(--card-line);
+  color: var(--card-text);
+  --text: var(--card-text);
+  --text-dim: var(--card-text-dim);
+  --text-faint: var(--card-text-dim);
+  --line: var(--card-line);
+  transition: box-shadow .15s ease, transform .1s ease;
 }
+
 /* Único card do app que quebra a regra "conteúdo plano" acima: o "lucro líquido real" do
    Dashboard é o número mais importante da tela (o resumo financeiro do período todo), pedia
    destaque de verdade em vez de se misturar com métricas secundárias (vendas, produzido) —
@@ -409,27 +1059,115 @@ input.auth-input:-webkit-autofill{-webkit-text-fill-color:#F3E6CE;transition:bac
    diferenciado por cor. Não é reaproveitável como "card importante" genérico: cada novo uso
    precisa ser deliberado, senão volta-se a ter vários elementos "em destaque" ao mesmo tempo,
    exatamente o problema que motivou tirar sombra do resto dos cards. */
-.raised-emphasis{box-shadow:var(--shadow-raised);}
-.pressed{background:var(--bg);border-radius:16px;box-shadow:var(--shadow-pressed);border:1px solid var(--line);transition:box-shadow .15s ease;}
-.pressed-pill{background:var(--bg);border-radius:999px;box-shadow:var(--shadow-pressed);border:1px solid var(--line);transition:box-shadow .15s ease;}
-.card{padding:20px;margin-bottom:16px;}
-.label{display:block;font-size:var(--text-2xs);font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);margin:0 0 10px;}
+.raised-emphasis {
+  box-shadow: var(--shadow-raised);
+}
+
+.pressed {
+  background: var(--bg);
+  border-radius: 16px;
+  box-shadow: var(--shadow-pressed);
+  border: 1px solid var(--line);
+  transition: box-shadow .15s ease;
+}
+
+.pressed-pill {
+  background: var(--bg);
+  border-radius: 999px;
+  box-shadow: var(--shadow-pressed);
+  border: 1px solid var(--line);
+  transition: box-shadow .15s ease;
+}
+
+.card {
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.label {
+  display: block;
+  font-size: var(--text-2xs);
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin: 0 0 10px;
+}
+
 /* ---------- .stat / .hint — dois padrões que se repetiam dezenas de vezes como style=""
    idêntico em index.html (valor numérico em destaque dentro de um card; texto de rodapé
    explicativo). Viram classe única em vez de inline repetido; modificadores só trocam a cor. */
-.stat{font-size:var(--text-base);font-weight:700;}
-.stat.dim{font-weight:600;color:var(--text-dim);}
-.stat.good{color:var(--good);}
-.hint{font-size:var(--text-xs);color:var(--text-faint);line-height:1.5;}
-.row{display:flex;align-items:center;gap:12px;}
-.between{display:flex;align-items:center;justify-content:space-between;}
+.stat {
+  font-size: var(--text-base);
+  font-weight: 700;
+}
+
+.stat.dim {
+  font-weight: 600;
+  color: var(--text-dim);
+}
+
+.stat.good {
+  color: var(--good);
+}
+
+.hint {
+  font-size: var(--text-xs);
+  color: var(--text-faint);
+  line-height: 1.5;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .row[role="button"],
-.raised[role="button"]{transition:opacity .15s ease,box-shadow .15s ease,transform .1s ease;}
-.row[role="button"]:active{opacity:.6;}
-.raised[role="button"]:active{transform:scale(.99);}
-.btn{border:none;font-family:'Montserrat',sans-serif;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:box-shadow .15s ease,transform .1s ease,opacity .15s ease;}
-.btn-primary{background:var(--primary);color:var(--on-primary);border-radius:16px;padding:16px;font-size:var(--text-md);box-shadow:0 10px 22px -8px rgba(0,0,0,.4);}
-.btn-primary:active{box-shadow:0 5px 12px -6px rgba(0,0,0,.4);transform:scale(.98) translateY(1px);}
+.raised[role="button"] {
+  transition: opacity .15s ease, box-shadow .15s ease, transform .1s ease;
+}
+
+.row[role="button"]:active {
+  opacity: .6;
+}
+
+.raised[role="button"]:active {
+  transform: scale(.99);
+}
+
+.btn {
+  border: none;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: box-shadow .15s ease, transform .1s ease, opacity .15s ease;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: var(--on-primary);
+  border-radius: 16px;
+  padding: 16px;
+  font-size: var(--text-md);
+  box-shadow: 0 10px 22px -8px rgba(0, 0, 0, .4);
+}
+
+.btn-primary:active {
+  box-shadow: 0 5px 12px -6px rgba(0, 0, 0, .4);
+  transform: scale(.98) translateY(1px);
+}
+
 /* Decisão da usuária (08/09/2026): TODOS os .btn-ghost do app em marrom fixo #442D1C,
    mesmo padrão do .iconbtn[data-goto]/.pressed.field.row acima — em vez de escopar só os
    que caem hoje dentro de Dashboard/Estoque de Insumos/Produção (nenhum .btn-ghost estático
@@ -440,73 +1178,248 @@ input.auth-input:-webkit-autofill{-webkit-text-fill-color:#F3E6CE;transition:bac
    fixa de fundo é igual à da página no tema padrão, então precisa de ALGUMA separação —
    antes vinha de var(--shadow-raised-sm), agora vem só do contorno, como o resto dos
    elementos planos. */
-.btn-ghost{background:#442D1C;color:#F3E7D6;border-radius:16px;padding:14px;font-size:var(--text-base);border:1px solid rgba(232,209,167,.30);}
-.btn-ghost:active{opacity:.7;transform:scale(.98);}
-.btn-text{background:none;color:var(--warn);font-size:var(--text-base);font-weight:600;padding:6px 0;}
-.btn-text:active{opacity:.6;}
-.btn[disabled]{opacity:.45;pointer-events:none;}
-.field{padding:14px 16px;margin-bottom:14px;}
-.field .label{margin-bottom:6px;}
-.field input, .field .val{border:none;background:none;outline:none;font-family:'Montserrat',sans-serif;font-size:var(--text-base);color:var(--surface-text);width:100%;padding:0;}
-.field:focus-within{box-shadow:var(--shadow-pressed),0 0 0 2px var(--primary);}
-.field input::placeholder{color:var(--surface-text-faint);}
-.pill{padding:11px 16px;border-radius:999px;font-size:var(--text-sm);font-weight:600;color:var(--surface-text-dim);white-space:nowrap;cursor:pointer;border:1px solid transparent;transition:color .15s ease,background-color .15s ease,border-color .15s ease,transform .1s ease;}
+.btn-ghost {
+  background: #442D1C;
+  color: #F3E7D6;
+  border-radius: 16px;
+  padding: 14px;
+  font-size: var(--text-base);
+  border: 1px solid rgba(232, 209, 167, .30);
+}
+
+.btn-ghost:active {
+  opacity: .7;
+  transform: scale(.98);
+}
+
+.btn-text {
+  background: none;
+  color: var(--warn);
+  font-size: var(--text-base);
+  font-weight: 600;
+  padding: 6px 0;
+}
+
+.btn-text:active {
+  opacity: .6;
+}
+
+.btn[disabled] {
+  opacity: .45;
+  pointer-events: none;
+}
+
+.field {
+  padding: 14px 16px;
+  margin-bottom: 14px;
+}
+
+.field .label {
+  margin-bottom: 6px;
+}
+
+.field input,
+.field .val {
+  border: none;
+  background: none;
+  outline: none;
+  font-family: 'Montserrat', sans-serif;
+  font-size: var(--text-base);
+  color: var(--surface-text);
+  width: 100%;
+  padding: 0;
+}
+
+.field:focus-within {
+  box-shadow: var(--shadow-pressed), 0 0 0 2px var(--primary);
+}
+
+.field input::placeholder {
+  color: var(--surface-text-faint);
+}
+
+.pill {
+  padding: 11px 16px;
+  border-radius: 999px;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--surface-text-dim);
+  white-space: nowrap;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: color .15s ease, background-color .15s ease, border-color .15s ease, transform .1s ease;
+}
+
 /* Antes, ativa e inativa diferiam só por um shadow raised-xxs quase imperceptível — dava
    pra confundir qual filtro ("quem mais gasta" vs. "quem mais compra") estava selecionado.
    Preenchimento sólido com --primary é um estado que não depende de sombra pra se ler — por
    isso a pill ativa também é plana agora (sem box-shadow nenhum): a cor sólida já é o sinal. */
-.pill.active{color:var(--on-primary);background:var(--primary);border-color:var(--primary);}
-.pill:active{transform:scale(.96);}
-.badge{font-size:var(--text-2xs);font-weight:700;padding:3px 8px;border-radius:999px;}
-.badge.warn{background:var(--warn-soft);color:var(--warn);}
-.badge.good{background:var(--good-soft);color:var(--good);}
-.badge.primary{background:var(--primary-soft-2);color:var(--primary);}
+.pill.active {
+  color: var(--on-primary);
+  background: var(--primary);
+  border-color: var(--primary);
+}
+
+.pill:active {
+  transform: scale(.96);
+}
+
+.badge {
+  font-size: var(--text-2xs);
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 999px;
+}
+
+.badge.warn {
+  background: var(--warn-soft);
+  color: var(--warn);
+}
+
+.badge.good {
+  background: var(--good-soft);
+  color: var(--good);
+}
+
+.badge.primary {
+  background: var(--primary-soft-2);
+  color: var(--primary);
+}
+
 /* --warn-soft/--good-soft/--primary-soft-2 são lavados clarinhos calibrados pra ler sobre
    --bg (creme ou marrom-escuro-de-página, conforme o tema) — dentro de um .raised/.raised-sm
    agora marrom (--card-bg), essas mesmas cores quase somem (dois marrons parecidos). Chip
    translúcido creme + acento mais claro reaproveita a paleta do ".dash-hero .avisos-badge"
    (já pensada pra "distintivo sobre superfície escura") em vez de inventar um 3º par. */
-.raised .badge.warn,.raised-sm .badge.warn{background:rgba(243,230,206,.18);color:#F6C79B;}
-.raised .badge.good,.raised-sm .badge.good{background:rgba(243,230,206,.18);color:#DCE4B8;}
-.raised .badge.primary,.raised-sm .badge.primary{background:rgba(243,230,206,.22);color:var(--card-text);}
+.raised .badge.warn,
+.raised-sm .badge.warn {
+  background: rgba(243, 230, 206, .18);
+  color: #F6C79B;
+}
+
+.raised .badge.good,
+.raised-sm .badge.good {
+  background: rgba(243, 230, 206, .18);
+  color: #DCE4B8;
+}
+
+.raised .badge.primary,
+.raised-sm .badge.primary {
+  background: rgba(243, 230, 206, .22);
+  color: var(--card-text);
+}
+
 /* Bolinha de status por canal (#notifStatusList) — reaproveita --good/--warn em vez de badge
    cheio: a linha já tem a frase inteira ("push: bloqueado..."), então um indicador pequeno
    basta pra dar leitura de relance sem engordar o bloco com mais uma caixa. Mesmo raciocínio
    de contraste do badge acima: dentro do card marrom (--card-bg) usa a variante clara. */
-#notifStatusList{display:flex;flex-direction:column;gap:5px;}
-.status-dot{display:inline-block;width:7px;height:7px;border-radius:50%;flex:none;}
-.status-dot.good{background:var(--good);}
-.status-dot.warn{background:var(--warn);}
-.raised .status-dot.good,.raised-sm .status-dot.good{background:#DCE4B8;}
-.raised .status-dot.warn,.raised-sm .status-dot.warn{background:#F6C79B;}
-.avisos-badge{
-  position:absolute;top:-4px;right:-4px;background:var(--warn);color:#fff;font-size:var(--text-2xs);font-weight:800;
-  width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+#notifStatusList {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
 }
-.dash-meta{font-size:var(--text-2xs);color:var(--text-faint);}
+
+.status-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex: none;
+}
+
+.status-dot.good {
+  background: var(--good);
+}
+
+.status-dot.warn {
+  background: var(--warn);
+}
+
+.raised .status-dot.good,
+.raised-sm .status-dot.good {
+  background: #DCE4B8;
+}
+
+.raised .status-dot.warn,
+.raised-sm .status-dot.warn {
+  background: #F6C79B;
+}
+
+.avisos-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: var(--warn);
+  color: #fff;
+  font-size: var(--text-2xs);
+  font-weight: 800;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dash-meta {
+  font-size: var(--text-2xs);
+  color: var(--text-faint);
+}
 
 /* Cada linha da lista "avisos de reposição" (ver reposicaoRowHTML/playAvisosStackReveal em
    app.js) — referência: componente <ListNotificationsStack> do motion.dev/ui/lists (baralho
    de notificações que se abre em cascata). transform-origin no topo pra escalar "saindo de
    baixo do card anterior", igual ao preview original. */
-.avisos-row{
-  transform-origin:50% 0%;
-  transition:transform .55s cubic-bezier(.34,1.56,.64,1), opacity .4s ease;
+.avisos-row {
+  transform-origin: 50% 0%;
+  transition: transform .55s cubic-bezier(.34, 1.56, .64, 1), opacity .4s ease;
 }
 
 /* Linhas do card "resumo de hoje" (ver resumoRowHTML em app.js) — extraídas de estilo
    inline pra classe, pra dar pra recolorir inteiras quando o card vira um bloco sólido
    (.dash-resumo, mais abaixo). */
-.resumo-row{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--line);}
-.resumo-row.resumo-row-last{border-bottom:none;}
-.resumo-row-icon{width:32px;height:32px;border-radius:11px;display:flex;align-items:center;justify-content:center;color:var(--primary);flex:none;}
+.resumo-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.resumo-row.resumo-row-last {
+  border-bottom: none;
+}
+
+.resumo-row-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary);
+  flex: none;
+}
+
 /* Sem isso o ícone (svg sem width/height próprio, só a viewBox) fica invisível no Safari/
    iOS: o Chrome preenche o flex item de 32px por padrão quando width/height ficam "auto",
    mas o WebKit calcula 0x0 no mesmo cenário — mesma causa-raiz do bug corrigido nos
    contadores de quantidade (.pressed/.raised-sm soltos, ver comentário perto deles). */
-.resumo-row-icon svg{width:14px;height:14px;}
-.resumo-row-title{font-size:var(--text-sm);font-weight:600;}
-.resumo-row-detail{font-size:var(--text-xs);color:var(--text-faint);margin-top:1px;}
+.resumo-row-icon svg {
+  width: 14px;
+  height: 14px;
+}
+
+.resumo-row-title {
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.resumo-row-detail {
+  font-size: var(--text-xs);
+  color: var(--text-faint);
+  margin-top: 1px;
+}
 
 /* ---------- Dock inferior: cluster de botões circulares coloridos (referência visual:
    dock do app "Bloom"), substitui a antiga barra de abas com ícone+texto. Fica horizontal
@@ -514,41 +1427,169 @@ input.auth-input:-webkit-autofill{-webkit-text-fill-color:#F3E6CE;transition:bac
    composição horizontal por natureza, então (diferente da antiga .navbar) NÃO vira coluna
    lateral no desktop. Cada botão carrega aria-label (não tem texto visível) e tem no mínimo
    44px de lado; o item ativo se diferencia por mais que cor (anel + leve escala). ---------- */
-.dock{
-  position:sticky;bottom:0;z-index:3;display:flex;align-items:center;justify-content:space-between;
-  gap:8px;margin:0 14px calc(14px + env(safe-area-inset-bottom));padding:10px 14px;
-  border-radius:28px;background:var(--dock-bg);box-shadow:var(--shadow-raised);
+.dock {
+  position: sticky;
+  bottom: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 0 14px calc(14px + env(safe-area-inset-bottom));
+  padding: 10px 14px;
+  border-radius: 28px;
+  background: var(--dock-bg);
+  box-shadow: var(--shadow-raised);
 }
+
 /* Botões individuais SEM sombra própria (só transform/ring) — o dock acima já é um dos dois
    elementos com elevação real do app (ver comentário do :root); cada círculo tendo TAMBÉM
    seu próprio drop-shadow por baixo era elevação em dobro pro mesmo bloco. */
-.dockitem{
-  position:relative;flex:none;width:46px;height:46px;border-radius:50%;border:none;padding:0;
-  display:flex;align-items:center;justify-content:center;cursor:pointer;
-  transition:transform .15s ease,box-shadow .15s ease;
+.dockitem {
+  position: relative;
+  flex: none;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: none;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform .15s ease, box-shadow .15s ease;
 }
-.dockitem svg{width:19px;height:19px;}
-.dockitem.dockitem-lg{width:56px;height:56px;}
-.dockitem.dockitem-lg svg{width:23px;height:23px;}
-.dockitem:active{transform:scale(.92);}
-.dockitem.active{transform:scale(1.08);box-shadow:0 0 0 3px var(--dock-bg),0 0 0 5px var(--on-primary,var(--primary));}
-.dockitem[aria-disabled="true"]{opacity:.45;}
 
-.stepper{display:flex;align-items:center;gap:8px;padding:0 20px 18px;}
-.step-dot{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:var(--text-2xs);font-weight:700;flex:none;}
-.step-dot.done{background:var(--primary);color:var(--on-primary);}
-.step-dot.active{background:var(--bg);color:var(--primary);border:1.5px solid var(--primary);}
-.step-dot.pending{background:var(--bg);color:var(--text-faint);border:1px solid var(--line);}
-.step-line{flex:1;height:2px;background:var(--line);}
-.step-line.done{background:var(--primary);opacity:.4;}
-.emptystate{text-align:center;padding:34px 16px 18px;}
-.emptystate-icon{width:52px;height:52px;border-radius:18px;background:var(--bg);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--text-faint);margin:0 auto 16px;}
-.emptystate-icon svg{width:22px;height:22px;}
-.emptystate-title{font-size:var(--text-base);font-weight:700;color:var(--text-dim);margin-bottom:6px;}
-.emptystate-sub{font-size:var(--text-xs);color:var(--text-faint);line-height:1.5;max-width:260px;margin:0 auto;}
-.quote{font-family:'Abhaya Libre',Georgia,serif;font-style:italic;font-size:var(--text-md);line-height:1.4;color:var(--text-dim);}
-.divider{height:1px;background:var(--line);margin:14px 0;}
-a{color:var(--primary);}
+.dockitem svg {
+  width: 19px;
+  height: 19px;
+}
+
+.dockitem.dockitem-lg {
+  width: 56px;
+  height: 56px;
+}
+
+.dockitem.dockitem-lg svg {
+  width: 23px;
+  height: 23px;
+}
+
+.dockitem:active {
+  transform: scale(.92);
+}
+
+.dockitem.active {
+  transform: scale(1.08);
+  box-shadow: 0 0 0 3px var(--dock-bg), 0 0 0 5px var(--on-primary, var(--primary));
+}
+
+.dockitem[aria-disabled="true"] {
+  opacity: .45;
+}
+
+.stepper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 20px 18px;
+}
+
+.step-dot {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--text-2xs);
+  font-weight: 700;
+  flex: none;
+}
+
+.step-dot.done {
+  background: var(--primary);
+  color: var(--on-primary);
+}
+
+.step-dot.active {
+  background: var(--bg);
+  color: var(--primary);
+  border: 1.5px solid var(--primary);
+}
+
+.step-dot.pending {
+  background: var(--bg);
+  color: var(--text-faint);
+  border: 1px solid var(--line);
+}
+
+.step-line {
+  flex: 1;
+  height: 2px;
+  background: var(--line);
+}
+
+.step-line.done {
+  background: var(--primary);
+  opacity: .4;
+}
+
+.emptystate {
+  text-align: center;
+  padding: 34px 16px 18px;
+}
+
+.emptystate-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 18px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-faint);
+  margin: 0 auto 16px;
+}
+
+.emptystate-icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+.emptystate-title {
+  font-size: var(--text-base);
+  font-weight: 700;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+}
+
+.emptystate-sub {
+  font-size: var(--text-xs);
+  color: var(--text-faint);
+  line-height: 1.5;
+  max-width: 260px;
+  margin: 0 auto;
+}
+
+.quote {
+  font-family: 'Abhaya Libre', Georgia, serif;
+  font-style: italic;
+  font-size: var(--text-md);
+  line-height: 1.4;
+  color: var(--text-dim);
+}
+
+.divider {
+  height: 1px;
+  background: var(--line);
+  margin: 14px 0;
+}
+
+a {
+  color: var(--primary);
+}
 
 /* Pastas do Estoque/Vendas (hub) — 5 blocos de cor sólida fixa da marca por pilha, na mesma
    lógica de "sempre uma das cores da marca, independente do tema" do dock e do dash-hero (ver
@@ -564,21 +1605,59 @@ a{color:var(--primary);}
    só 4 cores de apoio pra 5 cartões — o 5º reaproveita a mesma cor do 3º (Toasted Caramel),
    mas numa sombra ~12% mais escura (#744E26 em vez de #84592B) pra não repetir o hex cravado;
    é derivada da cor oficial, não uma cor nova fora da paleta do brandbook. */
-.folder-stack{display:flex;flex-direction:column;gap:10px;margin-bottom:14px;}
-.folder-card{
-  display:flex;align-items:center;gap:14px;min-height:150px;padding:28px 30px;border-radius:26px;
-  box-shadow:0 8px 16px -10px rgba(0,0,0,.4);transition:transform .12s ease;transform-origin:50% 0%;
+.folder-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 14px;
 }
-.folder-card:active{transform:scale(.98);}
+
+.folder-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 150px;
+  padding: 28px 30px;
+  border-radius: 26px;
+  box-shadow: 0 8px 16px -10px rgba(0, 0, 0, .4);
+  transition: transform .12s ease;
+  transform-origin: 50% 0%;
+}
+
+.folder-card:active {
+  transform: scale(.98);
+}
+
 /* Só durante playStackReveal() (app.js) — troca pra uma curva mais lenta/elástica que a do
    :active de toque, senão o toque normal ficaria "mole" o tempo todo. */
-.folder-card.stack-revealing{transition:transform .55s cubic-bezier(.34,1.56,.64,1), opacity .4s ease;}
-.folder-card-title{font:700 24px/1.25 'Montserrat',sans-serif;}
-.folder-card-sub{font-size:var(--text-base);opacity:.72;margin-top:5px;}
-.folder-card-arrow{width:24px;height:24px;flex:none;opacity:.8;}
+.folder-card.stack-revealing {
+  transition: transform .55s cubic-bezier(.34, 1.56, .64, 1), opacity .4s ease;
+}
 
-[role="button"]{cursor:pointer;}
-[role="switch"]{cursor:pointer;}
+.folder-card-title {
+  font: 700 24px/1.25 'Montserrat', sans-serif;
+}
+
+.folder-card-sub {
+  font-size: var(--text-base);
+  opacity: .72;
+  margin-top: 5px;
+}
+
+.folder-card-arrow {
+  width: 24px;
+  height: 24px;
+  flex: none;
+  opacity: .8;
+}
+
+[role="button"] {
+  cursor: pointer;
+}
+
+[role="switch"] {
+  cursor: pointer;
+}
 
 /* Bounce de toque genérico (referência: motion.dev — mesma família de curva elástica de
    .avisos-row/.folder-card.stack-revealing) — usado nos blocos do Dashboard pra dar retorno
@@ -586,45 +1665,115 @@ a{color:var(--primary);}
    que ainda não abrem uma tela própria. Dispara via classe (ver ".dash-tap" na delegação de
    clique em app.js) em vez de :active puro, porque um toque rápido cortaria a animação no
    meio — a classe garante que o "estica e assenta" sempre termina, mesmo num tap curto. */
-@keyframes dashTapBounce{
-  0%{transform:scale(1);}
-  40%{transform:scale(.965);}
-  72%{transform:scale(1.018);}
-  100%{transform:scale(1);}
+@keyframes dashTapBounce {
+  0% {
+    transform: scale(1);
+  }
+
+  40% {
+    transform: scale(.965);
+  }
+
+  72% {
+    transform: scale(1.018);
+  }
+
+  100% {
+    transform: scale(1);
+  }
 }
-.dash-tap{transform-origin:50% 50%;}
-.dash-tap.tap-bounce{animation:dashTapBounce .42s cubic-bezier(.34,1.56,.64,1);}
+
+.dash-tap {
+  transform-origin: 50% 50%;
+}
+
+.dash-tap.tap-bounce {
+  animation: dashTapBounce .42s cubic-bezier(.34, 1.56, .64, 1);
+}
 
 /* Toast simples ("em breve" nos itens do dock ainda não construídos) — showToast() em app.js. */
-.toast{
-  position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));transform:translate(-50%,8px);
-  background:var(--primary);color:var(--on-primary);font:600 12.5px/1 'Montserrat',sans-serif;
-  padding:11px 18px;border-radius:999px;box-shadow:0 10px 24px -8px rgba(0,0,0,.4);
-  opacity:0;pointer-events:none;transition:opacity .18s ease,transform .18s ease;z-index:20;
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(96px + env(safe-area-inset-bottom));
+  transform: translate(-50%, 8px);
+  background: var(--primary);
+  color: var(--on-primary);
+  font: 600 12.5px/1 'Montserrat', sans-serif;
+  padding: 11px 18px;
+  border-radius: 999px;
+  box-shadow: 0 10px 24px -8px rgba(0, 0, 0, .4);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .18s ease, transform .18s ease;
+  z-index: 20;
 }
-.toast.show{opacity:1;transform:translate(-50%,0);}
+
+.toast.show {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
 
 /* Aviso de atualização disponível (service worker achou uma versão nova do app shell) —
    ver #updateBanner em index.html e o módulo 21 em app.js. Fixo no topo (o toast já ocupa
    o embaixo, perto do dock) pra nunca competir por espaço com ele; não expira sozinho como
    o toast — some só quando a pessoa toca pra atualizar. */
-.update-banner{
-  position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top));transform:translate(-50%,-12px);
-  display:flex;align-items:center;gap:8px;
-  background:var(--primary);color:var(--on-primary);font:700 13px/1 'Montserrat',sans-serif;
-  letter-spacing:.01em;padding:11px 20px;border-radius:999px;
-  box-shadow:0 10px 24px -8px rgba(0,0,0,.45);
-  opacity:0;pointer-events:none;transition:opacity .22s ease,transform .22s ease;z-index:60;cursor:pointer;
+.update-banner {
+  position: fixed;
+  left: 50%;
+  top: calc(14px + env(safe-area-inset-top));
+  transform: translate(-50%, -12px);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--primary);
+  color: var(--on-primary);
+  font: 700 13px/1 'Montserrat', sans-serif;
+  letter-spacing: .01em;
+  padding: 11px 20px;
+  border-radius: 999px;
+  box-shadow: 0 10px 24px -8px rgba(0, 0, 0, .45);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .22s ease, transform .22s ease;
+  z-index: 60;
+  cursor: pointer;
 }
-.update-banner.show{opacity:1;transform:translate(-50%,0);pointer-events:auto;}
-.update-banner-dot{width:7px;height:7px;border-radius:50%;background:var(--on-primary);opacity:.5;flex:none;}
 
-@media (prefers-reduced-motion: reduce){
-  .raised,.raised-sm,.pressed,.pressed-pill,.btn,.pill,.iconbtn,.tapicon,
-  .dockitem,.row[role="button"],.raised[role="button"]{
-    transition-duration:.001ms !important;
+.update-banner.show {
+  opacity: 1;
+  transform: translate(-50%, 0);
+  pointer-events: auto;
+}
+
+.update-banner-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--on-primary);
+  opacity: .5;
+  flex: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .raised,
+  .raised-sm,
+  .pressed,
+  .pressed-pill,
+  .btn,
+  .pill,
+  .iconbtn,
+  .tapicon,
+  .dockitem,
+  .row[role="button"],
+  .raised[role="button"] {
+    transition-duration: .001ms !important;
   }
-  .dash-tap.tap-bounce{animation:none;}
+
+  .dash-tap.tap-bounce {
+    animation: none;
+  }
 }
 
 /* ---------- Dashboard: pílulas de período em telas estreitas ----------
@@ -636,10 +1785,18 @@ a{color:var(--primary);}
    quando o conteúdo é mais largo que a tela). Abaixo de 380px as pílulas quebram em
    duas linhas — "7 dias"/"30 dias" lado a lado, "personalizado" ocupando a linha
    toda — em vez de cortar/estourar o texto. */
-@media (max-width:380px){
-  #dashPeriodoPills{flex-wrap:wrap;}
-  #dashPeriodoPills .pill{flex:1 1 calc(50% - 4.5px);}
-  #dashPeriodoPills .pill:last-child{flex-basis:100%;}
+@media (max-width:380px) {
+  #dashPeriodoPills {
+    flex-wrap: wrap;
+  }
+
+  #dashPeriodoPills .pill {
+    flex: 1 1 calc(50% - 4.5px);
+  }
+
+  #dashPeriodoPills .pill:last-child {
+    flex-basis: 100%;
+  }
 }
 
 /* ---------- Dashboard: paleta da marca (Spiced Wine no hero, Toasted Caramel no resumo,
@@ -670,8 +1827,8 @@ a{color:var(--primary);}
    padrão em 10/09/2026, fechando a pendência citada no comentário do Dashboard). */
 .screen[data-screen="estoqueInsumos"],
 .screen[data-screen="estoqueProducao"],
-.screen[data-screen="reposicao"]{
-  --bg:#4F3522;
+.screen[data-screen="reposicao"] {
+  --bg: #4F3522;
 }
 
 /* Bloco "hero" — cor sólida (Spiced Wine) + texto creme, com a tira dos 7 dias da semana
@@ -683,35 +1840,134 @@ a{color:var(--primary);}
    ganha um brilho lento em vez de ficar parado assim que a animação de entrada some.
    position:relative + overflow:hidden no próprio .dash-hero recorta o blob nos cantos
    arredondados; o conteúdo (.topbar etc.) segue por cima via z-index. */
-.dash-hero{background:#743014;color:#F3E6CE;padding-bottom:24px;border-radius:0 0 32px 32px;position:relative;overflow:hidden;isolation:isolate;}
-.dash-hero::before{
-  content:"";position:absolute;width:70vmax;height:70vmax;left:50%;top:-46vmax;
-  transform:translateX(-50%);border-radius:50%;pointer-events:none;z-index:0;
-  background:radial-gradient(circle,rgba(232,209,167,.4),transparent 68%);
-  filter:blur(50px);animation:wg-drift-1 16s ease-in-out infinite;
+.dash-hero {
+  background: #743014;
+  color: #F3E6CE;
+  padding-bottom: 24px;
+  border-radius: 0 0 32px 32px;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
 }
-.dash-hero>*{position:relative;z-index:1;}
-@media (prefers-reduced-motion: reduce){
-  .dash-hero::before{animation:none!important;}
+
+.dash-hero::before {
+  content: "";
+  position: absolute;
+  width: 70vmax;
+  height: 70vmax;
+  left: 50%;
+  top: -46vmax;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(circle, rgba(232, 209, 167, .4), transparent 68%);
+  filter: blur(50px);
+  animation: wg-drift-1 16s ease-in-out infinite;
 }
-.dash-hero .brandname{color:rgba(243,230,206,.7);}
-.dash-hero .brandmark{background:#F3E6CE;color:#743014;}
+
+.dash-hero>* {
+  position: relative;
+  z-index: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dash-hero::before {
+    animation: none !important;
+  }
+}
+
+.dash-hero .brandname {
+  color: rgba(243, 230, 206, .7);
+}
+
+.dash-hero .brandmark {
+  background: #F3E6CE;
+  color: #743014;
+}
+
 .dash-hero .avatar,
-.dash-hero .iconbtn{background:rgba(243,230,206,.14);box-shadow:none;color:#F3E6CE;}
+.dash-hero .iconbtn {
+  background: rgba(243, 230, 206, .14);
+  box-shadow: none;
+  color: #F3E6CE;
+}
+
 .dash-hero .avatar:active,
-.dash-hero .iconbtn:active{background:rgba(243,230,206,.24);box-shadow:none;}
-.dash-hero .avisos-badge{background:#F3E6CE;color:#743014;}
-.dash-hero-greetrow{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:10px 20px 0;}
-.dash-hero-greet{font-style:italic;font-size:var(--text-2xl);color:#F3E6CE;}
-.dash-hero-date{font-size:var(--text-sm);color:rgba(243,230,206,.68);margin-top:4px;}
+.dash-hero .iconbtn:active {
+  background: rgba(243, 230, 206, .24);
+  box-shadow: none;
+}
+
+.dash-hero .avisos-badge {
+  background: #F3E6CE;
+  color: #743014;
+}
+
+.dash-hero-greetrow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 20px 0;
+}
+
+.dash-hero-greet {
+  font-style: italic;
+  font-size: var(--text-2xl);
+  color: #F3E6CE;
+}
+
+.dash-hero-date {
+  font-size: var(--text-sm);
+  color: rgba(243, 230, 206, .68);
+  margin-top: 4px;
+}
+
 /* Tappable: abre o calendário do mês (data-action="go-calendario" no HTML). */
-.dash-hero-week{display:flex;justify-content:space-between;gap:5px;padding:22px 20px 2px;cursor:pointer;}
-.dash-hero-day{flex:1;display:flex;flex-direction:column;align-items:center;gap:7px;padding:9px 2px;border-radius:16px;}
-.dash-hero-day-label{font-size:var(--text-2xs);font-weight:600;letter-spacing:.03em;text-transform:uppercase;color:rgba(243,230,206,.5);}
-.dash-hero-day-num{font-size:var(--text-base);font-weight:700;color:#F3E6CE;}
-.dash-hero-day.is-today{background:#F3E6CE;}
-.dash-hero-day.is-today .dash-hero-day-label{color:rgba(116,48,20,.62);}
-.dash-hero-day.is-today .dash-hero-day-num{color:#743014;}
+.dash-hero-week {
+  display: flex;
+  justify-content: space-between;
+  gap: 5px;
+  padding: 22px 20px 2px;
+  cursor: pointer;
+}
+
+.dash-hero-day {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 2px;
+  border-radius: 16px;
+}
+
+.dash-hero-day-label {
+  font-size: var(--text-2xs);
+  font-weight: 600;
+  letter-spacing: .03em;
+  text-transform: uppercase;
+  color: rgba(243, 230, 206, .5);
+}
+
+.dash-hero-day-num {
+  font-size: var(--text-base);
+  font-weight: 700;
+  color: #F3E6CE;
+}
+
+.dash-hero-day.is-today {
+  background: #F3E6CE;
+}
+
+.dash-hero-day.is-today .dash-hero-day-label {
+  color: rgba(116, 48, 20, .62);
+}
+
+.dash-hero-day.is-today .dash-hero-day-num {
+  color: #743014;
+}
 
 /* Tela "calendário" (data-screen="calendario") — mês completo, aberto a partir da tira de
    dias do hero. Nome do mês grande/em maiúsculas em --primary, eco discreto do estilo do
@@ -722,36 +1978,126 @@ a{color:var(--primary);}
    marrom escuro padrão (--bg) e mantém a mesma cor da origem. Só --bg muda: --text/
    --primary/--line etc. continuam do :root porque #743014 é escuro na mesma família de
    --bg (#442D1C), o creme do :root já lê bem em cima (mesmo par de cores do dash-hero). */
-.screen[data-screen="calendario"]{--bg:#743014;background:#743014;}
-.cal-monthrow{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
-.cal-monthname{font-size:var(--text-xl);font-weight:800;letter-spacing:-.01em;text-transform:uppercase;color:var(--primary);}
-.cal-weekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:8px;}
-.cal-weekdays span{display:block;text-align:center;font-size:var(--text-2xs);font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text-faint);}
-.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
-.cal-day-empty{aspect-ratio:1;}
+.screen[data-screen="calendario"] {
+  --bg: #743014;
+  background: #743014;
+}
+
+.cal-monthrow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.cal-monthname {
+  font-size: var(--text-xl);
+  font-weight: 800;
+  letter-spacing: -.01em;
+  text-transform: uppercase;
+  color: var(--primary);
+}
+
+.cal-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.cal-weekdays span {
+  display: block;
+  text-align: center;
+  font-size: var(--text-2xs);
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.cal-day-empty {
+  aspect-ratio: 1;
+}
+
 /* Borda de cada dia: var(--line), o mesmo contorno sutil que .raised/.pressed/.pill/.field
    já usam no resto do app — já É um creme translúcido (--primary é E8D1A7, --line é esse
    tom em baixa opacidade), então cada dia ganha um chip arredondado creme sem precisar de
    uma cor nova só pra isto. Pedido: dar mais definição à grade (antes só hoje/selecionado
    tinham contorno, o resto eram números soltos). */
-.cal-day{aspect-ratio:1;border-radius:14px;border:1px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:var(--text-base);font-weight:600;color:var(--text);cursor:pointer;transition:background-color .15s ease,color .15s ease,border-color .15s ease,transform .1s ease;}
-.cal-day:active{transform:scale(.92);}
+.cal-day {
+  aspect-ratio: 1;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: var(--text);
+  cursor: pointer;
+  transition: background-color .15s ease, color .15s ease, border-color .15s ease, transform .1s ease;
+}
+
+.cal-day:active {
+  transform: scale(.92);
+}
+
 /* Dia de hoje (sem ser o selecionado): contorno cheio em --primary (mais forte que o --line
    dos demais dias), pra não competir com o preenchimento sólido do dia selecionado — mesmo
    princípio do .pill.active (cor sólida = estado ativo). */
-.cal-day.is-today{border-color:var(--primary);color:var(--primary);}
-.cal-day.is-selected{background:var(--primary);color:var(--on-primary);border-color:var(--primary);}
-.cal-day-dot{width:4px;height:4px;border-radius:50%;background:var(--primary);}
-.cal-day.is-selected .cal-day-dot{background:var(--on-primary);}
+.cal-day.is-today {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.cal-day.is-selected {
+  background: var(--primary);
+  color: var(--on-primary);
+  border-color: var(--primary);
+}
+
+.cal-day-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--primary);
+}
+
+.cal-day.is-selected .cal-day-dot {
+  background: var(--on-primary);
+}
 
 /* Card "resumo de hoje" — segundo bloco colorido (Toasted Caramel), mesmo tratamento do
    hero: fundo sólido + texto creme. */
-.dash-resumo{background:#84592B;}
+.dash-resumo {
+  background: #84592B;
+}
+
 .dash-resumo .label,
-.dash-resumo .dash-meta{color:rgba(243,230,206,.65);}
-.dash-resumo .resumo-row{border-bottom-color:rgba(243,230,206,.18);}
-.dash-resumo .resumo-row-title{color:#F3E6CE;}
-.dash-resumo .resumo-row-detail{color:rgba(243,230,206,.68);}
+.dash-resumo .dash-meta {
+  color: rgba(243, 230, 206, .65);
+}
+
+.dash-resumo .resumo-row {
+  border-bottom-color: rgba(243, 230, 206, .18);
+}
+
+.dash-resumo .resumo-row-title {
+  color: #F3E6CE;
+}
+
+.dash-resumo .resumo-row-detail {
+  color: rgba(243, 230, 206, .68);
+}
+
 /* Chip do ícone (.raised-sm) precisa de override à parte: sem ele, o chip herda
    background:var(--card-bg) (marrom — no claro é o MESMO tom de .dash-resumo, círculo
    some por completo; no escuro vira #5A3D27, quase idêntico ao --primary #442D1C que a
@@ -760,7 +2106,11 @@ a{color:var(--primary);}
    pra ícone-sobre-cor-sólida (.dash-hero .avatar/.iconbtn): chip translúcido creme +
    traço creme sólido — 3.8:1 (claro) e 8:1 (escuro) contra o chip, círculo visível nos
    dois temas em vez de invisível/quase-invisível. */
-.dash-resumo .resumo-row-icon{background:rgba(243,230,206,.14);color:#F3E6CE;box-shadow:none;}
+.dash-resumo .resumo-row-icon {
+  background: rgba(243, 230, 206, .14);
+  color: #F3E6CE;
+  box-shadow: none;
+}
 
 /* ---------- Layout de computador (>=900px) ----------
    Antes o cartão de celular só ficava um pouco mais largo (640px), flutuando pequeno no
@@ -774,27 +2124,70 @@ a{color:var(--primary);}
    grade de 2 colunas (ver mais abaixo) pra aproveitar essa largura em vez de só esticar
    os mesmos cards. Puramente automático: só essa media query decide, pela largura real da
    janela — não existe alternador manual nem preferência salva sobrepondo isso. */
-@media (min-width:900px){
-  body{padding:0;align-items:stretch;}
-  .app-frame{
-    width:100%;max-width:none;height:100vh;border-radius:0;box-shadow:none;margin:0;
+@media (min-width:900px) {
+  body {
+    padding: 0;
+    align-items: stretch;
   }
-  .content{max-width:1180px;width:100%;margin-left:auto;margin-right:auto;padding:36px 40px 60px;box-sizing:border-box;}
+
+  .app-frame {
+    width: 100%;
+    max-width: none;
+    height: 100vh;
+    border-radius: 0;
+    box-shadow: none;
+    margin: 0;
+  }
+
+  .content {
+    max-width: 1180px;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 36px 40px 60px;
+    box-sizing: border-box;
+  }
+
   .topbar,
-  .backrow{max-width:1180px;width:100%;margin:0 auto;padding-left:40px;padding-right:40px;box-sizing:border-box;}
+  .backrow {
+    max-width: 1180px;
+    width: 100%;
+    margin: 0 auto;
+    padding-left: 40px;
+    padding-right: 40px;
+    box-sizing: border-box;
+  }
+
   .dash-hero-greetrow,
-  .dash-hero-week{max-width:1180px;width:100%;margin-left:auto;margin-right:auto;padding-left:40px;padding-right:40px;box-sizing:border-box;}
+  .dash-hero-week {
+    max-width: 1180px;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 40px;
+    padding-right: 40px;
+    box-sizing: border-box;
+  }
+
   /* O dock é um cluster compacto de botões (não uma barra que deve preencher a largura) —
      esticado por 1100px+ os 5 círculos ficariam absurdamente espalhados, então mantém uma
      largura de cluster e centraliza, em vez de acompanhar a largura do quadro. */
-  .dock{max-width:420px;margin-left:auto;margin-right:auto;}
+  .dock {
+    max-width: 420px;
+    margin-left: auto;
+    margin-right: auto;
+  }
 
   /* Dashboard: grade de 2 colunas — a lista de "resumo de hoje" e o gráfico de pizza
      (leitura mais longa/visual) numa coluna, os números-chave (lucro, vendas, produzido)
      na outra, com os controles de topo (avisos, período) ocupando a largura inteira.
      grid-area dá a ordem visual; a ordem no HTML continua a leitura linear do celular. */
-  .screen[data-screen="dashboard"] .content{
-    display:grid;grid-template-columns:1.1fr .9fr;gap:22px 28px;align-items:start;align-content:start;
+  .screen[data-screen="dashboard"] .content {
+    display: grid;
+    grid-template-columns: 1.1fr .9fr;
+    gap: 22px 28px;
+    align-items: start;
+    align-content: start;
     grid-template-areas:
       "urgent urgent"
       "periodo periodo"
@@ -805,6 +2198,7 @@ a{color:var(--primary);}
       "report report"
       "reveal reveal";
   }
+
   /* .reveal-footer precisa de uma linha PRÓPRIA e nomeada ("reveal", sempre por último) —
      sem isso ele é um item sem área explícita, e o auto-posicionamento do grid enfia
      qualquer item assim na primeira célula livre que encontrar. "periodo2" fica oculto
@@ -812,16 +2206,46 @@ a{color:var(--primary);}
      olhos do grid — foi exatamente ali que o rodapé parava, entre os pills de período e os
      cards, empurrando tudo pra baixo. Área nomeada fixa resolve pra sempre, independente do
      que mais estiver oculto. */
-  .screen[data-screen="dashboard"] .content > .reveal-footer{grid-area:reveal;}
-  .dash-area-urgent{grid-area:urgent;}
-  .dash-area-periodo{grid-area:periodo;}
-  .dash-area-periodo2{grid-area:periodo2;}
-  .dash-area-resumo{grid-area:resumo;}
-  .dash-area-lucro{grid-area:lucro;}
-  .dash-area-metrics{grid-area:metrics;}
-  .dash-area-pizza{grid-area:pizza;}
-  .dash-area-produzido{grid-area:produzido;}
-  .dash-area-report{grid-area:report;}
+  .screen[data-screen="dashboard"] .content>.reveal-footer {
+    grid-area: reveal;
+  }
+
+  .dash-area-urgent {
+    grid-area: urgent;
+  }
+
+  .dash-area-periodo {
+    grid-area: periodo;
+  }
+
+  .dash-area-periodo2 {
+    grid-area: periodo2;
+  }
+
+  .dash-area-resumo {
+    grid-area: resumo;
+  }
+
+  .dash-area-lucro {
+    grid-area: lucro;
+  }
+
+  .dash-area-metrics {
+    grid-area: metrics;
+  }
+
+  .dash-area-pizza {
+    grid-area: pizza;
+  }
+
+  .dash-area-produzido {
+    grid-area: produzido;
+  }
+
+  .dash-area-report {
+    grid-area: report;
+  }
+
   /* O gap da grade já espaça as células — os mesmos elementos usam margin inline pra se
      empilhar no celular (ver index.html), então precisa vencer o estilo inline aqui. */
   .dash-area-urgent,
@@ -831,43 +2255,128 @@ a{color:var(--primary);}
   .dash-area-lucro,
   .dash-area-metrics,
   .dash-area-pizza,
-  .dash-area-produzido{
-    margin:0!important;
+  .dash-area-produzido {
+    margin: 0 !important;
   }
 }
 
 /* ---------- Mostrar/ocultar senha dentro de um .pressed.field comum (fora da tela de auth,
    que já tem seu próprio .auth-eye cravado nas cores do fundo escuro fixo). Usado pela troca
    de senha em mais › conta. ---------- */
-.field-eyewrap{position:relative;}
-.field-eyewrap input{padding-right:28px;}
-.field-eye{
-  position:absolute;right:0;top:50%;transform:translateY(-50%);
-  width:22px;height:22px;display:flex;align-items:center;justify-content:center;
-  color:var(--text-faint);cursor:pointer;background:none;border:none;padding:0;
+.field-eyewrap {
+  position: relative;
 }
-.field-eye:hover{color:var(--text-dim);}
-.field-eye svg{width:17px;height:17px;}
+
+.field-eyewrap input {
+  padding-right: 28px;
+}
+
+.field-eye {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-faint);
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+.field-eye:hover {
+  color: var(--text-dim);
+}
+
+.field-eye svg {
+  width: 17px;
+  height: 17px;
+}
 
 /* ---------- FAQ (tela "ajuda"): <details>/<summary> nativo em vez de JS — cada pergunta
    é um .faq-item dentro de um .raised.card; o marcador padrão do <summary> some e vira um
    chevron (svg .faq-chevron) que gira 90° quando aberto. Herda --text/--text-dim/--text-faint
    já redefinidos pelo .raised (card marrom), então funciona igual nos dois temas sem cor nova. */
-.faq-item{border-bottom:1px solid var(--line);}
-.faq-item:last-child{border-bottom:none;}
-.faq-item summary{list-style:none;cursor:pointer;padding:14px 2px;font-size:var(--text-base);font-weight:600;color:var(--text);display:flex;align-items:center;justify-content:space-between;gap:12px;}
-.faq-item summary::-webkit-details-marker{display:none;}
-.faq-item summary::marker{content:"";}
-.faq-item .faq-chevron{flex:none;width:18px;height:18px;color:var(--text-dim);transition:transform .18s ease;}
-.faq-item[open] .faq-chevron{transform:rotate(90deg);}
-.faq-item p{font-size:var(--text-sm);color:var(--text-faint);line-height:1.55;margin:0 2px 14px;}
+.faq-item {
+  border-bottom: 1px solid var(--line);
+}
 
-@media print{
-  body{background:#fff;padding:0;}
-  .app-frame{box-shadow:none;max-width:100%;height:auto;}
-  .dock,.topbar,.backrow{display:none !important;}
-  .screen{height:auto;overflow:visible;box-shadow:none;border-radius:0;}
-  .screen[hidden]{display:none;}
+.faq-item:last-child {
+  border-bottom: none;
+}
+
+.faq-item summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 14px 2px;
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.faq-item summary::-webkit-details-marker {
+  display: none;
+}
+
+.faq-item summary::marker {
+  content: "";
+}
+
+.faq-item .faq-chevron {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  color: var(--text-dim);
+  transition: transform .18s ease;
+}
+
+.faq-item[open] .faq-chevron {
+  transform: rotate(90deg);
+}
+
+.faq-item p {
+  font-size: var(--text-sm);
+  color: var(--text-faint);
+  line-height: 1.55;
+  margin: 0 2px 14px;
+}
+
+@media print {
+  body {
+    background: #fff;
+    padding: 0;
+  }
+
+  .app-frame {
+    box-shadow: none;
+    max-width: 100%;
+    height: auto;
+  }
+
+  .dock,
+  .topbar,
+  .backrow {
+    display: none !important;
+  }
+
+  .screen {
+    height: auto;
+    overflow: visible;
+    box-shadow: none;
+    border-radius: 0;
+  }
+
+  .screen[hidden] {
+    display: none;
+  }
 }
 
 /* Foco de teclado visível — inputs suprimem o outline nativo acima (conflita com as cascas
@@ -877,14 +2386,15 @@ a:focus-visible,
 button:focus-visible,
 input:focus-visible,
 [role="button"]:focus-visible,
-[role="switch"]:focus-visible{
-  outline:2px solid var(--primary);
-  outline-offset:2px;
+[role="switch"]:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
 }
+
 #authView a:focus-visible,
 #authView button:focus-visible,
 #authView input:focus-visible,
-#authView [role="button"]:focus-visible{
-  outline:2px solid #E8D1A7;
-  outline-offset:2px;
+#authView [role="button"]:focus-visible {
+  outline: 2px solid #E8D1A7;
+  outline-offset: 2px;
 }

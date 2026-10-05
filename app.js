@@ -3176,8 +3176,51 @@
     lotesOrdenados().slice().reverse().forEach(function(lote){
       var v = findVariacao(lote.variacaoId);
       var insumosTxt = lote.insumosUsados.map(function(i){ return i.nome + " " + fmtQty(i.quantidade, i.unidade); }).join(" · ");
-      linhas.push([formatDateBR(lote.data), variacaoLabel(v), lote.quantidade, numToStr(lote.custoTotal), numToStr(lote.receitaTotal), numToStr(round2(lote.receitaTotal - lote.custoTotal)), insumosTxt]);
+      linhas.push([dataPlanilha(lote.data), variacaoLabel(v), lote.quantidade, numToStr(lote.custoTotal), numToStr(lote.receitaTotal), numToStr(round2(lote.receitaTotal - lote.custoTotal)), insumosTxt]);
     });
+    baixarCSV(linhas, "registro-de-producao.csv");
+  }
+
+  // Mesmo formato do CSV de produção acima. Vendas e clientes saem SEMPRE completos
+  // (ignoram busca/período da tela) — a ideia é o app ser o único lugar de registro e a
+  // planilha ser gerada a partir dele quando precisar, não o contrário. Vendas: 1 linha
+  // por venda (não por item), pra somar a coluna "total" no Planilhas dar o faturamento
+  // certo sem contar desconto/total duas vezes.
+  function exportarVendasCSV(){
+    var linhas = [["data", "cliente", "telefone", "itens", "velas", "subtotal", "cupom", "desconto", "total", "forma de pagamento", "status"]];
+    vendasState.vendas.slice().sort(function(a, b){ return a.data < b.data ? -1 : a.data > b.data ? 1 : 0; }).forEach(function(v){
+      var cliente = v.clienteId ? findCliente(v.clienteId) : null;
+      var velas = v.itens.reduce(function(s, it){ return s + it.quantidade; }, 0);
+      linhas.push([dataPlanilha(v.data), v.clienteNome, cliente ? (cliente.telefone || "") : "", vendaItensResumo(v.itens), velas,
+        numToStr(typeof v.subtotal === "number" ? v.subtotal : v.total), v.cupomCodigo || "", numToStr(v.cupomDesconto || 0),
+        numToStr(v.total), formaPagamentoLabel(v.formaPagamento), vendaStatusLabel(v.status)]);
+    });
+    baixarCSV(linhas, "vendas.csv");
+  }
+
+  function exportarClientesCSV(){
+    var linhas = [["nome", "telefone", "e-mail", "endereço", "cliente desde", "compras", "total gasto", "última compra"]];
+    clientesState.clientes.slice().sort(function(a, b){ return a.nome.localeCompare(b.nome, "pt-BR"); }).forEach(function(c){
+      var stats = computeClienteStats(c.id);
+      var ultima = stats.vendas.reduce(function(max, v){ return v.data > max ? v.data : max; }, "");
+      // "desde" = o que vier primeiro entre o cadastro e a 1ª compra (cliente importado pode
+      // ter sido cadastrado depois de já ter comprado).
+      var desde = stats.vendas.reduce(function(min, v){ return !min || v.data < min ? v.data : min; }, c.criadoEm || "");
+      linhas.push([c.nome, c.telefone || "", c.email || "", c.endereco || "", dataPlanilha(desde),
+        stats.compras, numToStr(stats.totalGasto), dataPlanilha(ultima)]);
+    });
+    baixarCSV(linhas, "clientes.csv");
+  }
+
+  // dd/mm/aaaa — o Planilhas em pt-BR reconhece como data de verdade (ordena/filtra),
+  // diferente do "13 ago 2026" de formatDateBR, que entra como texto.
+  function dataPlanilha(iso){
+    if (!iso) return "";
+    var p = iso.slice(0, 10).split("-");
+    return p[2] + "/" + p[1] + "/" + p[0];
+  }
+
+  function baixarCSV(linhas, nomeArquivo){
     var csv = linhas.map(function(linha){
       return linha.map(function(campo){ return '"' + String(campo).replace(/"/g, '""') + '"'; }).join(";");
     }).join("\r\n");
@@ -3185,7 +3228,7 @@
     var url = URL.createObjectURL(blob);
     var a = document.createElement("a");
     a.href = url;
-    a.download = "registro-de-producao.csv";
+    a.download = nomeArquivo;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -4346,6 +4389,12 @@
 
     var lotesExportCsv = e.target.closest('[data-action="lotes-export-csv"]');
     if (lotesExportCsv) { exportarLotesCSV(); return; }
+
+    var vendasExportCsv = e.target.closest('[data-action="vendas-export-csv"]');
+    if (vendasExportCsv) { exportarVendasCSV(); return; }
+
+    var clientesExportCsv = e.target.closest('[data-action="clientes-export-csv"]');
+    if (clientesExportCsv) { exportarClientesCSV(); return; }
 
     var lotesExportPdf = e.target.closest('[data-action="lotes-export-pdf"]');
     if (lotesExportPdf) { exportarLotesPDF(); return; }
